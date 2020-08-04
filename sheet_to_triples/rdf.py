@@ -45,6 +45,10 @@ def graph_from_model(model):
     return g
 
 
+def update_model_terms(model, triples):
+    model['terms'].extend(dict(subj=s, pred=p, obj=o) for s, p, o in triples)
+
+
 def graph_from_triples(triples):
     g = rdflib.Graph(base=VM)
     g.bind('vm', VM)

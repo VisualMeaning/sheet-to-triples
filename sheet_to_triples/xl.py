@@ -9,8 +9,11 @@ from . import (
 )
 
 
-def load(filepath, sheet_name):
-    book = xlrd.open_workbook(filepath)
+def load(filepath):
+    return xlrd.open_workbook(filepath)
+
+
+def sheet(book, sheet_name):
     for sheet in book.sheets():
         if sheet.name == sheet_name:
             return sheet

@@ -1,9 +1,8 @@
 {
     'sheet': 'Coronavirus_v2',
     'lets': {
-        'iri': 'vm:issues/{row[Title].as_slug}',
+        'iri': 'vm:issues/{row[Stakeholder].as_slug}/{row[Title].as_slug}',
         'stakeholderName': '{row[Stakeholder]}',
-        'assets': 'TODO/',
     },
     'queries': {
         'stakeholder': (
@@ -17,7 +16,8 @@
         ('{iri}', 'vm:name', '{row[Title]}'),
         ('{iri}', 'vm:description', '{row[Text]}'),
         ('{iri}', 'vm:ofStakeholder', '{query[stakeholder]}'),
-        ('{iri}', 'vm:geoPointOf', '{row[Coordinates].as_geo}'),
-        ('{iri}', 'vm:hasIcon', '{assets}{row[Icon]}'),
+        ('{iri}', 'vm:atGeoPoint', '{row[Coordinates].as_geo}'),
+        ('{iri}', 'vm:hasIcon', '{row[Icon]}'),
+        ('{iri}', 'vm:ofStory', 'vm:stories/5'),
     ],
 }

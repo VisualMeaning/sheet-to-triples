@@ -15,20 +15,33 @@ from . import (
 
 def main(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
-    parser.add_argument('trans')
-    parser.add_argument('book')
-    parser.add_argument('model')
+    parser.add_argument('--book', required=True)
+    parser.add_argument('--model', required=True)
+    parser.add_argument('--model-out', metavar='PATH', default='new.json')
+    parser.add_argument('--verbose', action='store_true')
+    parser.add_argument('transform', nargs='+')
     args = parser.parse_args(argv[1:])
 
-    tf = trans.Transform.from_name(args.trans)
-    sheet = xl.load(args.book, tf.sheet)
-    rows = list(xl.as_rows(sheet, tf.required_rows()))
     with open(args.model, 'rb') as f:
-        graph = rdf.graph_from_model(json.load(f))
-    new = rdf.rdflib.Graph(base=rdf.VM)
-    for t in tf.process(graph, rows):
-        new.add(t)
-    print(new.serialize(format="turtle").decode("utf-8"))
+        model = json.load(f)
+        graph = rdf.graph_from_model(model)
+
+    book = xl.load(args.book)
+
+    for transform in args.transform:
+        tf = trans.Transform.from_name(transform)
+        sheet = xl.sheet(book, tf.sheet)
+        triples = tf.process(graph, xl.as_rows(sheet, tf.required_rows()))
+
+        if args.verbose:
+            triples = list(triples)
+            subgraph = rdf.graph_from_triples(triples)
+            print(subgraph.serialize(format='turtle').decode('utf-8'))
+
+        rdf.update_model_terms(model, triples)
+
+    with open(args.model_out, 'w') as f:
+        json.dump(model, f)
     return 0
 
 
