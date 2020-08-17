@@ -24,6 +24,7 @@ def main(argv):
 
     with open(args.model, 'rb') as f:
         model = json.load(f)
+        rdf.purge_terms(model)
         graph = rdf.graph_from_model(model)
 
     book = xl.load(args.book)

@@ -6,6 +6,7 @@ import rdflib.term
 
 
 VM = rdflib.Namespace('http://visual-meaning.com/rdf/')
+_ISSUES_PREFIX = VM['issues/']
 
 
 def _cast_from_term(t):
@@ -37,7 +38,17 @@ def from_identifier(value, prefixes=('vm:', 'rdf:')):
     return rdflib.Literal(value)
 
 
-def graph_from_model(model):
+def _should_retain(term):
+    """Keep triple in graph for querying and update."""
+    return not term['subj'].startswith(_ISSUES_PREFIX)
+
+
+def purge_terms(model):
+    """Update model to only include terms that are not issues."""
+    model['terms'] = [term for term in model['terms'] if _should_retain(term)]
+
+
+def graph_from_model(model, keep_existing=False):
     g = rdflib.Graph(base=VM)
     g.bind('vm', VM)
     for term in model['terms']:
