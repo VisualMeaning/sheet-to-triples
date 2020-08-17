@@ -1,5 +1,5 @@
 {
-    'sheet': 'Coronavirus_v2',
+    'sheet': 'Coronavirus_v3',
     'lets': {
         'iri': 'vm:issues/{row[Stakeholder].as_slug}/{row[Title].as_slug}',
         'stakeholderName': '{row[Stakeholder]}',
