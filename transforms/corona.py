@@ -18,6 +18,7 @@
         ('{iri}', 'vm:ofStakeholder', '{query[stakeholder]}'),
         ('{iri}', 'vm:atGeoPoint', '{row[Coordinates].as_geo}'),
         ('{iri}', 'vm:hasIcon', '{row[Icon]}'),
-        ('{iri}', 'vm:ofStory', 'vm:stories/5'),
+        ('{iri}', 'vm:hasAspect', 'right'),
+        ('{iri}', 'vm:ofStory', 'vm:stories/2'),
     ],
 }
