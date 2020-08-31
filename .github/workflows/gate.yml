@@ -1,0 +1,27 @@
+---
+name: Gate
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  check:
+    name: Basic gating validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.6"
+      - name: install
+        run: |
+          pip3 install pipenv
+          pipenv install -d
+      - name: test
+        run: |
+          pipenv run test
