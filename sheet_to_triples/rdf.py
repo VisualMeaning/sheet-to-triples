@@ -59,7 +59,11 @@ def graph_from_model(model):
 
 def update_model_terms(model, triples):
     model['terms'].extend(dict(subj=s, pred=p, obj=o) for s, p, o in triples)
+
+
+def normalise_model(model):
     model['terms'].sort(key=lambda t: (t['subj'], t['pred']))
+    # TODO: Could also validate constraints here, like no duplicates
 
 
 def graph_from_triples(triples):

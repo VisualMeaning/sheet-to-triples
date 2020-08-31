@@ -42,6 +42,9 @@ class Runner:
             if self.model:
                 rdf.update_model_terms(self.model, triples)
 
+        if self.model:
+            rdf.normalise_model(self.model)
+
     def _iter_data(self, tf):
         if tf.sheet:
             if not self.book:
