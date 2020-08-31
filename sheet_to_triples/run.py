@@ -7,7 +7,6 @@ import json
 from . import (
     field,
     rdf,
-    trans,
     xl,
 )
 
@@ -30,8 +29,7 @@ class Runner:
         return cls(book, graph, args.verbose)
 
     def run(self, transforms):
-        for name in transforms:
-            tf = trans.Transform.from_name(name)
+        for tf in transforms:
             triples = tf.process(self.graph, self._iter_data(tf))
 
             if self.verbose:
@@ -46,9 +44,7 @@ class Runner:
             rdf.normalise_model(self.model)
 
     def _iter_data(self, tf):
-        if tf.sheet:
-            if not self.book:
-                raise ValueError(f'book must be supplied for {tf}')
+        if self.book and tf.sheet:
             sheet = xl.sheet(self.book, tf.sheet)
             return xl.as_rows(sheet, tf.required_rows())
         return (field.Row(r) for r in getattr(tf, 'data', ()))
