@@ -7,6 +7,7 @@ import rdflib.term
 
 VM = rdflib.Namespace('http://visual-meaning.com/rdf/')
 _ISSUES_PREFIX = VM['issues/']
+_USES_MAP_TILES = VM.usesMapTiles
 
 
 def _cast_from_term(t):
@@ -17,9 +18,7 @@ def _cast_from_term(t):
     )
 
 
-def from_qname(qname, base=VM, namespaces=rdflib.namespace):
-    if ':' not in qname:
-        return base[qname]
+def from_qname(qname, namespaces=rdflib.namespace):
     if qname.startswith('vm:'):
         return VM[qname[3:]]
     if qname.startswith('http:'):
@@ -40,7 +39,9 @@ def from_identifier(value, prefixes=('vm:', 'rdf:')):
 
 def _should_retain(term):
     """Keep triple in graph for querying and update."""
-    return not term['subj'].startswith(_ISSUES_PREFIX)
+    return not (
+        term['subj'].startswith(_ISSUES_PREFIX) or
+        term['pred'] == _USES_MAP_TILES)
 
 
 def purge_terms(model):
@@ -48,7 +49,7 @@ def purge_terms(model):
     model['terms'] = [term for term in model['terms'] if _should_retain(term)]
 
 
-def graph_from_model(model, keep_existing=False):
+def graph_from_model(model):
     g = rdflib.Graph(base=VM)
     g.bind('vm', VM)
     for term in model['terms']:
@@ -58,6 +59,7 @@ def graph_from_model(model, keep_existing=False):
 
 def update_model_terms(model, triples):
     model['terms'].extend(dict(subj=s, pred=p, obj=o) for s, p, o in triples)
+    model['terms'].sort(key=lambda t: (t['subj'], t['pred']))
 
 
 def graph_from_triples(triples):

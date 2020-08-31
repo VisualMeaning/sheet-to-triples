@@ -44,17 +44,21 @@ def _as_obj(formatter, template, params):
 class Transform:
     """Class to load and process functional row to RDF transformation."""
 
-    __slots__ = ('sheet', 'lets', 'queries', 'triples')
+    __slots__ = ('name', 'data', 'sheet', 'lets', 'queries', 'triples')
 
-    def __init__(self, details):
+    def __init__(self, name, details):
+        self.name = name
         for k in details:
             setattr(self, k, details[k])
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__} {self.name!r}>'
 
     @classmethod
     def from_name(cls, name):
         path = os.path.join('transforms', name + '.py')
         with open(path, 'r', encoding='utf-8') as f:
-            return cls(ast.literal_eval(f.read()))
+            return cls(name, ast.literal_eval(f.read()))
 
     def _fields(self):
         formatter = string.Formatter()
@@ -69,6 +73,8 @@ class Transform:
         return set(m.group(1) for m in matches if m is not None)
 
     def prepare_queries(self, for_graph):
+        if not getattr(self, 'queries', None):
+            return {}
         f = for_graph.query
         ns = dict(for_graph.namespaces())
         return {
