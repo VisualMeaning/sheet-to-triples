@@ -44,7 +44,7 @@ class Runner:
             rdf.normalise_model(self.model)
 
     def _iter_data(self, tf):
-        if self.book and tf.sheet:
+        if self.book and tf.uses_sheet():
             sheet = xl.sheet(self.book, tf.sheet)
             return xl.as_rows(sheet, tf.required_rows())
         return (field.Row(r) for r in getattr(tf, 'data', ()))

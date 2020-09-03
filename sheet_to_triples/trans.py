@@ -60,6 +60,9 @@ class Transform:
         with open(path, 'r', encoding='utf-8') as f:
             return cls(name, ast.literal_eval(f.read()))
 
+    def uses_sheet(self):
+        return hasattr(self, 'sheet')
+
     def _fields(self):
         formatter = string.Formatter()
         lvars = set(v for v in self.lets.values())

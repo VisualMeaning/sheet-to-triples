@@ -41,7 +41,7 @@ def _should_retain(term):
     """Keep triple in graph for querying and update."""
     return not (
         term['subj'].startswith(_ISSUES_PREFIX) or
-        term['pred'] == _USES_MAP_TILES)
+        term['pred'] == _USES_MAP_TILES.toPython())
 
 
 def purge_terms(model):
@@ -61,8 +61,22 @@ def update_model_terms(model, triples):
     model['terms'].extend(dict(subj=s, pred=p, obj=o) for s, p, o in triples)
 
 
+eco_silly = {
+    '10': 8.5,
+    '15': 12.5,
+}
+
+
+def _with_int_maybe(iri):
+    try:
+        prefix, maybe_int = iri.rsplit('/', 1)
+        return (prefix, eco_silly.get(maybe_int, int(maybe_int)))
+    except ValueError:
+        return (iri,)
+
+
 def normalise_model(model):
-    model['terms'].sort(key=lambda t: (t['subj'], t['pred']))
+    model['terms'].sort(key=lambda t: (_with_int_maybe(t['subj']), t['pred']))
     # TODO: Could also validate constraints here, like no duplicates
 
 

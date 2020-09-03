@@ -21,7 +21,7 @@ def main(argv):
     args = parser.parse_args(argv[1:])
 
     if not args.book:
-        need_book = set(tf.name for tf in args.transform if tf.sheet)
+        need_book = set(tf.name for tf in args.transform if tf.uses_sheet())
         if need_book:
             parser.error(f'transforms {need_book} require --book')
 
