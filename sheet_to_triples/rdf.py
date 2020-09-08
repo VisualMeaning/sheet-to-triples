@@ -2,6 +2,9 @@
 
 """Context specific RDF behaviours for Visual Meaning graphs."""
 
+import functools
+import operator
+
 import rdflib.term
 
 
@@ -31,6 +34,11 @@ def from_identifier(value, prefixes=('vm:', 'rdf:')):
     if isinstance(value, rdflib.term.Identifier):
         return value
     if value.startswith(prefixes):
+        # This is something of a hack, but detecting property paths seems
+        # difficult due to syntax overlap, will have to be explicit instead.
+        if ' / ' in value:
+            return functools.reduce(
+                operator.truediv, map(from_qname, value.split(' / ')))
         return from_qname(value)
     if value.startswith('http:'):
         return rdflib.URIRef(value)
