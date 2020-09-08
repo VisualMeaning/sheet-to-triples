@@ -64,6 +64,7 @@ def update_model_terms(model, triples):
 eco_silly = {
     '10': 8.5,
     '15': 12.5,
+    '16': 0.5,
 }
 
 
