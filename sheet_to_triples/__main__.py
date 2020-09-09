@@ -13,7 +13,7 @@ from . import (
 
 def main(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
-    parser.add_argument('--book')
+    parser.add_argument('--book', action='append')
     parser.add_argument('--model')
     parser.add_argument('--model-out', metavar='PATH', default='new.json')
     parser.add_argument('--verbose', action='store_true')

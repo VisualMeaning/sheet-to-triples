@@ -13,10 +13,11 @@ def load(filepath):
     return xlrd.open_workbook(filepath)
 
 
-def sheet(book, sheet_name):
-    for sheet in book.sheets():
-        if sheet.name == sheet_name:
-            return sheet
+def find_sheet(books, sheet_name):
+    for book in books:
+        for sheet in book.sheets():
+            if sheet.name == sheet_name:
+                return sheet
     raise ValueError(f'sheet {sheet_name!r} not found')
 
 

@@ -1,5 +1,5 @@
 {
-    'sheet': 'Map Markers',
+    'sheet': 'Research Markers',
     'lets': {
         'iri': 'vm:issues/{row[Marker Name].as_slug}',
     },

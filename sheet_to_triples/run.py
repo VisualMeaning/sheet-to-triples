@@ -14,8 +14,8 @@ from . import (
 class Runner:
     """Encapsulation of new data, existing model, and transform running."""
 
-    def __init__(self, book, model, verbose):
-        self.book = book
+    def __init__(self, books, model, verbose):
+        self.books = books
         self.model = model
         self.graph = (
             rdf.graph_from_model(model) if model else
@@ -24,7 +24,7 @@ class Runner:
 
     @classmethod
     def from_args(cls, args):
-        book = args.book and xl.load(args.book)
+        book = args.book and list(map(xl.load, args.book))
         graph = args.model and cls.load_model(args.model)
         return cls(book, graph, args.verbose)
 
@@ -44,8 +44,8 @@ class Runner:
             rdf.normalise_model(self.model)
 
     def _iter_data(self, tf):
-        if self.book and tf.uses_sheet():
-            sheet = xl.sheet(self.book, tf.sheet)
+        if self.books and tf.uses_sheet():
+            sheet = xl.find_sheet(self.books, tf.sheet)
             return xl.as_rows(sheet, tf.required_rows())
         return (field.Row(r) for r in getattr(tf, 'data', ()))
 
