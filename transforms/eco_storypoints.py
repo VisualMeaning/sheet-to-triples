@@ -11,11 +11,6 @@
         'tiles': '04c_insight3',
         'name': 'Open Questions',
         'path': 'vm:firstPoint / vm:followedBy / vm:followedBy',
-    }, {
-        'tiles': '04d_insight4',
-        'name': 'Open Questions',
-        'path': (
-            'vm:firstPoint / vm:followedBy / vm:followedBy / vm:followedBy'),
     }],
     'lets': {
         'storyName': '{row[name]}',
