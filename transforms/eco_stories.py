@@ -4,7 +4,6 @@
         ('01_peopleplaneteconomy', 'People. Planet. Economy.'),
         ('02_systemicdysfunction', 'A System in Crisis'),
         ('03_keyplayers', 'Economic Actors'),
-        ('04_insights', 'Key Insights'),
         ('05_d1shareholderprimacy', 'Diagnosis 1: Shareholder-Primacy'),
         ('06_movements_shareholderprimacy', 'Diagnosis 1: Movements'),
         ('07_d2performance', 'Diagnosis 2: Corporate Performance Management'),
