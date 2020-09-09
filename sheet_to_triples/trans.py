@@ -36,7 +36,7 @@ def _as_iri(formatter, template, params):
 def _as_obj(formatter, template, params):
     try:
         result = formatter.vformat(template, (), params)
-    except (KeyError, ValueError):
+    except (IndexError, KeyError, ValueError):
         return None
     return rdf.from_identifier(result)
 
@@ -100,7 +100,7 @@ class Transform:
     def _process_row(self, _f, query_map, row):
         params = dict(query={}, row=row)
         for k in self.lets:
-            params[k] = _as_obj(_f, self.lets[k], params)
+            params[k] = _as_obj(_f, self.lets[k], params) or ''
 
         for k, q in query_map.items():
             result = list(q(initBindings=params))

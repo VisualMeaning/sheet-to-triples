@@ -1,6 +1,6 @@
 {
     'data': [
-        ('00_welcome', 'Welcome'),
+        ('00_welcome', 'Welcome', '#background:black'),
         ('01_peopleplaneteconomy', 'People. Planet. Economy.'),
         ('02_systemicdysfunction', 'A System in Crisis'),
         ('03_keyplayers', 'Economic Actors'),
@@ -17,6 +17,7 @@
     ],
     'lets': {
         'storyName': '{row[1]}',
+        'tileStyle': '{row[2]}',
         'version': '20200907',
     },
     'queries': {
@@ -29,6 +30,6 @@
     'triples': [
         ('{query[story]}', 'vm:usesMapTiles',
             'https://opatlas-live.s3.amazonaws.com/economicsystem/{version}/'
-            'overlays/{row[0]}/{{z}}-{{x}}-{{y}}.png'),
+            'overlays/{row[0]}/{{z}}-{{x}}-{{y}}.png{tileStyle}'),
     ],
 }
