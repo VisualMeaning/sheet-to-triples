@@ -4,6 +4,7 @@
 
 import functools
 import operator
+import re
 
 import rdflib.term
 
@@ -19,6 +20,10 @@ def _cast_from_term(t):
         rdflib.URIRef(t['pred']),
         from_identifier(t['obj']),
     )
+
+
+def _norm(s, _w=re.compile(r'(?:(?!\n)\s)+')):
+    return _w.sub(' ', s.replace('\u200b', ''))
 
 
 def from_qname(qname, namespaces=rdflib.namespace):
@@ -55,6 +60,8 @@ def _should_retain(term):
 def purge_terms(model):
     """Update model to only include terms that are not issues."""
     model['terms'] = [term for term in model['terms'] if _should_retain(term)]
+    for term in model['terms']:
+        term['obj'] = _norm(term['obj'])
 
 
 def graph_from_model(model):
