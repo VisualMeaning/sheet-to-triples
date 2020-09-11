@@ -15,7 +15,7 @@
         ('{iri}', 'rdf:type', 'vm:Issue'),
         ('{iri}', 'vm:name', '{row[Title]}'),
         ('{iri}', 'vm:description', '{row[Text]}'),
-        ('{iri}', 'vm:ofStakeholder', '{query[stakeholder]}'),
+        ('{iri}', 'vm:ofStakeholder', '{stakeholder}'),
         ('{iri}', 'vm:atGeoPoint', '{row[Coordinates].as_geo}'),
         ('{iri}', 'vm:hasIcon', '{row[Icon]}'),
         ('{iri}', 'vm:hasAspect', '{row[Text Position].as_slug}'),

@@ -17,16 +17,19 @@ class Runner:
     def __init__(self, books, model, verbose):
         self.books = books
         self.model = model
-        self.graph = (
-            rdf.graph_from_model(model) if model else
-            rdf.graph_from_triples(()))
+        if model:
+            # TODO: Unconditional purging is wrong
+            rdf.purge_terms(model, verbose)
+            self.graph = rdf.graph_from_model(model)
+        else:
+            self.graph = rdf.graph_from_triples(())
         self.verbose = verbose
 
     @classmethod
     def from_args(cls, args):
         book = args.book and list(map(xl.load, args.book))
-        graph = args.model and cls.load_model(args.model)
-        return cls(book, graph, args.verbose)
+        model = args.model and cls.load_model(args.model)
+        return cls(book, model, args.verbose)
 
     def run(self, transforms):
         for tf in transforms:
@@ -41,7 +44,11 @@ class Runner:
                 rdf.update_model_terms(self.model, triples)
 
         if self.model:
-            rdf.normalise_model(self.model)
+            rdf.normalise_model(self.model, self.ns, self.verbose)
+
+    @property
+    def ns(self):
+        return self.graph.namespace_manager
 
     def _iter_data(self, tf):
         if self.books and tf.uses_sheet():
@@ -52,10 +59,7 @@ class Runner:
     @staticmethod
     def load_model(filepath):
         with open(filepath, 'rb') as f:
-            model = json.load(f)
-        # TODO: Unconditional purging is wrong
-        rdf.purge_terms(model)
-        return model
+            return json.load(f)
 
     def save_model(self, filepath):
         with open(filepath, 'w') as f:

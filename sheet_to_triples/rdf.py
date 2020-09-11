@@ -26,6 +26,10 @@ def _norm(s, _w=re.compile(r'(?:(?!\n)\s)+')):
     return _w.sub(' ', s.replace('\u200b', ''))
 
 
+def _n3(uri, namespace_manager):
+    return rdflib.URIRef(uri).n3(namespace_manager)
+
+
 def from_qname(qname, namespaces=rdflib.namespace):
     if qname.startswith('vm:'):
         return VM[qname[3:]]
@@ -57,11 +61,15 @@ def _should_retain(term):
         term['pred'] == _USES_MAP_TILES.toPython())
 
 
-def purge_terms(model):
+def purge_terms(model, verbose):
     """Update model to only include terms that are not issues."""
+    start_len = len(model['terms'])
     model['terms'] = [term for term in model['terms'] if _should_retain(term)]
     for term in model['terms']:
         term['obj'] = _norm(term['obj'])
+    if verbose:
+        n_dropped = start_len - len(model['terms'])
+        print(f'# dropped {n_dropped} terms')
 
 
 def graph_from_model(model):
@@ -73,13 +81,15 @@ def graph_from_model(model):
 
 
 def update_model_terms(model, triples):
-    model['terms'].extend(dict(subj=s, pred=p, obj=o) for s, p, o in triples)
+    model['terms'].extend(
+        dict(subj=str(s), pred=str(p), obj=str(o)) for s, p, o in triples)
 
 
 eco_silly = {
     '10': 8.5,
     '15': 12.5,
     '16': 0.5,
+    '17': 13,
 }
 
 
@@ -91,9 +101,23 @@ def _with_int_maybe(iri):
         return (iri,)
 
 
-def normalise_model(model):
-    model['terms'].sort(key=lambda t: (_with_int_maybe(t['subj']), t['pred']))
-    # TODO: Could also validate constraints here, like no duplicates
+def term_sort_key(term):
+    return _with_int_maybe(term['subj']), term['pred']
+
+
+def normalise_model(model, ns, verbose):
+    # While multiple objects for a subject, predicate are generally fine
+    # Our model asserts uniqueness, so discard older values.
+    by_key = {}
+    for t in model['terms']:
+        key = (t['subj'], t['pred'])
+        if verbose and key in by_key:
+            print('# dropping {s} {p} {o}'.format(
+                s=_n3(key[0], ns), p=_n3(key[1], ns), o=by_key[key]['obj']))
+        by_key[key] = t
+
+    # Produce stable output order for terms (with some extra hacks)
+    model['terms'] = sorted(by_key.values(), key=term_sort_key)
 
 
 def graph_from_triples(triples):

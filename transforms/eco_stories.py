@@ -1,9 +1,10 @@
 {
     'data': [
-        ('00_welcome', 'Welcome', '#background:black'),
+        # 'Home' is in eco_home transform
         ('01_peopleplaneteconomy', 'People. Planet. Economy.'),
         ('02_systemicdysfunction', 'A System in Crisis'),
         ('03_keyplayers', 'Economic Actors'),
+        # 'Open Questions' is in eco_storypoints transform
         ('05_d1shareholderprimacy', 'Diagnosis 1: Shareholder-Primacy'),
         ('06_movements_shareholderprimacy', 'Diagnosis 1: Movements'),
         ('07_d2performance', 'Diagnosis 2: Corporate Performance Management'),
@@ -12,12 +13,11 @@
         ('10_movements_leadership', 'Diagnosis 3: Movements'),
         ('11_allmovements', 'The Movements Landscape'),
         ('12_leversofchange', 'Incorporating Purpose: Levers of Change'),
-        ('13_furtherreading', 'Research, Tools & Further Reading'),
-        ('14_contactus', 'Contact Us'),
+        ('13_furtherreading', 'Research & Further Reading'),
+        ('14_contactus', 'Give Feedback'),
     ],
     'lets': {
         'storyName': '{row[1]}',
-        'tileStyle': '{row[2]}',
         'version': '20200907',
     },
     'queries': {
@@ -26,10 +26,16 @@
             ' ?s rdf:type vm:Story .'
             ' ?s vm:name ?storyName .'
             '}'),
+        'first': (
+            'select ?p where {'
+            ' ?story vm:firstPoint ?p .'
+            '}'),
     },
     'triples': [
-        ('{query[story]}', 'vm:usesMapTiles',
+        ('{story}', 'vm:usesMapTiles',
             'https://opatlas-live.s3.amazonaws.com/economicsystem/{version}/'
-            'overlays/{row[0]}/{{z}}-{{x}}-{{y}}.png{tileStyle}'),
+            'overlays/{row[0]}/{{z}}-{{x}}-{{y}}.png'),
+        ('{first}', 'vm:minGeoPoint', '[-230,-15]'),
+        ('{first}', 'vm:maxGeoPoint', '[-5,265]'),
     ],
 }

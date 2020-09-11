@@ -6,6 +6,7 @@ import argparse
 import sys
 
 from . import (
+    debug,
     run,
     trans,
 )
@@ -16,6 +17,7 @@ def main(argv):
     parser.add_argument('--book', action='append')
     parser.add_argument('--model')
     parser.add_argument('--model-out', metavar='PATH', default='new.json')
+    parser.add_argument('--debug', action='store_true')
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('transform', nargs='*', type=trans.Transform.from_name)
     args = parser.parse_args(argv[1:])
@@ -27,12 +29,13 @@ def main(argv):
 
     runner = run.Runner.from_args(args)
 
-    if args.transform:
-        runner.run(args.transform)
-        if runner.model:
-            runner.save_model(args.model_out)
-    elif runner.verbose:
-        run.show_graph(runner.graph)
+    with debug.context(args.debug):
+        if args.transform:
+            runner.run(args.transform)
+            if runner.model:
+                runner.save_model(args.model_out)
+        elif runner.verbose:
+            run.show_graph(runner.graph)
 
     return 0
 

@@ -105,7 +105,7 @@ class Transform:
         for k, q in query_map.items():
             result = list(q(initBindings=params))
             if result:
-                [[params['query'][k]]] = result
+                [[params[k]]] = result
 
         for s, p, o in self.triples:
             obj = _as_obj(_f, o, params)
