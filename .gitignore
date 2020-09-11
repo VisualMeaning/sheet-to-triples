@@ -1,4 +1,4 @@
 __pycache__/
 
 # No opinion about exact version of dependencies for now
-Pipfile.lock
+poetry.lock

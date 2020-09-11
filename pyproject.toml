@@ -1,0 +1,12 @@
+[tool.poetry]
+name = "sheet-to-triples"
+version = "0.1.0"
+authors = ["Martin Packman <martin.packman@visual-meaning.com>"]
+description = "Convert tabular data into triples."
+
+[tool.poetry.dependencies]
+rdflib = "5"
+xlrd = "1"
+
+[tool.poetry.dev-dependencies]
+flake8 = "3.8"

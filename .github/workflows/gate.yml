@@ -20,8 +20,8 @@ jobs:
           python-version: "3.6"
       - name: install
         run: |
-          pip3 install pipenv
-          pipenv install -d
+          pip3 install poetry
+          poetry install --no-root
       - name: test
         run: |
-          pipenv run test
+          poetry run python -m flake8
