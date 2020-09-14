@@ -13,21 +13,34 @@ from . import (
 )
 
 
-def main(argv):
+def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
-    parser.add_argument('--book', action='append')
-    parser.add_argument('--model')
-    parser.add_argument('--model-out', metavar='PATH', default='new.json')
-    parser.add_argument('--debug', action='store_true')
-    parser.add_argument('--verbose', action='store_true')
-    parser.add_argument('transform', nargs='*', type=trans.Transform.from_name)
+    parser.add_argument(
+        '--book', action='append',
+        help='paths to any spreadsheet files to load')
+    parser.add_argument(
+        '--model', help='path to json file with existing map model')
+    parser.add_argument(
+        '--model-out', metavar='PATH', default='new.json',
+        help='path to write new jsom file with output map model')
+    parser.add_argument(
+        '--debug', action='store_true', help='debug interactively any error')
+    parser.add_argument(
+        '--verbose', action='store_true', help='show details as turtle')
+    parser.add_argument(
+        'transform', nargs='*', type=trans.Transform.from_name,
+        help='names of any transforms to run')
     args = parser.parse_args(argv[1:])
 
     if not args.book:
         need_book = set(tf.name for tf in args.transform if tf.uses_sheet())
         if need_book:
             parser.error(f'transforms {need_book} require --book')
+    return args
 
+
+def main(argv):
+    args = parse_args(argv)
     runner = run.Runner.from_args(args)
 
     with debug.context(args.debug):

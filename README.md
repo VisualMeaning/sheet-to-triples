@@ -87,13 +87,13 @@ Getting geopoints off the map and into the spreadsheet is painful. This is known
 
 ### Transform complexity
 
-The transforms created are all pretty simple, though not exactly self-describing. Including a SPARQL query to do relation linking is not ideal, but alternatives would be possible.
+The transforms created are all pretty simple, though not exactly self-describing. Including a SPARQL query to do relation linking is not ideal, alternatives would be possible.
 
-There's a core tension between using fields that carry a lot of information (like markdown text) versus using very granular, simple values, with many more relationships. Splitting at the transform stage is hard, it makes sense to encourage more columns, even sparse ones, at the spreadsheet stage.
+There's a core tension between using fields that carry a lot of information (like markdown text) versus using very granular, simple values, with many more relationships. Splitting at the transform stage is hard - it makes sense to encourage more columns, even sparse ones, at the spreadsheet stage.
 
 Some things would be nice but were not essential, like having a means to map a set of cell values to some other arbitrary result values.
 
-The transform language cannot actually be authored by untrusted sources without sandboxing, it's possible to escape via format strings and I doubt SPARQL in RDFlib is safe either. This is fine, it's in declarative form for other reasons.
+The transform language cannot actually be authored by untrusted sources without sandboxing, it's possible to escape via format strings, and I doubt SPARQL in RDFlib is safe either. This is fine, it's in declarative form for other reasons.
 
 ### Transform editing
 
@@ -120,7 +120,7 @@ As implemented, one or more fields can be used by the transform to create the IR
 
 SQL is not the best part of relational databases, and by emulating the syntax for SPARQL you get cognitively complex statements for even quite simple graph operations.
 
-The initial plan was not to do queries at all, just do path resolution, but turned out queries (or at least predicate support) made sense to add. Most parts of the transform can be simpler, but mapping an existing copy of the graph is handy particularly to let the spreadsheet authors use labels rather than IRISs to create relationships.
+The initial plan was not to do queries at all, just do path resolution, but turned out queries (or at least predicate support) made sense to add. Most parts of the transform can be simpler, but mapping an existing copy of the graph is handy particularly to let the spreadsheet authors use labels rather than IRIs to create relationships.
 
 #### Stringly typed holes
 
