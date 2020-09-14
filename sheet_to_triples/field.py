@@ -1,4 +1,5 @@
 # Copyright 2020 Visual Meaning Ltd
+# This is free software licensed as GPL-3.0-or-later - see COPYING for terms.
 
 """Interfaces for mapping from tabular data."""
 

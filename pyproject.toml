@@ -1,5 +1,6 @@
 [tool.poetry]
 name = "sheet-to-triples"
+license = "GPL-3.0-or-later"
 version = "0.1.0"
 authors = ["Martin Packman <martin.packman@visual-meaning.com>"]
 description = "Convert tabular data into triples."

@@ -1,4 +1,5 @@
 # Copyright 2020 Visual Meaning Ltd
+# This is free software licensed as GPL-3.0-or-later - see COPYING for terms.
 
 """Opt in debugging as a context manager."""
 
