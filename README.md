@@ -56,19 +56,19 @@ The top level attributes of a transform are:
 * `name`
 
   Taken from the filename rather than in the file.
-* `sheet`
+* `sheet: str`
 
   Name of the sheet/tab to look for the related data in a workbook.
-* `data`
+* `data: Union[List[Tuple[str, ...]], List[Dict[str, str]]]`
 
   Alternative to providing `sheet` just give an inline list for rows.
-* `lets`
+* `lets: Dict[str, str_template]`
 
   Bind variables which will be set for each row.
-* `query`
+* `query: Dict[str, str_query]`
 
   Bind result of query to be run for each row.
-* `triples`
+* `triples: List[Tuple[str_template, str_template, str_template]]`
 
   Output triples to create and be added to model.
 
