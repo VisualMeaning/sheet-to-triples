@@ -6,7 +6,8 @@ authors = ["Martin Packman <martin.packman@visual-meaning.com>"]
 description = "Convert tabular data into triples."
 
 [tool.poetry.dependencies]
-rdflib = "5"
+python = "^3.7"
+rdflib = {version = "5", extras = ["sparql"]}
 xlrd = "1"
 
 [tool.poetry.dev-dependencies]
