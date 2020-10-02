@@ -18,6 +18,6 @@
         ('{iri}', 'vm:atGeoPoint', '{row[Coordinates].as_geo}'),
         ('{iri}', 'vm:hasIcon', '{row[Icon]}'),
         ('{iri}', 'vm:hasAspect', '{row[Text Position]}'),
-        ('{iri}', 'vm:ofStory', 'vm:stories/{story}'),
+        ('{iri}', 'vm:ofStory', '{story}'),
     ],
 }
