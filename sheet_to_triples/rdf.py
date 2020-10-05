@@ -86,24 +86,17 @@ def update_model_terms(model, triples):
         dict(subj=str(s), pred=str(p), obj=str(o)) for s, p, o in triples)
 
 
-eco_silly = {
-    '10': 8.5,
-    '15': 12.5,
-    '16': 0.5,
-    '17': 13,
-}
-
-
 def _with_int_maybe(iri):
     try:
         prefix, maybe_int = iri.rsplit('/', 1)
-        return (prefix, eco_silly.get(maybe_int, int(maybe_int)))
+        return (prefix, maybe_int)
     except ValueError:
         return (iri,)
 
 
-def term_sort_key(term):
-    return _with_int_maybe(term['subj']), term['pred']
+def _to_key(t):
+    # TODO: Optionally key on all three items for some predicates
+    return t['subj'], t['pred']
 
 
 def normalise_model(model, ns, verbose):
@@ -111,11 +104,22 @@ def normalise_model(model, ns, verbose):
     # Our model asserts uniqueness, so discard older values.
     by_key = {}
     for t in model['terms']:
-        key = (t['subj'], t['pred'])
+        key = _to_key(t)
         if verbose and key in by_key:
             print('# dropping {s} {p} {o}'.format(
                 s=_n3(key[0], ns), p=_n3(key[1], ns), o=by_key[key]['obj']))
         by_key[key] = t
+
+    order_pred = str(VM.asOrdinal)
+    no_order = {'obj': 'Inf'}
+
+    def term_sort_key(term):
+        """Sort key for term, closed over by_key term index."""
+        return (
+            float(by_key.get((term['subj'], order_pred), no_order)['obj']),
+            _with_int_maybe(term['subj']),
+            term['pred'],
+        )
 
     # Produce stable output order for terms (with some extra hacks)
     model['terms'] = sorted(by_key.values(), key=term_sort_key)

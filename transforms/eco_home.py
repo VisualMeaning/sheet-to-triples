@@ -23,5 +23,6 @@
             'overlays/{row[0]}/{{z}}-{{x}}-{{y}}.png{row[2]}'),
         ('{first}', 'vm:minGeoPoint', '[-512,-256]'),
         ('{first}', 'vm:maxGeoPoint', '[256,512]'),
+        ('{story}', 'vm:asOrdinal', '0'),
     ],
 }

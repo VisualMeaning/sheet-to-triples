@@ -95,11 +95,11 @@ class Transform:
         formatter = string.Formatter()
         queries = self.prepare_queries(reference_graph)
 
-        for row in row_iter:
-            yield from self._process_row(formatter, queries, row)
+        for n, row in enumerate(row_iter, 1):
+            yield from self._process_row(formatter, queries, row, n)
 
-    def _process_row(self, _f, query_map, row):
-        params = dict(query={}, row=row)
+    def _process_row(self, _f, query_map, row, n):
+        params = dict(query={}, row=row, n=n)
         for k in self.lets:
             params[k] = _as_obj(_f, self.lets[k], params) or ''
 

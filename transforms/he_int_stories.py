@@ -41,5 +41,6 @@
         ('{story}', 'vm:usesMapTiles',
             'https://opatlas-live.s3.amazonaws.com/highways_internal_model/'
             '{version}/overlays/{row[0]}/{{z}}-{{x}}-{{y}}.png'),
+        ('{story}', 'vm:asOrdinal', '{n}'),
     ],
 }

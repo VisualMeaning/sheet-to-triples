@@ -18,14 +18,18 @@
         'version': '20200907',
     },
     'queries': {
-        'storypoint': (
-            'select ?p where {'
+        'story': (
+            'select ?s where {'
             ' ?s rdf:type vm:Story .'
             ' ?s vm:name ?storyName .'
-            ' ?s ?storyPath ?p .'
+            '}'),
+        'storypoint': (
+            'select ?p where {'
+            ' ?story ?storyPath ?p .'
             '}'),
     },
     'triples': [
+        ('{story}', 'vm:asOrdinal', '3.5'),
         ('{storypoint}', 'vm:usesMapTiles',
             'https://opatlas-live.s3.amazonaws.com/economicsystem/{version}/'
             'overlays/{row[tiles]}/{{z}}-{{x}}-{{y}}.png'),
