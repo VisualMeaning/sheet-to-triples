@@ -1,7 +1,7 @@
 {
     'sheet': 'Text Markers',
     'lets': {
-        'iri': 'vm:issues/{row[Name].as_slug}',
+        'iri': 'vm:issues/{row[Story].as_slug}-{row[Name].as_slug}',
         'storyName': '{row[Story]}',
     },
     'queries': {
