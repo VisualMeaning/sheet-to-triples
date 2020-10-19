@@ -4,10 +4,13 @@
 """Interfaces for mapping from tabular data."""
 
 import ast
+import re
 
 
 class Cell:
     """Single field value for interpretation in context."""
+
+    _pattern = re.compile(r'\W+')
 
     def __init__(self, value):
         self._value = value
@@ -20,7 +23,7 @@ class Cell:
 
     @property
     def as_slug(self):
-        return self._value.lower().replace(' ', '-').replace('&', 'and')
+        return self._pattern.sub('-', self._value.replace('&', 'and')).lower()
 
     @property
     def as_geo(self):
