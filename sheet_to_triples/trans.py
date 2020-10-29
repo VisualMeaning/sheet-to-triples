@@ -73,7 +73,7 @@ class Transform:
 
     def required_rows(self):
         pattern = re.compile(r'^row\[(.*?)\]')
-        matches = (pattern.match(f) for f in self._fields())
+        matches = (pattern.match(f) for f in self._fields() if f is not None)
         return set(m.group(1) for m in matches if m is not None)
 
     def prepare_queries(self, for_graph):
