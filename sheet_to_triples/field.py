@@ -30,12 +30,12 @@ class Cell:
 
     @property
     def as_slug(self):
-        content = self._value.replace('&', 'and')
+        content = self._value.replace('&', 'and').strip()
         return _must(self._pattern.sub('-', content).lower())
 
     @property
     def as_uc(self):
-        return _must(self._pattern.sub('', self._value))
+        return _must(self._pattern.sub('', self._value.strip().title()))
 
     @property
     def as_text(self):
