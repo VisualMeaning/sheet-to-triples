@@ -11,6 +11,7 @@ import rdflib.term
 
 
 VM = rdflib.Namespace('http://visual-meaning.com/rdf/')
+VMHE = VM['HE/']
 _ISSUES_PREFIX = VM['issues/']
 _USES_MAP_TILES = VM.usesMapTiles
 
@@ -40,7 +41,7 @@ def from_qname(qname, namespaces=rdflib.namespace):
     return getattr(namespaces, prefix.upper())[last]
 
 
-def from_identifier(value, prefixes=('vm:', 'rdf:')):
+def from_identifier(value, prefixes=('vm:', 'rdf:', 'rdfs:', 'skos:')):
     if isinstance(value, rdflib.term.Identifier):
         return value
     if value.startswith(prefixes):
@@ -73,9 +74,16 @@ def purge_terms(model, verbose):
         print(f'# dropped {n_dropped} terms')
 
 
-def graph_from_model(model):
-    g = rdflib.Graph(base=VM)
+def _new_graph():
+    g = rdflib.Graph()
     g.bind('vm', VM)
+    g.bind('vmhe', VMHE)
+    g.bind('skos', rdflib.namespace.SKOS)
+    return g
+
+
+def graph_from_model(model):
+    g = _new_graph()
     for term in model['terms']:
         g.add(_cast_from_term(term))
     return g
@@ -126,8 +134,7 @@ def normalise_model(model, ns, verbose):
 
 
 def graph_from_triples(triples):
-    g = rdflib.Graph(base=VM)
-    g.bind('vm', VM)
+    g = _new_graph()
     for triple in triples:
         g.add(triple)
     return g
