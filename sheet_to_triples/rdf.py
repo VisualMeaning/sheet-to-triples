@@ -15,6 +15,12 @@ VMHE = VM['HE/']
 _ISSUES_PREFIX = VM['issues/']
 _USES_MAP_TILES = VM.usesMapTiles
 
+FOAF = rdflib.namespace.FOAF
+# Include test property via hack <http://xmlns.com/foaf/spec/#term_phone>
+FOAF._ClosedNamespace__uris['phone'] = rdflib.URIRef(FOAF.uri + 'phone')
+
+_PREFIXES = ('vm:', 'rdf:', 'rdfs:', 'skos:', 'foaf:')
+
 
 def _cast_from_term(t):
     return (
@@ -41,7 +47,7 @@ def from_qname(qname, namespaces=rdflib.namespace):
     return getattr(namespaces, prefix.upper())[last]
 
 
-def from_identifier(value, prefixes=('vm:', 'rdf:', 'rdfs:', 'skos:')):
+def from_identifier(value, prefixes=_PREFIXES):
     if isinstance(value, rdflib.term.Identifier):
         return value
     if value.startswith(prefixes):
@@ -78,6 +84,7 @@ def _new_graph():
     g = rdflib.Graph()
     g.bind('vm', VM)
     g.bind('vmhe', VMHE)
+    g.bind('foaf', rdflib.namespace.FOAF)
     g.bind('skos', rdflib.namespace.SKOS)
     return g
 
