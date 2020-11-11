@@ -27,6 +27,8 @@ def as_rows(sheet, required_headers):
     header_values = advance_headers(row_iter, required_headers)
     n_from_h = {h: i for i, h in enumerate(header_values)}
     for row in row_iter:
+        if all(not r.value for r in row):
+            return
         yield field.Row({h: row[n_from_h[h]].value for h in required_headers})
 
 
