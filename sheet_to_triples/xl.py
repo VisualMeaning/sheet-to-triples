@@ -25,7 +25,7 @@ def find_sheet(books, sheet_name):
 def as_rows(sheet, required_headers):
     row_iter = sheet.get_rows()
     header_values = advance_headers(row_iter, required_headers)
-    n_from_h = {h: i for i, h in enumerate(header_values)}
+    n_from_h = {h: i for i, h in reversed(list(enumerate(header_values)))}
     for row in row_iter:
         if all(not r.value for r in row):
             return
