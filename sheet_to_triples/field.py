@@ -7,6 +7,13 @@ import ast
 import re
 
 
+def _must(value):
+    """Raise ValueError if value is falsey."""
+    if not value:
+        raise ValueError('false value')
+    return value
+
+
 class Cell:
     """Single field value for interpretation in context."""
 
@@ -23,7 +30,16 @@ class Cell:
 
     @property
     def as_slug(self):
-        return self._pattern.sub('-', self._value.replace('&', 'and')).lower()
+        content = self._value.replace('&', 'and')
+        return _must(self._pattern.sub('-', content).lower())
+
+    @property
+    def as_uc(self):
+        return _must(self._pattern.sub('', self._value))
+
+    @property
+    def as_text(self):
+        return _must(self._value.strip())
 
     @property
     def as_geo(self):
