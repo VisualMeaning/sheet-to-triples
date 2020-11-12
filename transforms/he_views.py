@@ -12,7 +12,7 @@
         ('{iri}', 'vm:name', '{row[1]}'),
         ('{iri}', 'vm:usesMapTiles',
             'https://opatlas-live.s3.amazonaws.com/hwtest/{version}/overlays/'
-            '{row[0]}/{{z}}-{{x}}-{{y}}.png'),
+             '{row[0]}/{{z}}-{{x}}-{{y}}.png#background:transparent'),
         ('{iri}', 'vm:asOrdinal', '{n}'),
     ],
 }
