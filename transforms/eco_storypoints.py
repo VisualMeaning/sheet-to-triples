@@ -33,7 +33,7 @@
         ('{storypoint}', 'vm:usesMapTiles',
             'https://opatlas-live.s3.amazonaws.com/economicsystem/{version}/'
             'overlays/{row[tiles]}/{{z}}-{{x}}-{{y}}.png'),
-        ('{storypoint}', 'vm:minGeoPoint', '[-230,-15]'),
+        ('{storypoint}', 'vm:minGeoPoint', '[-280,-15]'),
         ('{storypoint}', 'vm:maxGeoPoint', '[-5,265]'),
     ],
 }
