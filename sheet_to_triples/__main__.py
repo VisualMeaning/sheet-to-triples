@@ -8,6 +8,7 @@ import sys
 
 from . import (
     debug,
+    rdf,
     run,
     trans,
 )
@@ -18,6 +19,8 @@ def parse_args(argv):
     parser.add_argument(
         '--book', action='append',
         help='paths to any spreadsheet files to load')
+    parser.add_argument(
+        '--add-graph', help='path to existing graph to add to model')
     parser.add_argument(
         '--model', help='path to json file with existing map model')
     parser.add_argument(
@@ -42,6 +45,10 @@ def parse_args(argv):
 def main(argv):
     args = parse_args(argv)
     runner = run.Runner.from_args(args)
+    if args.add_graph:
+        runner.graph.parse(args.add_graph, format='ttl')
+        runner.model['terms'] = []
+        rdf.update_model_terms(runner.model, iter(runner.graph))
 
     with debug.context(args.debug):
         if args.transform:
