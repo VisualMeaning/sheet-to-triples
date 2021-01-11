@@ -7,6 +7,14 @@ import ast
 import re
 
 
+_CAPTYPES = {
+    'socia': 'vm:capitalTypes/social',
+    'finan': 'vm:capitalTypes/sharedFinancial',
+    'human': 'vm:capitalTypes/human',
+    'envir': 'vm:capitalTypes/environmental',
+}
+
+
 def _must(value):
     """Raise ValueError if value is falsey."""
     if not value:
@@ -40,6 +48,10 @@ class Cell:
     @property
     def as_text(self):
         return _must(self._value.strip())
+
+    @property
+    def as_capital(self):
+        return _must(_CAPTYPES.get(self._value.strip()[:5].lower()))
 
     @property
     def as_geo(self):
