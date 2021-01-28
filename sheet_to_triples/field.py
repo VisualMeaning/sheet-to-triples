@@ -7,6 +7,12 @@ import ast
 import re
 
 
+_TYPES = {
+    'pain': 'vm:Painpoint',
+    'brig': 'vm:Brightspot',
+}
+
+
 _CAPTYPES = {
     'socia': 'vm:capitalTypes/social',
     'finan': 'vm:capitalTypes/sharedFinancial',
@@ -15,10 +21,16 @@ _CAPTYPES = {
 }
 
 
-def _must(value):
-    """Raise ValueError if value is falsey."""
+_CAPEFFECTS = {
+    'vm:Painpoint': 'vm:harmsCapitalType',
+    'vm:Brightspot': 'vm:aidsCapitalType',
+}
+
+
+def _must(value, exception_type=ValueError):
+    """Raise exception_type if value is falsey."""
     if not value:
-        raise ValueError('false value')
+        raise exception_type('false value')
     return value
 
 
@@ -51,7 +63,19 @@ class Cell:
 
     @property
     def as_capital(self):
-        return _must(_CAPTYPES.get(self._value.strip()[:5].lower()))
+        return _must(_CAPTYPES.get(self._value.strip()[:5].lower()), TypeError)
+
+    @property
+    def as_capital_effect(self):
+        return _must(_CAPEFFECTS.get(self.as_type))
+
+    @property
+    def as_type(self):
+        return _must(_TYPES.get(self._value.strip()[:4].lower()), TypeError)
+
+    @property
+    def as_type_prefix(self):
+        return self.as_type.lower() + '-'
 
     @property
     def as_geo(self):
