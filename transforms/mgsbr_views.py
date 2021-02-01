@@ -17,11 +17,11 @@
         ('social', 'Social Capital', 'kind=capitalTypes/social'),
         ('shared', 'Shared Financial Capital',
             'kind=capitalTypes/sharedFinancial'),
-        ('environ', 'Natural Capital', 'kind=capitalTypes/environmental'),
+        ('natural', 'Natural Capital', 'kind=capitalTypes/environmental'),
     ],
     'lets': {
         'iri': 'vm:{row[0]}',
-        'version': '20210118',
+        'version': '20210127',
     },
     'triples': [
         ('{iri}', 'rdf:type', 'vm:View'),
@@ -31,5 +31,6 @@
             '{row[0]}/{{z}}-{{x}}-{{y}}.png#background:transparent'),
         ('{iri}', 'vm:useFilters', '{row[2]}'),
         ('{iri}', 'vm:asOrdinal', '{n}'),
+        ('vm:natural', 'owl:sameAs', 'vm:environ'),
     ],
 }

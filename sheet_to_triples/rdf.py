@@ -15,11 +15,13 @@ VMHE = VM['HE/']
 _ISSUES_PREFIX = VM['issues/']
 _USES_MAP_TILES = VM.usesMapTiles
 
+_GEO = (VM.atGeoPoint.toPython(), VM.atGeoPoly.toPython(), VM.name.toPython())
+
 FOAF = rdflib.namespace.FOAF
 # Include test property via hack <http://xmlns.com/foaf/spec/#term_phone>
 FOAF._ClosedNamespace__uris['phone'] = rdflib.URIRef(FOAF.uri + 'phone')
 
-_PREFIXES = ('vm:', 'rdf:', 'rdfs:', 'skos:', 'foaf:')
+_PREFIXES = ('vm:', 'rdf:', 'rdfs:', 'skos:', 'foaf:', 'owl:')
 
 
 def _cast_from_term(t):
@@ -62,17 +64,20 @@ def from_identifier(value, prefixes=_PREFIXES):
     return rdflib.Literal(value)
 
 
-def _should_retain(term):
-    """Keep triple in graph for querying and update."""
-    return not (
-        term['subj'].startswith(_ISSUES_PREFIX) or
-        term['pred'] == _USES_MAP_TILES.toPython())
+def relates_geo_name(term):
+    """True if triple is geo infomation or a name."""
+    return term['pred'] in _GEO
 
 
-def purge_terms(model, verbose):
+def relates_issue(term):
+    """True if triple is not related to an issue instance."""
+    return not term['subj'].startswith(_ISSUES_PREFIX)
+
+
+def purge_terms(model, retain, verbose):
     """Update model to only include terms that are not issues."""
     start_len = len(model['terms'])
-    model['terms'] = [term for term in model['terms'] if _should_retain(term)]
+    model['terms'] = [term for term in model['terms'] if retain(term)]
     for term in model['terms']:
         term['obj'] = _norm(term['obj'])
     if verbose:
@@ -86,6 +91,7 @@ def _new_graph():
     g.bind('vmhe', VMHE)
     g.bind('foaf', rdflib.namespace.FOAF)
     g.bind('skos', rdflib.namespace.SKOS)
+    g.bind('owl', rdflib.namespace.OWL)
     return g
 
 
@@ -115,17 +121,33 @@ def _to_key(t):
 
 
 def normalise_model(model, ns, verbose):
+    terms = model['terms']
+
+    # Record subjects that have been renamed so triples can be moved over
+    sameAs = rdflib.namespace.OWL.sameAs.toPython()
+    same = {}
+    for i in reversed(range(len(terms))):
+        t = terms[i]
+        if t['pred'] == sameAs:
+            same[t['obj']] = t['subj']
+            if verbose:
+                print('# aliasing {o} => {s}'.format(
+                    s=_n3(t['subj'], ns), o=_n3(t['obj'], ns)))
+            del terms[i]
+
     # While multiple objects for a subject, predicate are generally fine
     # Our model asserts uniqueness, so discard older values.
     by_key = {}
-    for t in model['terms']:
+    for t in terms:
+        if t['subj'] in same:
+            t['subj'] = same[t['subj']]
         key = _to_key(t)
         if verbose and key in by_key:
             print('# dropping {s} {p} {o}'.format(
                 s=_n3(key[0], ns), p=_n3(key[1], ns), o=by_key[key]['obj']))
         by_key[key] = t
 
-    order_pred = str(VM.asOrdinal)
+    order_pred = VM.asOrdinal.toPython()
     no_order = {'obj': 'Inf'}
 
     def term_sort_key(term):

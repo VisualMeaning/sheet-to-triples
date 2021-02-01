@@ -15,12 +15,11 @@ from . import (
 class Runner:
     """Encapsulation of new data, existing model, and transform running."""
 
-    def __init__(self, books, model, verbose):
+    def __init__(self, books, model, purge_except, verbose):
         self.books = books
         self.model = model
         if model:
-            # TODO: Unconditional purging is wrong
-            rdf.purge_terms(model, verbose)
+            rdf.purge_terms(model, purge_except, verbose)
             self.graph = rdf.graph_from_model(model)
         else:
             self.graph = rdf.graph_from_triples(())
@@ -30,7 +29,7 @@ class Runner:
     def from_args(cls, args):
         book = args.book and list(map(xl.load, args.book))
         model = args.model and cls.load_model(args.model)
-        return cls(book, model, args.verbose)
+        return cls(book, model, args.purge_except, args.verbose)
 
     def run(self, transforms):
         for tf in transforms:

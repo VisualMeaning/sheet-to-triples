@@ -13,6 +13,12 @@ from . import (
     trans,
 )
 
+PURGE_MAP = {
+    'none': lambda _: True,
+    'geo': rdf.relates_geo_name,
+    'issues': rdf.relates_issue,
+}
+
 
 def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
@@ -26,6 +32,10 @@ def parse_args(argv):
     parser.add_argument(
         '--model-out', metavar='PATH', default='new.json',
         help='path to write new jsom file with output map model')
+    arg_purge = parser.add_argument(
+        '--purge-except', metavar='|'.join(PURGE_MAP.keys()),
+        type=PURGE_MAP.get, default='none',
+        help='Use named rule to remove some triples from existing model')
     parser.add_argument(
         '--debug', action='store_true', help='debug interactively any error')
     parser.add_argument(
@@ -39,6 +49,8 @@ def parse_args(argv):
         need_book = set(tf.name for tf in args.transform if tf.uses_sheet())
         if need_book:
             parser.error(f'transforms {need_book} require --book')
+    if not args.purge_except:
+        parser.error('--purge-except must be one of ' + arg_purge.metavar)
     return args
 
 
