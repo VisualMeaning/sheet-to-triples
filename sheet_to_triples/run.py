@@ -27,7 +27,7 @@ class Runner:
 
     @classmethod
     def from_args(cls, args):
-        book = args.book and list(map(xl.load, args.book))
+        book = args.book and list(map(xl.load_book, args.book))
         model = args.model and cls.load_model(args.model)
         return cls(book, model, args.purge_except, args.verbose)
 
@@ -52,8 +52,8 @@ class Runner:
 
     def _iter_data(self, tf):
         if self.books and tf.uses_sheet():
-            sheet = xl.find_sheet(self.books, tf.sheet)
-            return xl.as_rows(sheet, tf.required_rows())
+            row_iter = xl.iter_sheet(self.books, tf.sheet)
+            return xl.as_rows(row_iter, tf.required_rows())
         return (field.Row(r) for r in getattr(tf, 'data', ()))
 
     @staticmethod

@@ -40,7 +40,7 @@ class Cell:
     _pattern = re.compile(r'\W+')
 
     def __init__(self, value):
-        self._value = value
+        self._value = '' if value is None else value
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self._value!r})'
