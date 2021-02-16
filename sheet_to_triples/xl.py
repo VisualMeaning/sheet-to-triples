@@ -1,29 +1,35 @@
-# Copyright 2020 Visual Meaning Ltd
+# Copyright 2020-2021 Visual Meaning Ltd
 # This is free software licensed as GPL-3.0-or-later - see COPYING for terms.
 
 """Loading tabular data from local spreadsheet files."""
-
-import xlrd
 
 from . import (
     field,
 )
 
 
-def load(filepath):
-    return xlrd.open_workbook(filepath)
+def load_book(filepath):
+    ext = filepath.rsplit('.', 1)[-1].lower()
+    if ext == 'xls':
+        from .xls import Book
+    elif ext == 'xlsx':
+        from .xlsx import Book
+    else:
+        raise ValueError(f'unsupported format: .{ext}')
+    return Book.from_path(filepath)
 
 
-def find_sheet(books, sheet_name):
+def iter_sheet(books, sheet_name):
+    last_err = None
     for book in books:
-        for sheet in book.sheets():
-            if sheet.name == sheet_name:
-                return sheet
-    raise ValueError(f'sheet {sheet_name!r} not found')
+        try:
+            return book.iter_rows_in_sheet(sheet_name)
+        except KeyError as e:
+            last_err = e
+    raise ValueError(f'sheet {sheet_name!r} not found') from last_err
 
 
-def as_rows(sheet, required_headers):
-    row_iter = sheet.get_rows()
+def as_rows(row_iter, required_headers):
     header_values = advance_headers(row_iter, required_headers)
     n_from_h = {h: i for i, h in reversed(list(enumerate(header_values)))}
     for row in row_iter:
