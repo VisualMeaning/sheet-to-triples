@@ -46,7 +46,7 @@ class Cell:
         return f'{self.__class__.__name__}({self._value!r})'
 
     def __str__(self):
-        return self._value
+        return str(self._value)
 
     @property
     def as_slug(self):
