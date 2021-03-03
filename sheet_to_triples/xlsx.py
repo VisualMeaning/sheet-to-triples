@@ -21,7 +21,7 @@ class Book:
     def from_path(cls, path):
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', '.*extension is not supported')
-            return cls(openpyxl.load_workbook(path))
+            return cls(openpyxl.load_workbook(path, data_only=True))
 
     def iter_rows_in_sheet(self, sheet):
         return self._book[sheet].iter_rows()
