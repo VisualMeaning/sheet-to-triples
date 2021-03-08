@@ -1,0 +1,27 @@
+{
+    'data': [
+        ('vm:HE/IntangibleAsset', 'Intangible Asset'),
+        ('vm:HE/TangibleAsset', 'Tangible Asset'),
+        ('http://webprotege.stanford.edu/RCnRceKsHZf8Gt9UvDjM6We',
+            'Delivery partner'),
+        ('http://webprotege.stanford.edu/R93SkoUnFXM1KEjUDb2Ij3n',
+            'Stakeholder'),
+        ('http://webprotege.stanford.edu/RBJ3sWyEdjzo3HjkcABim8C',
+            'Customer'),
+        ('vm:HE/Capability', 'Capability'),
+        ('http://webprotege.stanford.edu/Rr60siMdu9IEvdag4DhF7M',
+            'Performance-Measurement'),
+        ('http://webprotege.stanford.edu/RBmqEHPuKuvpNznItviKdyK',
+            'Asset'),
+        ('http://www.w3.org/ns/org#Role', 'Role'),
+        ('http://webprotege.stanford.edu/R9yHLGw3z6gILmTwQSizzdi',
+            'IT System'),
+        ('http://webprotege.stanford.edu/R9CEIYtS6EVWnP7kLOlZGYO',
+            'Data Asset'),
+        ('vm:HE/Activity', 'Activity'),
+    ],
+    'triples': [
+        ('{row[0]}', 'vm:hasIcon',
+            'https://opatlas-live.s3.amazonaws.com/icons/{row[1]}.svg'),
+    ],
+}
