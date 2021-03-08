@@ -100,7 +100,7 @@ class Transform:
 
     def _process_row(self, _f, query_map, row, n):
         params = dict(query={}, row=row, n=n)
-        for k in self.lets:
+        for k in getattr(self, 'lets', ()):
             # TODO: Defaulting to empty string is wrong if variable can't bind
             params[k] = _as_obj(_f, self.lets[k], params) or ''
 
