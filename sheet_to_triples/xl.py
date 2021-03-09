@@ -39,8 +39,13 @@ def as_rows(row_iter, required_headers):
 
 
 def advance_headers(row_iter, required_headers):
+    best_match = set()
     for row in row_iter:
         values = [cell.value for cell in row]
         if required_headers.issubset(values):
             return values
-    raise ValueError('required headers not found')
+        headers_present = required_headers.intersection(values)
+        if len(headers_present) > len(best_match):
+            best_match = headers_present
+    missing = ', '.join([str(h) for h in required_headers - best_match])
+    raise ValueError('required headers not found: {}'.format(missing))
