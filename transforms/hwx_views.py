@@ -1,14 +1,16 @@
 {
     'data': [
-        ('activity', 'activity', '', 'Activity View', 'a=HE/Activity'),
+        ('activity', 'activity', '', 'Activity View',
+            'plottable=t&group=type'),
         ('org', 'org', 'org', 'Organisation View',
             'a=org:OrganisationalUnit'),
         ('orgpeople', 'org', 'org', 'Organisation + People View',
-            'a=org:OrganisationalUnit+foaf:Person'),
+            'a=org:OrganisationalUnit+foaf:Person&group=org'),
+        ('cap', 'cap', 'cap', 'Capability View', 'a=HE/Capability'),
     ],
     'lets': {
         'iri': 'vm:{row[0]}',
-        'version': '20210310',
+        'version': '20210311',
     },
     'triples': [
         ('{iri}', 'rdf:type', 'vm:View'),
