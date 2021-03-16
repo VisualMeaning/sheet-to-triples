@@ -41,10 +41,13 @@ def parse_args(argv):
     parser.add_argument(
         '--verbose', action='store_true', help='show details as turtle')
     parser.add_argument(
+        '--spec', action='extend', type=trans.Transform.from_spec,
+        help='add multiple transforms from a single spec file')
+    parser.add_argument(
         'transform', nargs='*', type=trans.Transform.from_name,
         help='names of any transforms to run')
     args = parser.parse_args(argv[1:])
-
+    args.transform.extend(args.spec)
     if not args.book:
         need_book = set(tf.name for tf in args.transform if tf.uses_sheet())
         if need_book:
