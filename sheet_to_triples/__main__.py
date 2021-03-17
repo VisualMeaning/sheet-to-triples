@@ -47,7 +47,8 @@ def parse_args(argv):
         'transform', nargs='*', type=trans.Transform.from_name,
         help='names of any transforms to run')
     args = parser.parse_args(argv[1:])
-    args.transform.extend(args.spec)
+    if args.spec:
+        args.transform.extend(args.spec)
     if not args.book:
         need_book = set(tf.name for tf in args.transform if tf.uses_sheet())
         if need_book:
