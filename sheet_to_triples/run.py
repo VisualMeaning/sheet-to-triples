@@ -42,6 +42,8 @@ class Runner:
             # Note that model is updated but basis graph is not
             if self.model:
                 rdf.update_model_terms(self.model, triples)
+                if tf.non_uniques:
+                    rdf.update_non_uniques(self.model, tf.non_uniques)
 
         if self.model:
             rdf.normalise_model(self.model, self.ns, self.verbose)

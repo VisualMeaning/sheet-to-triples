@@ -107,6 +107,10 @@ def update_model_terms(model, triples):
         dict(subj=str(s), pred=str(p), obj=str(o)) for s, p, o in triples)
 
 
+def update_non_uniques(model, non_uniques):
+    model.get('non_uniques', set()).extend(non_uniques)
+
+
 def _with_int_maybe(iri):
     try:
         prefix, maybe_int = iri.rsplit('/', 1)
@@ -115,14 +119,15 @@ def _with_int_maybe(iri):
         return (iri,)
 
 
-def _to_key(t):
-    # TODO: Optionally key on all three items for some predicates
+def _to_key(t, non_uniques):
+    if t['pred'] in non_uniques:
+        return t['subj'], t['pred'], t['obj']
     return t['subj'], t['pred']
 
 
 def normalise_model(model, ns, verbose):
     terms = model['terms']
-
+    non_uniques = model.get('non_uniques', [])
     # Record subjects that have been renamed so triples can be moved over
     sameAs = rdflib.namespace.OWL.sameAs.toPython()
     same = {}
@@ -141,7 +146,7 @@ def normalise_model(model, ns, verbose):
     for t in terms:
         if t['subj'] in same:
             t['subj'] = same[t['subj']]
-        key = _to_key(t)
+        key = _to_key(t, non_uniques)
         if verbose and key in by_key:
             print('# dropping {s} {p} {o}'.format(
                 s=_n3(key[0], ns), p=_n3(key[1], ns), o=by_key[key]['obj']))

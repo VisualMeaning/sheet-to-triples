@@ -45,7 +45,15 @@ def _as_obj(formatter, template, params):
 class Transform:
     """Class to load and process functional row to RDF transformation."""
 
-    __slots__ = ('name', 'data', 'sheet', 'lets', 'queries', 'triples')
+    __slots__ = (
+        'name',
+        'data',
+        'sheet',
+        'lets',
+        'queries',
+        'triples',
+        'non_unique',
+    )
 
     def __init__(self, name, details):
         self.name = name
@@ -60,6 +68,19 @@ class Transform:
         path = os.path.join('transforms', name + '.py')
         with open(path, 'r', encoding='utf-8') as f:
             return cls(name, ast.literal_eval(f.read()))
+
+    @classmethod
+    def from_spec(cls, name):
+        path = os.path.join('transforms', name + '.py')
+        with open(path, 'r', encoding='utf-8') as f:
+            for t in ast.literal_eval(f.read()):
+                yield cls(name, t)
+
+    @property
+    def non_uniques(self):
+        non_uniques = getattr(self, 'non_unique', [])
+        # would we ever want to template this and use _as_iri instead?
+        return [rdf.from_qname(pred) for pred in non_uniques]
 
     def uses_sheet(self):
         return hasattr(self, 'sheet')
