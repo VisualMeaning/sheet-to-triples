@@ -23,6 +23,7 @@ class Runner:
             self.graph = rdf.graph_from_model(model)
         else:
             self.graph = rdf.graph_from_triples(())
+        self.non_unique = set()
         self.verbose = verbose
 
     @classmethod
@@ -34,6 +35,7 @@ class Runner:
     def run(self, transforms):
         for tf in transforms:
             triples = tf.process(self.graph, self._iter_data(tf))
+            self.non_unique.update(tf.get_non_uniques(self.ns))
 
             if self.verbose:
                 triples = list(triples)
@@ -42,11 +44,10 @@ class Runner:
             # Note that model is updated but basis graph is not
             if self.model:
                 rdf.update_model_terms(self.model, triples)
-                if tf.non_uniques:
-                    rdf.update_non_uniques(self.model, tf.non_uniques)
 
         if self.model:
-            rdf.normalise_model(self.model, self.ns, self.verbose)
+            rdf.normalise_model(
+                self.model, self.ns, self.non_unique, self.verbose)
 
     @property
     def ns(self):

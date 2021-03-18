@@ -76,11 +76,10 @@ class Transform:
             for t in ast.literal_eval(f.read()):
                 yield cls(name, t)
 
-    @property
-    def non_uniques(self):
-        non_uniques = getattr(self, 'non_unique', [])
+    def get_non_uniques(self, ns):
+        non_unique = getattr(self, 'non_unique', ())
         # would we ever want to template this and use _as_iri instead?
-        return [rdf.from_qname(pred) for pred in non_uniques]
+        return set(rdf.from_qname(q, ns).toPython() for q in non_unique)
 
     def uses_sheet(self):
         return hasattr(self, 'sheet')

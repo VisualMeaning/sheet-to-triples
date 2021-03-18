@@ -5,6 +5,7 @@
         'iri': 'vm:HE/itsystem-{row[ITSystemID].as_slug}',
         'dp_iri': 'vm:/HE/deliverypartner-{row[DeliveryPartner].as_slug}'
     },
+    'non_unique': ['vm:supports'],
     'triples': [
         ('{iri}', 'rdf:type',
             'http://webprotege.stanford.edu/R9yHLGw3z6gILmTwQSizzdi'),

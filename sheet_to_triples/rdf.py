@@ -107,10 +107,6 @@ def update_model_terms(model, triples):
         dict(subj=str(s), pred=str(p), obj=str(o)) for s, p, o in triples)
 
 
-def update_non_uniques(model, non_uniques):
-    model.setdefault('non_uniques', set()).update(non_uniques)
-
-
 def _with_int_maybe(iri):
     try:
         prefix, maybe_int = iri.rsplit('/', 1)
@@ -125,9 +121,8 @@ def _to_key(t, non_uniques):
     return t['subj'], t['pred']
 
 
-def normalise_model(model, ns, verbose):
+def normalise_model(model, ns, non_uniques, verbose):
     terms = model['terms']
-    non_uniques = model.get('non_uniques', set())
     # Record subjects that have been renamed so triples can be moved over
     sameAs = rdflib.namespace.OWL.sameAs.toPython()
     same = {}
