@@ -72,10 +72,11 @@ The top level attributes of a transform are:
 
   Output triples to create and be added to model.
 * `non_unique: List[str_predicate, ...]`
-  
-  Normally triples are assumed unique for the first two items in each triple (subject predicate). If multiple triples have the same subject-predicate pairing, the oldest triple will be 
-  dropped and replaced with the newest one. By adding a predicate to `non_unique` it is treated as non-unique, and only duplicates of the full `(subject, predicate, object)` triple will
-  be dropped.
+
+  Normally triples are assumed unique for the first two items in each triple (subject predicate). If multiple triples have the same subject-predicate pairing, the oldest triple will be dropped and replaced with the newest one. By adding a predicate to `non_unique` it is treated as non-unique, and only duplicates of the full `(subject, predicate, object)` triple will be dropped.
+* `allow_empty_subject: bool`
+
+  By default, an exception is raised if any triple does not have a subject. If this flag is set to `True` instead that triple is just omitted from the output.
 
 
 ## Findings

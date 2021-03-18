@@ -34,6 +34,17 @@ def _as_iri(formatter, template, params):
     return rdf.from_qname(result)
 
 
+def _as_iri_or_none(formatter, template, params):
+    try:
+        result = formatter.vformat(template, (), params)
+    except (IndexError, KeyError, ValueError):
+        return None
+    if not result:
+        # TODO: Raise in this case, partial rows are problems here
+        return None
+    return rdf.from_qname(result)
+
+
 def _as_obj(formatter, template, params):
     try:
         result = formatter.vformat(template, (), params)
@@ -53,6 +64,7 @@ class Transform:
         'queries',
         'triples',
         'non_unique',
+        'allow_empty_subject',
     )
 
     def __init__(self, name, details):
@@ -129,7 +141,24 @@ class Transform:
             if result:
                 [[params[k]]] = result
 
+        yield from self._iter_row_triples(_f, params)
+
+    @property
+    def _iter_row_triples(self):
+        if getattr(self, 'allow_empty_subject', False):
+            return self._iter_row_triples_some_subj
+        return self._iter_row_triples_must_subj
+
+    def _iter_row_triples_must_subj(self, _f, params):
         for s, p, o in self.triples:
             obj = _as_obj(_f, o, params)
             if obj is not None:
                 yield (_as_iri(_f, s, params), _as_iri(_f, p, params), obj)
+
+    def _iter_row_triples_some_subj(self, _f, params):
+        for s, p, o in self.triples:
+            obj = _as_obj(_f, o, params)
+            if obj is not None:
+                subj = _as_iri_or_none(_f, s, params)
+                if subj is not None:
+                    yield (subj, _as_iri(_f, p, params), obj)
