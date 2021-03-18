@@ -7,6 +7,7 @@
         'parent_iri': 'vm:HE/orgunit-{row[OrgUnitID].as_slug}',
         'activity_iri': 'vm:HE/{row[ActivityID].as_slug}',
     },
+    'non_unique': ['vm:hasInvolvement'],
     'triples': [
         ('{iri}', 'rdf:type', 'vm:HE/ActivityInvolvement'),
         ('{iri}', 'vm:description', '{row[Description].as_text}'),
