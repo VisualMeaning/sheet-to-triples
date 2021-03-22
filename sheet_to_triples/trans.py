@@ -65,10 +65,12 @@ class Transform:
         'triples',
         'non_unique',
         'allow_empty_subject',
+        'skip_empty_rows',
     )
 
     def __init__(self, name, details):
         self.name = name
+        self.skip_empty_rows = False
         for k in details:
             setattr(self, k, details[k])
 
