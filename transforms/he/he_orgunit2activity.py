@@ -7,6 +7,8 @@
         'parent_iri': 'vm:HE/orgunit-{row[OrgUnitID].as_slug}',
         'activity_iri': 'vm:HE/{row[ActivityID].as_slug}',
     },
+    'allow_empty_subject': True,
+    'skip_empty_rows': True,
     'non_unique': ['vm:hasInvolvement'],
     'triples': [
         ('{iri}', 'rdf:type', 'vm:HE/ActivityInvolvement'),

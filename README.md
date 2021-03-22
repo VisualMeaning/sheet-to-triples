@@ -77,6 +77,9 @@ The top level attributes of a transform are:
 * `allow_empty_subject: bool`
 
   By default, an exception is raised if any triple does not have a subject. If this flag is set to `True` instead that triple is just omitted from the output.
+* `skip_empty_rows: bool`
+
+  By default the first empty row found in a sheet is treated as the EOF and row parsing will halt if one is encountered. If this flag is set to `True` then empty rows will be skipped over instead and the entire sheet will be parsed.
 
 
 ## Findings

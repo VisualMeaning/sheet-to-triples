@@ -29,11 +29,14 @@ def iter_sheet(books, sheet_name):
     raise ValueError(f'sheet {sheet_name!r} not found') from last_err
 
 
-def as_rows(row_iter, required_headers):
+def as_rows(row_iter, required_headers, skip_empty_rows):
     header_values = advance_headers(row_iter, required_headers)
     n_from_h = {h: i for i, h in reversed(list(enumerate(header_values)))}
     for row in row_iter:
+        # treat blank row as EOF if skip_empty_rows not True
         if all(not r.value for r in row):
+            if skip_empty_rows:
+                continue
             return
         yield field.Row({h: row[n_from_h[h]].value for h in required_headers})
 
