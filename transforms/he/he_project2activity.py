@@ -3,7 +3,7 @@
     'sheet': 'activity2project',
     'lets': {
         'iri': 'vm:HE/{row[Project].as_slug}-{row[ActivityID].as_slug}',
-        'parent_iri': 'vm:HE/orgunit-{row[Project].as_slug}',
+        'parent_iri': 'vm:HE/{row[Project].as_slug}',
         'activity_iri': 'vm:HE/{row[ActivityID].as_slug}',
     },
     'non_unique': ['vm:hasInvolvement'],
