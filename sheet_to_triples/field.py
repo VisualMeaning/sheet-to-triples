@@ -86,6 +86,17 @@ class Cell:
         # TODO: Check expected order (leaflet only is backwards?)
         return f'[{lat}, {lng}]'
 
+    @property
+    def as_date(self):
+        return _must(self._value.strftime('%Y-%m-%d'))
+
+    @property
+    def as_date_or_text(self):
+        try:
+            return self.as_date
+        except AttributeError:
+            return self.as_text
+
 
 class Row:
     """Group of fields keyed by name."""
