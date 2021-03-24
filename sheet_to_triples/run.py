@@ -67,7 +67,7 @@ class Runner:
 
     def save_model(self, filepath):
         with open(filepath, 'w') as f:
-            json.dump(self.model, f)
+            json.dump(self.model, f, ensure_ascii=False)
 
 
 def show_graph(graph):
