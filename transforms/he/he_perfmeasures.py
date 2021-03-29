@@ -62,8 +62,7 @@
         'lets': {
             'pm_iri': 'vm:HE/{row[MET number (VM)].as_slug}',
             'rec_iri': 'vm:HE/{row[Linked to PM number].as_slug}',
-            'dr_iri': ('vm:HE/{row[Performance Specification / Desired Result]'
-                       '.as_slug}')
+            'dr_iri': 'vm:HE/{row[AI_desired_result].as_slug}',
         },
         'triples': [
             # Desired Result - this should link up with top level definitions
