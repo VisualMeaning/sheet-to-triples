@@ -4,6 +4,7 @@
 """Interfaces for mapping from tabular data."""
 
 import ast
+import json
 import re
 
 
@@ -56,6 +57,10 @@ class Cell:
     @property
     def as_uc(self):
         return _must(self._pattern.sub('', self._value.strip().title()))
+
+    @property
+    def as_json(self):
+        return json.dumps(_must(self._value), ensure_ascii=False)
 
     @property
     def as_text(self):
