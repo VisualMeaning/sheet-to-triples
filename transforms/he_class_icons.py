@@ -1,7 +1,7 @@
 {
     'data': [
-        ('vm:HE/IntangibleAsset', 'Intangible Asset'),
-        ('vm:HE/TangibleAsset', 'Tangible Asset'),
+        ('vm:IntangibleAsset', 'Intangible Asset'),
+        ('vm:TangibleAsset', 'Tangible Asset'),
         ('http://webprotege.stanford.edu/RCnRceKsHZf8Gt9UvDjM6We',
             'Delivery partner'),
         ('http://webprotege.stanford.edu/R93SkoUnFXM1KEjUDb2Ij3n',
@@ -19,6 +19,8 @@
         ('http://webprotege.stanford.edu/R9CEIYtS6EVWnP7kLOlZGYO',
             'Data Asset'),
         ('vm:HE/Activity', 'Activity'),
+        ('vm:DesiredResult', 'Desired Result'),
+        ('http://www.w3.org/ns/org#OrganisationalUnit', 'Organisational unit'),
     ],
     'triples': [
         ('{row[0]}', 'vm:hasIcon',
