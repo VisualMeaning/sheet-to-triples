@@ -1,5 +1,5 @@
-# use "Highways > 000 Data Ingest > 20210305 orgunit2actvity - master.xlsx"
 {
+    'book': '20210329 org_unit2activity - master.xlsx',
     'sheet': 'org_unit2activity',
     'lets': {
         'iri': ('vm:HE/orgunit-{row[OrgUnitID].as_slug}'
@@ -11,7 +11,7 @@
     'skip_empty_rows': True,
     'non_unique': ['vm:hasInvolvement'],
     'triples': [
-        ('{iri}', 'rdf:type', 'vm:HE/ActivityInvolvement'),
+        ('{iri}', 'rdf:type', 'vm:ActivityInvolvement'),
         ('{iri}', 'vm:description', '{row[Description].as_text}'),
         # name is just here so that I can see it in the explorer view for now
         ('{iri}', 'vm:name',
