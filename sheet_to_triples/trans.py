@@ -83,14 +83,12 @@ class Transform:
     def from_name(cls, name):
         path = os.path.join('transforms', name + '.py')
         with open(path, 'r', encoding='utf-8') as f:
-            return cls(name, ast.literal_eval(f.read()))
-
-    @classmethod
-    def from_spec(cls, name):
-        path = os.path.join('transforms', name + '.py')
-        with open(path, 'r', encoding='utf-8') as f:
-            for t in ast.literal_eval(f.read()):
-                yield cls(name, t)
+            transform = ast.literal_eval(f.read())
+            if isinstance(transform, list):
+                for t in transform:
+                    yield cls(name, t)
+            else:
+                yield cls(name, transform)
 
     def get_non_uniques(self, ns):
         non_unique = getattr(self, 'non_unique', ())

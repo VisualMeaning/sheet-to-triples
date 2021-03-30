@@ -4,6 +4,7 @@
 """Convert tabular data into triples."""
 
 import argparse
+import itertools
 import os
 import sys
 
@@ -35,6 +36,14 @@ def _parse_book_path(path):
         yield path
 
 
+def _parse_transform_list(path):
+    transforms = []
+    with open(path, 'r') as f:
+        for transform in f.read().splitlines():
+            transforms.extend(trans.Transform.from_name(transform))
+    return transforms
+
+
 def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
     parser.add_argument(
@@ -56,14 +65,16 @@ def parse_args(argv):
     parser.add_argument(
         '--verbose', action='store_true', help='show details as turtle')
     parser.add_argument(
-        '--spec', action='extend', type=trans.Transform.from_spec,
-        help='add multiple transforms from a single spec file')
+        '--from-list', type=_parse_transform_list,
+        help='add multiple transforms from a text file of transform names')
     parser.add_argument(
         'transform', nargs='*', type=trans.Transform.from_name,
         help='names of any transforms to run')
     args = parser.parse_args(argv[1:])
-    if args.spec:
-        args.transform.extend(args.spec)
+    # need to flatten this slightly awkward way as action=extend doesn't work
+    args.transform = list(itertools.chain(*args.transform))
+    if args.from_list:
+        args.transform.extend(args.from_list)
     if not args.book:
         need_book = set(tf.name for tf in args.transform if tf.uses_sheet())
         if need_book:
