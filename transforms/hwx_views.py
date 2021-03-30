@@ -1,25 +1,44 @@
 {
-    'data': [
-        ('activity', 'activity', '', 'Activity View',
-            'plottable=t&group=type'),
-        ('org', 'org', 'org', 'Organisation View',
-            'a=org:OrganisationalUnit'),
-        ('orgpeople', 'org', 'org', 'Organisation + People View',
-            'a=org:OrganisationalUnit+foaf:Person&group=org'),
-        ('cap', 'cap', 'cap', 'Capability View', 'a=HE/Capability'),
-    ],
-    'lets': {
-        'iri': 'vm:{row[0]}',
+    'data': [{
+        'view_id': 'activity',
+        'geog_id': 'activity',
+        'tile_id': '',
+        'version': '',
+        'name': 'Activity View',
+        'filters': 'plottable=t&group=type',
+     }, {
+        'view_id': 'org',
+        'geog_id': 'org',
+        'tile_id': 'org',
+        'version': '20210330',
+        'name': 'Organisation View',
+        'filters': 'a=org:OrganisationalUnit',
+     }, {
+        'view_id': 'org-people',
+        'geog_id': 'org',
+        'tile_id': 'org',
+        'version': '20210330',
+        'name': 'Organisation + People View',
+        'filters': 'a=org:OrganisationalUnit+foaf:Person&group=org',
+     }, {
+        'view_id': 'cap',
+        'geog_id': 'cap',
+        'tile_id': 'cap',
         'version': '20210311',
+        'name': 'Capability View',
+        'filters': 'a=HE/Capability',
+     }],
+    'lets': {
+        'iri': 'vm:{row[view_id]}',
     },
     'triples': [
         ('{iri}', 'rdf:type', 'vm:View'),
-        ('{iri}', 'vm:name', '{row[3]}'),
+        ('{iri}', 'vm:name', '{row[name]}'),
         ('{iri}', 'vm:usesMapTiles',
-            'https://opatlas-live.s3.amazonaws.com/hwx/{version}/overlays/'
-            '{row[2].as_text}/{{z}}-{{x}}-{{y}}.png#background:#fff'),
-        ('{iri}', 'vm:useFilters', '{row[4]}'),
+            'https://opatlas-live.s3.amazonaws.com/hwx/{row[version]}/'
+         'overlays/{row[tile_id]}/{{z}}-{{x}}-{{y}}.png#background:#fff'),
+        ('{iri}', 'vm:useFilters', '{row[filters]}'),
         ('{iri}', 'vm:asOrdinal', '{n}'),
-        ('{iri}', 'vm:comment', '{row[1]}'),
+        ('{iri}', 'vm:comment', '{row[geog_id]}'),
     ],
 }
