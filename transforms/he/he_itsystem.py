@@ -3,6 +3,7 @@
     'sheet': 'itsystem',
     'lets': {
         'iri': 'vm:HE/itsystem-{row[ITSystemID].as_slug}',
+        'dp_iri': 'vm:/HE/deliverypartner-{row[DeliveryPartner].as_slug}',
     },
     'allow_empty_subject': True,
     'non_unique': ['vm:supports'],
@@ -12,8 +13,10 @@
         ('{iri}', 'vm:name', '{row[Shortname].as_text}'),
         ('{iri}', 'vm:description', '{row[Description].as_text}'),
         # possibly available via deliverypartner instead?
-        ('vm:/HE/deliverypartner-{row[DeliveryPartner].as_slug}',
-            'vm:supports', '{iri}'),
+        ('{dp_iri}', 'vm:supports', '{iri}'),
+        # requested properties
+        ('{iri}', 'vm:deliveredBy', '{dp_iri}'),
+        ('{iri}', 'vm:vendor', '{row[Vendor].as_text}')
         # columns present in sheet but unpopulated
         # ('{iri}', 'vm:ownedBy',
         #   'vm:/HE/person-{row[Person as Owner].as_slug}'),
