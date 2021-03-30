@@ -20,7 +20,6 @@ PURGE_MAP = {
     'issues': rdf.relates_issue,
 }
 
-
 def _is_book_path(path):
     return path.endswith(('.xls', '.xlsx'))
 
@@ -33,8 +32,8 @@ def _parse_book_path(path):
             return
     else:
         yield path
-
-
+            
+    
 def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
     parser.add_argument(
