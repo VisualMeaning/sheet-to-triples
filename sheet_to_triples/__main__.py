@@ -4,6 +4,7 @@
 """Convert tabular data into triples."""
 
 import argparse
+import os
 import sys
 
 from . import (
@@ -20,10 +21,24 @@ PURGE_MAP = {
 }
 
 
+def _is_book_path(path):
+    return path.endswith(('.xls', '.xlsx'))
+
+
+def _parse_book_path(path):
+    if os.path.isdir(path):
+        for root, dirs, files in os.walk(path):
+            for filepath in filter(_is_book_path, files):
+                yield os.path.join(root, filepath)
+            return
+    else:
+        yield path
+
+
 def parse_args(argv):
     parser = argparse.ArgumentParser(argv[0], description=__doc__)
     parser.add_argument(
-        '--book', action='append',
+        '--book', action='extend', type=_parse_book_path,
         help='paths to any spreadsheet files to load')
     parser.add_argument(
         '--add-graph', help='path to existing graph to add to model')
