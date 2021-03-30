@@ -4,6 +4,7 @@
 """Run group of transforms on existing data and graph."""
 
 import json
+import os
 
 from . import (
     field,
@@ -28,7 +29,10 @@ class Runner:
 
     @classmethod
     def from_args(cls, args):
-        book = args.book and list(map(xl.load_book, args.book))
+        if args.book:
+            book = {os.path.basename(b): xl.load_book(b) for b in args.book}
+        else:
+            book = dict()
         model = args.model and cls.load_model(args.model)
         return cls(book, model, args.purge_except, args.verbose)
 
@@ -53,9 +57,16 @@ class Runner:
     def ns(self):
         return self.graph.namespace_manager
 
+    def _get_books(self, book):
+        if book:
+            if book not in self.books:
+                raise ValueError('required book {} not found'.format(book))
+            return [self.books[book]]
+        return self.books.values()
+
     def _iter_data(self, tf):
         if self.books and tf.uses_sheet():
-            row_iter = xl.iter_sheet(self.books, tf.sheet)
+            row_iter = xl.iter_sheet(self._get_books(tf.book), tf.sheet)
             return xl.as_rows(
                 row_iter, tf.required_rows(), tf.skip_empty_rows)
         return (field.Row(r) for r in getattr(tf, 'data', ()))

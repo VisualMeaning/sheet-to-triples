@@ -59,6 +59,7 @@ class Transform:
     __slots__ = (
         'name',
         'data',
+        'book',
         'sheet',
         'lets',
         'queries',
@@ -70,6 +71,7 @@ class Transform:
 
     def __init__(self, name, details):
         self.name = name
+        self.book = None
         self.skip_empty_rows = False
         for k in details:
             setattr(self, k, details[k])
