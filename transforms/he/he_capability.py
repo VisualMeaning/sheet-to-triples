@@ -1,11 +1,12 @@
-# use "Highways > 000 Data Ingest > capability2activity.xlsx"
 {
+    'book': 'capability2activity.xlsx',
     'sheet': 'capability',
+    'allow_empty_subject': True,
     'lets': {
         'iri': 'vm:HE/{row[CapabilityID].as_slug}',
     },
     'triples': [
-        ('{iri}', 'rdf:type', 'vm:HE/Capability'),
+        ('{iri}', 'rdf:type', 'vm:Capability'),
         ('{iri}', 'vm:description', '{row[Description].as_text}'),
         ('{iri}', 'vm:name', '{row[CapabilityID].as_text}'),
         ('{iri}', 'skos:altLabel', '{row[Abbreviation].as_text}'),

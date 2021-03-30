@@ -1,15 +1,14 @@
-# use "Highways > 000 Data Ingest > 20210311 activity2itsystem v3.xlsx"
 {
-    'sheet': 'itsystem',
+    'book': '20210330 dataasset2itsystem2activity.xlsx',
+    'sheet': 'ITSystem',
     'lets': {
         'iri': 'vm:HE/itsystem-{row[ITSystemID].as_slug}',
-        'dp_iri': 'vm:/HE/deliverypartner-{row[DeliveryPartner].as_slug}',
+        'dp_iri': 'vm:HE/deliverypartner-{row[DeliveryPartner].as_slug}',
     },
     'allow_empty_subject': True,
     'non_unique': ['vm:supports'],
     'triples': [
-        ('{iri}', 'rdf:type',
-            'http://webprotege.stanford.edu/R9yHLGw3z6gILmTwQSizzdi'),
+        ('{iri}', 'rdf:type', 'http://webprotege.stanford.edu/ItSystem'),
         ('{iri}', 'vm:name', '{row[Shortname].as_text}'),
         ('{iri}', 'vm:description', '{row[Description].as_text}'),
         # possibly available via deliverypartner instead?

@@ -1,5 +1,5 @@
-# use "Highways > 000 Data Ingest > capability2activity.xlsx"
 {
+    'book': 'capability2activity.xlsx',
     'sheet': 'cap2activity',
     'lets': {
         'iri': 'vm:HE/{row[CapabilityID].as_slug}-{row[ActivityID].as_slug}',
@@ -8,7 +8,7 @@
     'allow_empty_subject': True,
     'non_unique': ['vm:hasInvolvement'],
     'triples': [
-        ('{iri}', 'rdf:type', 'vm:HE/ActivityInvolvement'),
+        ('{iri}', 'rdf:type', 'vm:ActivityInvolvement'),
         ('{iri}', 'vm:description', '{row[Description].as_text}'),
         ('{iri}', 'vm:name',
             '{row[CapabilityID].as_slug}-{row[ActivityID].as_slug}'),

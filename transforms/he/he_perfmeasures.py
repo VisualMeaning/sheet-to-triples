@@ -1,5 +1,3 @@
-# uses Highways > 000 Data Ingest > 20210323 performance measures.xlsx
-
 # defines properties and relationships for the following classes:
 # * Desired Result (which may be assessed by many Performance Measures)
 # * Performance Measure (which may be measured by many Recorded Measures)
@@ -8,6 +6,7 @@
 # * Unit
 [
     {
+        'book': '20210323 performance measures.xlsx',
         'sheet': 'PM Results',
         'non_unique': ['vm:hasRecordedMeasure'],
         'lets': {
@@ -44,6 +43,7 @@
         ],
     },
     {
+        'book': '20210323 performance measures.xlsx',
         'sheet': 'Performance Measures (PM)',
         'lets': {
             'rec_iri': 'vm:HE/{row[PM number (VM)].as_slug}',
@@ -57,6 +57,7 @@
         # sheet's concept of a Metric actually occupies the corresponding
         # position of the ontology's Performance Measure, and the sheet's
         # Performance Measure is an ontology Recorded Measure
+        'book': '20210323 performance measures.xlsx',
         'sheet': 'Metrics2PM ',
         'non_unique': ['vm:measures', 'vm:hasRecordedMeasure'],
         'lets': {
@@ -83,6 +84,7 @@
         ],
     },
     {
+        'book': '20210323 performance measures.xlsx',
         'sheet': 'HE Metrics',
         'allow_empty_subject': True,
         'lets': {
@@ -95,6 +97,7 @@
     {
         # Can link from PM to activity but not from Desired Result to activity
         # as the ontology specifies
+        'book': '20210323 performance measures.xlsx',
         'sheet': 'Metric_2_activity',
         'lets': {
             'pm_iri': 'vm:HE/{row[MET number (VM)].as_slug}',
