@@ -1,21 +1,20 @@
-# use "Highways > 000 Data Ingest > 20210311 activity2itsystem v3.xlsx"
 {
-    'sheet': 'itsystem',
+    'book': '20210331 dataasset2itsystem2activity.xlsx',
+    'sheet': 'ITSystem',
     'lets': {
         'iri': 'vm:HE/itsystem-{row[ITSystemID].as_slug}',
-        'dp_iri': 'vm:/HE/deliverypartner-{row[DeliveryPartner].as_slug}',
+        'dp_iri': 'vm:HE/deliverypartner-{row[DeliveryPartner].as_slug}',
     },
     'allow_empty_subject': True,
     'non_unique': ['vm:supports'],
     'triples': [
-        ('{iri}', 'rdf:type',
-            'http://webprotege.stanford.edu/R9yHLGw3z6gILmTwQSizzdi'),
+        ('{iri}', 'rdf:type', 'http://webprotege.stanford.edu/ItSystem'),
         ('{iri}', 'vm:name', '{row[Shortname].as_text}'),
         ('{iri}', 'vm:description', '{row[Description].as_text}'),
-        # possibly available via deliverypartner instead?
-        ('{dp_iri}', 'vm:supports', '{iri}'),
+        # delivery partner entity doesn't exist
+        # ('{dp_iri}', 'vm:supports', '{iri}'),
         # requested properties
-        ('{iri}', 'vm:deliveredBy', '{dp_iri}'),
+        ('{iri}', 'vm:deliveredBy', '{row[DeliveryPartner].as_text}'),
         ('{iri}', 'vm:vendor', '{row[Vendor].as_text}')
         # columns present in sheet but unpopulated
         # ('{iri}', 'vm:ownedBy',
