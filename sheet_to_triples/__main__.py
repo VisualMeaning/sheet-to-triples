@@ -40,11 +40,15 @@ def _parse_transform_list(path):
     transforms = []
     with open(path, 'r') as f:
         for transform in f.read().splitlines():
+<<<<<<< a608a04700f9c75546991aca83af15bb075a4a00
 <<<<<<< b078f5cae3b271a03e8850643371e21eab7ea3dd
             transforms.extend(trans.Transform.iter_from_name(transform))
 =======
             transforms.extend(trans.Transform.from_name(transform))
 >>>>>>> Remove `--spec` and infer from file data instead.
+=======
+            transforms.extend(trans.Transform.iter_from_name(transform))
+>>>>>>> Rename `from_name` to something more appropriate.
     return transforms
 
 
