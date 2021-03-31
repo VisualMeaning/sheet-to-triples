@@ -40,7 +40,7 @@ def _parse_transform_list(path):
     transforms = []
     with open(path, 'r') as f:
         for transform in f.read().splitlines():
-            transforms.extend(trans.Transform.from_name(transform))
+            transforms.extend(trans.Transform.iter_from_name(transform))
     return transforms
 
 
@@ -68,7 +68,7 @@ def parse_args(argv):
         '--from-list', type=_parse_transform_list,
         help='add multiple transforms from a text file of transform names')
     parser.add_argument(
-        'transform', nargs='*', type=trans.Transform.from_name,
+        'transform', nargs='*', type=trans.Transform.iter_from_name,
         help='names of any transforms to run')
     args = parser.parse_args(argv[1:])
     # need to flatten this slightly awkward way as action=extend doesn't work

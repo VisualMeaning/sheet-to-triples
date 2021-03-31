@@ -80,7 +80,7 @@ class Transform:
         return f'<{self.__class__.__name__} {self.name!r}>'
 
     @classmethod
-    def from_name(cls, name):
+    def iter_from_name(cls, name):
         path = os.path.join('transforms', name + '.py')
         with open(path, 'r', encoding='utf-8') as f:
             transform = ast.literal_eval(f.read())
