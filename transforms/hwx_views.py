@@ -26,7 +26,7 @@
         'tile_id': 'cap',
         'version': '20210311',
         'name': 'Capability View',
-        'filters': 'a=HE/Capability',
+        'filters': 'a=Capability',
      }],
     'lets': {
         'iri': 'vm:{row[view_id]}',
@@ -35,7 +35,7 @@
         ('{iri}', 'rdf:type', 'vm:View'),
         ('{iri}', 'vm:name', '{row[name]}'),
         ('{iri}', 'vm:usesMapTiles',
-            'https://opatlas-live.s3.amazonaws.com/hwx/{row[version]}/'
+            'https://opatlas-live.s3.amazonaws.com/hwx/{row[version].as_text}/'
          'overlays/{row[tile_id]}/{{z}}-{{x}}-{{y}}.png#background:#fff'),
         ('{iri}', 'vm:useFilters', '{row[filters]}'),
         ('{iri}', 'vm:asOrdinal', '{n}'),

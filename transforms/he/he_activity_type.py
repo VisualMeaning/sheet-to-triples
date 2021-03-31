@@ -24,9 +24,11 @@
             'activity_iri':  'vm:HE/{row[ActivityID].as_slug}'
         },
         'triples': [
-            ('{activity_iri}', 'vm:activityType', '{type_iri}'),
+            ('{activity_iri}', 'vm:activityType',
+                'vm:HE/activitytype-{row[activity_type].as_slug}'),
             # two way relationship requested but not in ontology, so wing it
-            ('{type_iri}', 'vm:hasActivity', '{activity_iri}'),
+            ('{type_iri}', 'vm:hasActivity',
+                'vm:HE/{row[ActivityID].as_slug}'),
         ],
     },
 ]

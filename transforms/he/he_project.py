@@ -1,6 +1,6 @@
 # no guidelines for how to treat this in ontology so just wing it
 {
-    'book': '20210311 activity2project.xlsx',
+    'book': '20210331 activity2project.xlsx',
     'sheet': 'project',
     'lets': {
         'iri': 'vm:HE/{row[project].as_slug}',
