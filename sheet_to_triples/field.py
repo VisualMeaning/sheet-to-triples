@@ -35,28 +35,39 @@ def _must(value, exception_type=ValueError):
     return value
 
 
+def _str(value):
+    """Cast to string but raise if None or empty after strip."""
+    if value is not None:
+        if not isinstance(value, str):
+            value = str(value)
+        value = value.strip()
+    if not value:
+        raise ValueError('empty string value')
+    return value
+
+
 class Cell:
     """Single field value for interpretation in context."""
 
     _pattern = re.compile(r'\W+')
 
     def __init__(self, value):
-        self._value = '' if value is None else value
+        self._value = value
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self._value!r})'
 
     def __str__(self):
-        return str(self._value)
+        return _str(self._value)
 
     @property
     def as_slug(self):
-        content = self._value.replace('&', 'and').strip()
+        content = _str(self._value).replace('&', 'and')
         return _must(self._pattern.sub('-', content).lower())
 
     @property
     def as_uc(self):
-        return _must(self._pattern.sub('', self._value.strip().title()))
+        return _must(self._pattern.sub('', _str(self._value).title()))
 
     @property
     def as_json(self):
@@ -64,11 +75,11 @@ class Cell:
 
     @property
     def as_text(self):
-        return _must(self._value.strip())
+        return _str(self._value)
 
     @property
     def as_capital(self):
-        return _must(_CAPTYPES.get(self._value.strip()[:5].lower()), TypeError)
+        return _must(_CAPTYPES.get(_str(self._value)[:5].lower()), TypeError)
 
     @property
     def as_capital_effect(self):
@@ -76,7 +87,7 @@ class Cell:
 
     @property
     def as_type(self):
-        return _must(_TYPES.get(self._value.strip()[:4].lower()), TypeError)
+        return _must(_TYPES.get(_str(self._value)[:4].lower()), TypeError)
 
     @property
     def as_type_prefix(self):
