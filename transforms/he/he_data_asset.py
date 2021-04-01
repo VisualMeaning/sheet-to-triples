@@ -52,7 +52,7 @@
         'allow_empty_subject': True,
         'non_unique': ['vm:hasInvolvement'],
         'triples': [
-            ('{iri}', 'rdf:type', 'vm:ActivityInvolvement'),
+            ('{iri}', 'rdf:type', 'vm:HE/ActivityInvolvement'),
             # ('{iri}', 'vm:name',
             #     '{row[DataAsset].as_slug}-{row[ActivityID].as_slug}'),
             ('{parent_iri}', 'vm:hasInvolvement',

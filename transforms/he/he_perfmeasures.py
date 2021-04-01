@@ -20,12 +20,12 @@
         'triples': [
             # Recorded Measure - this is an object to attach Single Recorded
             # Measures to, there will be many dupes that get deduped later
-            ('{rec_iri}', 'rdf:type', 'vm:RecordedMeasure'),
+            ('{rec_iri}', 'rdf:type', 'vm:HE/RecordedMeasure'),
             ('{rec_iri}', 'vm:name', '{row[PM Title].as_text}'),
             ('{rec_iri}', 'vm:hasRecord', '{ind_rec_iri}'),
             # Single Recorded Measure - an invented class containing data for
             # a single record of the Recorded Measure at a fixed point in time
-            ('{ind_rec_iri}', 'rdf:type', 'vm:SingleRecordedMeasure'),
+            ('{ind_rec_iri}', 'rdf:type', 'vm:HE/SingleRecordedMeasure'),
             ('{ind_rec_iri}', 'vm:name',
                 ('{row[PM Title].as_text} - '
                  '{row[Time of measure].as_text} '
@@ -38,7 +38,7 @@
             ('{ind_rec_iri}', 'vm:measuredIn',
                 'vm:HE/unit-{row[Unit of measure].as_slug}'),
             # Unit
-            ('{unit_iri}', 'rdf:type', 'vm:Unit'),
+            ('{unit_iri}', 'rdf:type', 'vm:HE/Unit'),
             ('{unit_iri}', 'vm:name', '{row[Unit of measure].as_text}'),
         ],
     },
@@ -68,7 +68,7 @@
         'triples': [
             # Desired Result - this should link up with top level definitions
             # from the AI export
-            ('{dr_iri}', 'rdf:type', 'vm:DesiredResult'),
+            ('{dr_iri}', 'rdf:type', 'vm:HE/DesiredResult'),
             ('{dr_iri}', 'vm:name',
                 '{row[AI_desired_result].as_text}'),
             ('{pm_iri}', 'rdf:type',

@@ -8,7 +8,8 @@
     'allow_empty_subject': True,
     'non_unique': ['vm:supports'],
     'triples': [
-        ('{iri}', 'rdf:type', 'http://webprotege.stanford.edu/ItSystem'),
+        ('{iri}', 'rdf:type',
+            'http://webprotege.stanford.edu/R9yHLGw3z6gILmTwQSizzdi'),
         ('{iri}', 'vm:name', '{row[Shortname].as_text}'),
         ('{iri}', 'vm:description', '{row[Description].as_text}'),
         # delivery partner entity doesn't exist

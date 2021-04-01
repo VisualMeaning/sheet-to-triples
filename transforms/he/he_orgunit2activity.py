@@ -10,7 +10,7 @@
     'skip_empty_rows': True,
     'non_unique': ['vm:hasInvolvement'],
     'triples': [
-        ('{iri}', 'rdf:type', 'vm:ActivityInvolvement'),
+        ('{iri}', 'rdf:type', 'vm:HE/ActivityInvolvement'),
         ('{iri}', 'vm:description', '{row[Description].as_text}'),
         # name is just here so that I can see it in the explorer view for now
         # ('{iri}', 'vm:name',

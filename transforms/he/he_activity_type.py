@@ -6,7 +6,7 @@
             'type_iri': 'vm:HE/activitytype-{row[activity_type].as_slug}',
         },
         'triples': [
-            ('{type_iri}', 'rdf:type', 'vm:ActivityType'),
+            ('{type_iri}', 'rdf:type', 'vm:HE/ActivityType'),
             ('{type_iri}', 'vm:name', '{row[activity_type].as_text}'),
             ('{type_iri}', 'vm:description', '{row[description].as_text}'),
             # in ontology but not in sheet
