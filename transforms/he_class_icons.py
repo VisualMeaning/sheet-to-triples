@@ -1,5 +1,9 @@
 {
     'data': [
+        ('owl:Class', 'Class'),
+        ('vm:ActivityType', 'Activity Type'),
+        ('vm:Unit', 'Unit'),
+        ('http://xmlns.com/foaf/0.1/Person', 'Person'),
         ('vm:IntangibleAsset', 'Intangible Asset'),
         ('vm:TangibleAsset', 'Tangible Asset'),
         ('http://webprotege.stanford.edu/RCnRceKsHZf8Gt9UvDjM6We',
