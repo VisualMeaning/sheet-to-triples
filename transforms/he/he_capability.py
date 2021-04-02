@@ -6,7 +6,7 @@
         'iri': 'vm:HE/{row[CapabilityID].as_slug}',
     },
     'triples': [
-        ('{iri}', 'rdf:type', 'vm:Capability'),
+        ('{iri}', 'rdf:type', 'vm:HE/Capability'),
         ('{iri}', 'vm:description', '{row[Description].as_text}'),
         ('{iri}', 'vm:name', '{row[CapabilityID].as_text}'),
         ('{iri}', 'skos:altLabel', '{row[Abbreviation].as_text}'),

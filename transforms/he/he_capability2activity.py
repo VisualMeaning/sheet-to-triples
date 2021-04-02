@@ -7,7 +7,7 @@
     'allow_empty_subject': True,
     'non_unique': ['vm:hasInvolvement'],
     'triples': [
-        ('{iri}', 'rdf:type', 'vm:ActivityInvolvement'),
+        ('{iri}', 'rdf:type', 'vm:HE/ActivityInvolvement'),
         ('{iri}', 'vm:description', '{row[Description].as_text}'),
         # ('{iri}', 'vm:name',
         #     '{row[CapabilityID].as_slug}-{row[ActivityID].as_slug}'),

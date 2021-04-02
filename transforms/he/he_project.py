@@ -6,7 +6,7 @@
         'iri': 'vm:HE/{row[project].as_slug}',
     },
     'triples': [
-        ('{iri}', 'rdf:type', 'vm:Project'),
+        ('{iri}', 'rdf:type', 'vm:HE/Project'),
         ('{iri}', 'vm:description', '{row[description].as_text}'),
         ('{iri}', 'vm:name', '{row[project].as_text}'),
         # staffNumber has vanished from the sheet
