@@ -1,6 +1,6 @@
 [
     {
-        'book': '20210308 activity2activity_type.xlsx',
+        'book': '20210331 activity2activity_type.xlsx',
         'sheet': 'activity_type',
         'lets': {
             'type_iri': 'vm:HE/activitytype-{row[activity_type].as_slug}',

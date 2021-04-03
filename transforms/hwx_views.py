@@ -11,7 +11,7 @@
         'geog_id': 'org',
         'tile_id': 'org',
         'version': '20210330',
-        'view_bg': '#fff',
+        'view_bg': '#002e5f',
         'name': 'Organisation View',
         'filters': 'a=org:OrganisationalUnit+foaf:Person&group=org',
      }, {
@@ -19,7 +19,7 @@
         'geog_id': 'cap',
         'tile_id': 'cap',
         'version': '20210311',
-        'view_bg': '#002a5f',
+        'view_bg': '#002e5f',
         'name': 'Capability View',
         'filters': 'a=HE/Capability',
      }],
