@@ -1,9 +1,9 @@
 {
     'sheet': 'Structure',
     'lets': {
-        'iri': 'vm:stakeholder/{row[Category / Stakeholder name].as_slug}',
+        'iri': 'vm:_stakeholder_{row[Category / Stakeholder name].as_slug}',
     },
-    'non_unique': ['vm:name', 'vm:description'],
+    'non_unique': ['vm:comment', 'vm:name', 'vm:description'],
     'triples': [
         ('{iri}', 'rdf:type', 'vm:Stakeholder'),
         ('{iri}', 'vm:name', '{row[Category / Stakeholder name].as_json}@en'),
@@ -15,6 +15,9 @@
             '{row[Russian Translation: Category / Stakeholder name].as_json}'
             '@ru'),
         ('{iri}', 'vm:broader',
-            'vm:stakeholder/{row[Parent Grouping].as_slug}'),
+            'vm:_stakeholder_{row[Parent Grouping].as_slug}'),
+        ('{iri}', 'vm:comment', '{row[Map label name].as_json}@en'),
+        ('{iri}', 'vm:comment',
+            '{row[Russian translation: label name].as_json}@ru'),
     ],
 }
