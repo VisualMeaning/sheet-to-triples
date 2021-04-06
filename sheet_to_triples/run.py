@@ -36,6 +36,10 @@ class Runner:
         model = args.model and cls.load_model(args.model)
         return cls(book, model, args.purge_except, args.verbose)
 
+    def use_non_uniques(self, old_transforms):
+        for tf in old_transforms:
+            self.non_unique.update(tf.get_non_uniques(self.ns))
+
     def run(self, transforms):
         for tf in transforms:
             triples = tf.process(self.graph, self._iter_data(tf))

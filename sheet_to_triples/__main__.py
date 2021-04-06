@@ -68,6 +68,9 @@ def parse_args(argv):
         '--from-list', type=_parse_transform_list,
         help='add multiple transforms from a text file of transform names')
     parser.add_argument(
+        '--non-unique-from', type=_parse_transform_list,
+        help='load non unique triple properties from list of past transforms')
+    parser.add_argument(
         'transform', nargs='*', type=trans.Transform.iter_from_name,
         help='names of any transforms to run')
     args = parser.parse_args(argv[1:])
@@ -93,6 +96,8 @@ def main(argv):
         rdf.update_model_terms(runner.model, iter(runner.graph))
 
     with debug.context(args.debug):
+        if args.non_unique_from:
+            runner.use_non_uniques(args.non_unique_from)
         if args.transform:
             runner.run(args.transform)
             if runner.model:
