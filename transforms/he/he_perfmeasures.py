@@ -59,7 +59,11 @@
         # Performance Measure is an ontology Recorded Measure
         'book': '20210323 performance measures.xlsx',
         'sheet': 'Metrics2PM ',
-        'non_unique': ['vm:measures', 'vm:hasRecordedMeasure'],
+        'non_unique': [
+            'vm:measures',
+            'vm:hasRecordedMeasure',
+            'vm:measuredBy',
+        ],
         'lets': {
             'pm_iri': 'vm:HE/{row[MET number (VM)].as_slug}',
             'rec_iri': 'vm:HE/{row[Linked to PM number].as_slug}',
@@ -76,6 +80,7 @@
             ('{pm_iri}', 'vm:name', '{row[Title].as_text}'),
             ('{pm_iri}', 'vm:hasRecordedMeasure', '{rec_iri}'),
             ('{pm_iri}', 'vm:measures', '{dr_iri}'),
+            ('{dr_iri}', 'vm:measuredBy', '{pm_iri}'),
             # Not in sheet
             # Customer (subclass of Orgunit)
             # ('{iri}', 'vm:providesValueTo', ''),
