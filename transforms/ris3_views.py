@@ -46,12 +46,12 @@
     }, {
         'view_id': 'activity_view',
         'name': 'Activity View',
-        'geog_id': 'activity',
         'class': 'Story',
         'first_point': 'storypoints/1301',
     }, {
         'view_id': 'storypoints/1301',
         'of_story': 'activity_view',
+        'geog_id': 'activity',
         'class': 'Storypoint',
     }, {
         'view_id': 'geographic_view',
@@ -118,48 +118,56 @@
         'name': 'RIS3: Overview - Intro',
         'of_story': 'ris3_overview',
         'next_point': 'storypoints/2102',
+        'geog_id': 'activity',
         'class': 'Storypoint',
     }, {
         'view_id': 'storypoints/2102',
         'name': 'RIS3: Overview - DfT',
         'of_story': 'ris3_overview',
         'next_point': 'storypoints/2103',
+        'geog_id': 'activity',
         'class': 'Storypoint',
     }, {
         'view_id': 'storypoints/2103',
         'name': 'RIS3: Overview - ORR',
         'of_story': 'ris3_overview',
         'next_point': 'storypoints/2104',
+        'geog_id': 'activity',
         'class': 'Storypoint',
     }, {
         'view_id': 'storypoints/2104',
         'name': 'RIS3: Overview - TF',
         'of_story': 'ris3_overview',
         'next_point': 'storypoints/2105',
+        'geog_id': 'activity',
         'class': 'Storypoint',
     }, {
         'view_id': 'storypoints/2105',
         'name': 'RIS3: Overview - Board',
         'of_story': 'ris3_overview',
         'next_point': 'storypoints/2106',
+        'geog_id': 'activity',
         'class': 'Storypoint',
     }, {
         'view_id': 'storypoints/2106',
         'name': 'RIS3: Overview - Stakeholder Engagement',
         'of_story': 'ris3_overview',
         'next_point': 'storypoints/2107',
+        'geog_id': 'activity',
         'class': 'Storypoint',
     }, {
         'view_id': 'storypoints/2107',
         'name': 'RIS3: Overview - Funding',
         'of_story': 'ris3_overview',
         'next_point': 'storypoints/2108',
+        'geog_id': 'activity',
         'class': 'Storypoint',
     }, {
         'view_id': 'storypoints/2108',
         'name': 'RIS3: Overview - Asset Classes',
         'of_story': 'ris3_overview',
         'next_point': 'storypoints/2109',
+        'geog_id': 'activity',
         'class': 'Storypoint',
     }, {
         'view_id': 'storypoints/2109',
@@ -167,6 +175,7 @@
         'tile_id': 'ris3_overview_directorates',
         'bg': 'transparent',
         'of_story': 'ris3_overview',
+        'geog_id': 'activity',
         'class': 'Storypoint',
     }, {
         'view_id': 'ris3_roadmap',
