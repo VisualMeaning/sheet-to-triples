@@ -15,7 +15,7 @@
         ],
     },
     {
-        'book': '20210308 activity2activity_type.xlsx',
+        'book': '20210331 activity2activity_type.xlsx',
         'sheet': 'activity2activity_type',
         'non_unique': ['vm:hasActivity'],
         'allow_empty_subject': True,
