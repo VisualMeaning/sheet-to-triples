@@ -50,7 +50,8 @@ def parse_args(argv):
         '--book', action='extend', type=_parse_book_path,
         help='paths to any spreadsheet files to load')
     parser.add_argument(
-        '--add-graph', help='path to existing graph to add to model')
+        '--add-graph', action='append',
+        help='path to existing graph to add to model')
     parser.add_argument(
         '--model', help='path to json file with existing map model')
     parser.add_argument(
@@ -91,7 +92,8 @@ def main(argv):
     args = parse_args(argv)
     runner = run.Runner.from_args(args)
     if args.add_graph:
-        runner.graph.parse(args.add_graph, format='ttl')
+        for graph_to_add in args.add_graph:
+            runner.graph.parse(graph_to_add, format='ttl')
         runner.model['terms'] = []
         rdf.update_model_terms(runner.model, iter(runner.graph))
 
