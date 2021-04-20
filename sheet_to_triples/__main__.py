@@ -62,6 +62,9 @@ def parse_args(argv):
         type=PURGE_MAP.get, default='none',
         help='Use named rule to remove some triples from existing model')
     parser.add_argument(
+        '--no-resolve-same', action='store_false', dest='resolve_same',
+        help='keep triples that mark same identity in output model')
+    parser.add_argument(
         '--debug', action='store_true', help='debug interactively any error')
     parser.add_argument(
         '--verbose', action='store_true', help='show details as turtle')

@@ -16,7 +16,7 @@ from . import (
 class Runner:
     """Encapsulation of new data, existing model, and transform running."""
 
-    def __init__(self, books, model, purge_except, verbose):
+    def __init__(self, books, model, purge_except, resolve_same, verbose):
         self.books = books
         self.model = model
         if model:
@@ -25,6 +25,7 @@ class Runner:
         else:
             self.graph = rdf.graph_from_triples(())
         self.non_unique = set()
+        self.resolve_same = resolve_same
         self.verbose = verbose
 
     @classmethod
@@ -34,7 +35,8 @@ class Runner:
         else:
             book = dict()
         model = args.model and cls.load_model(args.model)
-        return cls(book, model, args.purge_except, args.verbose)
+        return cls(
+            book, model, args.purge_except, args.resolve_same, args.verbose)
 
     def use_non_uniques(self, old_transforms):
         for tf in old_transforms:
@@ -55,7 +57,8 @@ class Runner:
 
         if self.model:
             rdf.normalise_model(
-                self.model, self.ns, self.non_unique, self.verbose)
+                self.model, self.ns, self.non_unique, self.resolve_same,
+                self.verbose)
 
     @property
     def ns(self):

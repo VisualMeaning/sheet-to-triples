@@ -121,26 +121,28 @@ def _to_key(t, non_uniques):
     return t['subj'], t['pred']
 
 
-def normalise_model(model, ns, non_uniques, verbose):
+def normalise_model(model, ns, non_uniques, resolve_same, verbose):
     terms = model['terms']
     # Record subjects that have been renamed so triples can be moved over
-    sameAs = rdflib.namespace.OWL.sameAs.toPython()
     same = {}
-    for i in reversed(range(len(terms))):
-        t = terms[i]
-        if t['pred'] == sameAs:
-            same[t['obj']] = t['subj']
-            if verbose:
-                print('# aliasing {o} => {s}'.format(
-                    s=_n3(t['subj'], ns), o=_n3(t['obj'], ns)))
-            del terms[i]
+    if resolve_same:
+        sameAs = rdflib.namespace.OWL.sameAs.toPython()
+        for i in reversed(range(len(terms))):
+            t = terms[i]
+            if t['pred'] == sameAs:
+                same[t['obj']] = t['subj']
+                if verbose:
+                    print('# aliasing {o} => {s}'.format(
+                        s=_n3(t['subj'], ns), o=_n3(t['obj'], ns)))
+                del terms[i]
 
     # While multiple objects for a subject, predicate are generally fine
     # Our model asserts uniqueness, so discard older values.
     by_key = {}
     for t in terms:
-        if t['subj'] in same:
-            t['subj'] = same[t['subj']]
+        for k in ('subj', 'pred', 'obj'):
+            if t[k] in same:
+                t[k] = same[t[k]]
         key = _to_key(t, non_uniques)
         if verbose and key in by_key:
             print('# dropping {s} {p} {o}'.format(
