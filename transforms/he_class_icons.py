@@ -25,6 +25,10 @@
         ('vm:HE/Activity', 'Activity'),
         ('vm:HE/DesiredResult', 'Desired Result'),
         ('http://www.w3.org/ns/org#OrganisationalUnit', 'Organisational unit'),
+        ('http://www.w3.org/2002/07/owl#DatatypeProperty', 'Data type'),
+        ('vm:HE/RecordedMeasure', 'Recorded Measure'),
+        ('vm:HE/Project', 'Project'),
+        ('vm:HE/DecisionMakingBody', 'Decision making body')
     ],
     'triples': [
         ('{row[0]}', 'vm:hasIcon',
