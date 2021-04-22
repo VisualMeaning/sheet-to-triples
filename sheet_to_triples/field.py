@@ -16,8 +16,10 @@ _TYPES = {
 
 _CAPTYPES = {
     'socia': 'vm:capitalTypes/social',
+    'share': 'vm:capitalTypes/sharedFinancial',
     'finan': 'vm:capitalTypes/sharedFinancial',
     'human': 'vm:capitalTypes/human',
+    'natur': 'vm:capitalTypes/environmental',
     'envir': 'vm:capitalTypes/environmental',
 }
 
@@ -96,7 +98,7 @@ class Cell:
     @property
     def as_geo(self):
         try:
-            lat, lng = map(float, ast.literal_eval(self._value))
+            lat, lng = map(float, ast.literal_eval(self._value.strip()))
         except (SyntaxError, TypeError, ValueError):
             raise ValueError('not a geo field')
         # TODO: Check expected order (leaflet only is backwards?)

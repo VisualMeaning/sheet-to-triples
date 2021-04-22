@@ -1,11 +1,10 @@
 {
     'sheet': 'Structure',
     'lets': {
-        'iri': 'vm:stakeholder/{row[Category / Stakeholder name].as_slug}',
+        'iri': 'vm:_stakeholder_{row[Category / Stakeholder name].as_slug}',
     },
     'non_unique': ['vm:name', 'vm:description'],
     'triples': [
-        ('{iri}', 'rdf:type', 'vm:Stakeholder'),
         ('{iri}', 'vm:name', '{row[Category / Stakeholder name].as_json}@en'),
         ('{iri}', 'vm:name',
             '{row[Russian Translation: Category / Stakeholder name].as_json}'
@@ -15,6 +14,8 @@
             '{row[Russian Translation: Category / Stakeholder name].as_json}'
             '@ru'),
         ('{iri}', 'vm:broader',
-            'vm:stakeholder/{row[Parent Grouping].as_slug}'),
+            'vm:_stakeholder_{row[Parent Grouping].as_slug}'),
+        ('{iri}', 'owl:sameAs',
+            'vm:_stakeholder_{row[Map label name (if different)].as_slug}'),
     ],
 }
