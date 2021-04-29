@@ -73,7 +73,8 @@ class Cell:
 
     @property
     def as_json(self):
-        return json.dumps(_must(self._value), ensure_ascii=False)
+        return json.dumps(
+            _must(self._value), ensure_ascii=False, separators=(',', ':'))
 
     @property
     def as_text(self):
