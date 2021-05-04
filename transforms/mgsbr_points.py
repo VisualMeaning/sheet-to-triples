@@ -1,7 +1,10 @@
 {
-    'sheet': 'Brazil Pain Bright',
+    'book': 'MGS DS Brazil input sheet v3.xlsx',
+    'sheet': 'Painpoints',
     'lets': {
-        'iri': '{row[Bright/Pain].as_type_prefix}{row[Unique Name].as_slug}',
+        'iri': (
+            '{row[Bright/Pain].as_type_prefix}'
+            '{row[Painpoint / Bright spot title].as_slug}'),
     },
     'triples': [
         ('{iri}', 'rdf:type', '{row[Bright/Pain].as_type}'),
