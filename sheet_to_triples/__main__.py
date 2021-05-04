@@ -97,8 +97,7 @@ def main(argv):
     if args.add_graph:
         for graph_to_add in args.add_graph:
             runner.graph.parse(graph_to_add, format='ttl')
-        runner.model['terms'] = []
-        rdf.update_model_terms(runner.model, iter(runner.graph))
+        runner.set_terms(iter(runner.graph))
 
     with debug.context(args.debug):
         if args.non_unique_from:

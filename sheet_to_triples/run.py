@@ -42,6 +42,11 @@ class Runner:
         for tf in old_transforms:
             self.non_unique.update(tf.get_non_uniques(self.ns))
 
+    def set_terms(self, triples):
+        if self.model:
+            self.model.terms[:] = ()
+            rdf.update_model_terms(self.model, triples)
+
     def run(self, transforms):
         for tf in transforms:
             triples = tf.process(self.graph, self._iter_data(tf))
