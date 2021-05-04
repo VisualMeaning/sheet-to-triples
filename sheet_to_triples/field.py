@@ -48,6 +48,14 @@ def _str(value):
     return value
 
 
+def _literal(value):
+    """Treat as data serialised to a string."""
+    if value is not None:
+        if isinstance(value, str):
+            return ast.literal_eval(value.strip())
+    raise ValueError('not a data field')
+
+
 class Cell:
     """Single field value for interpretation in context."""
 
@@ -99,10 +107,9 @@ class Cell:
     @property
     def as_geo(self):
         try:
-            lat, lng = map(float, ast.literal_eval(self._value.strip()))
+            lat, lng = map(float, _literal(self._value))
         except (SyntaxError, TypeError, ValueError):
             raise ValueError('not a geo field')
-        # TODO: Check expected order (leaflet only is backwards?)
         return f'[{lat}, {lng}]'
 
     @property
