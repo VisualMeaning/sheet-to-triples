@@ -11,11 +11,17 @@
     'triples': [
         ('{iri}', 'rdf:type', 'vm:Painpoint'),
         ('{iri}', 'vm:harmsCapitalType', '{row[Capital type].as_capital}'),
-        ('{iri}', 'vm:name', '{row[Painpoint / Bright spot title].as_text}'),
+        ('{iri}', 'vm:name',
+            '{row[Painpoint / Bright spot title].as_json}@en'),
+        ('{iri}', 'vm:name',
+            '{row[Russian translation: Painpoint / Bright spot title].as_json}'
+            '@ru'),
         ('{iri}', 'vm:description',
-            '{row[Painpoint / Bright spot description].as_text}'),
+            '{row[Painpoint / Bright spot description].as_json}@en'),
+        ('{iri}', 'vm:description',
+            '{row[Russian translation: Painpoint / Bright spot description]'
+            '.as_json}@ru'),
         ('{iri}', 'vm:ofStakeholder', '{stakeholder}'),
-        ('{stakeholder}', 'rdf:type', 'vm:Stakeholder'),
         ('{iri}', 'vm:atGeoPoint', '{row[Coordinates].as_geo}'),
     ],
 }
