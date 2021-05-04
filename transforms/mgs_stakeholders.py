@@ -1,4 +1,5 @@
 {
+    'book': 'MGS DS Russia input sheet v4.xlsx',
     'sheet': 'Stakeholder structure',
     'lets': {
         'iri': 'vm:_stakeholder_{row[Name].as_slug}',

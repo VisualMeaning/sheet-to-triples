@@ -23,7 +23,7 @@
     ],
     'lets': {
         'iri': 'vm:{row[0]}',
-        'version': '20210429',
+        'version': '20210504',
     },
     'triples': [
         ('{iri}', 'rdf:type', 'vm:View'),
@@ -31,5 +31,8 @@
         ('{iri}', 'vm:useFilters', '{row[3]}'),
         ('{iri}', 'vm:asOrdinal', '{n}'),
         ('{iri}', 'vm:comment', '{row[2]}'),
+        ('{iri}', 'vm:usesMapTiles',
+            'https://opatlas-live.s3.amazonaws.com/mgs/{version}/overlays/'
+            '{row[0]}/{{z}}-{{x}}-{{y}}.png#background:transparent'),
     ],
 }
