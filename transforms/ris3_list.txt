@@ -1,3 +1,0 @@
-ris3_views
-ris3_risk
-he_class_icons
