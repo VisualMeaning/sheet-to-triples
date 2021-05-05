@@ -44,7 +44,7 @@ class Runner:
 
     def set_terms(self, triples):
         if self.model:
-            self.model.terms[:] = ()
+            self.model['terms'][:] = ()
             rdf.update_model_terms(self.model, triples)
 
     def run(self, transforms):
