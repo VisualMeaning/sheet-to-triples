@@ -81,7 +81,8 @@ class Transform:
 
     @classmethod
     def iter_from_name(cls, name):
-        path = os.path.join('transforms', name + '.py')
+        transforms_dir = os.getenv('TRANSFORMS_DIR', 'transforms')
+        path = os.path.join(transforms_dir, name + '.py')
         with open(path, 'r', encoding='utf-8') as f:
             transform = ast.literal_eval(f.read())
             if isinstance(transform, list):

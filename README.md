@@ -46,6 +46,7 @@ Because seeing a model in Turtle format turned out to be useful, can get that by
 
 Would be nice to just have an 'identity' transform, but the lack of clarity between appending to the model vs replacing it complicates what the command output should do.
 
+The tool looks for transform files inside the directory path specified by the `TRANSFORMS_DIR` environment variable. If unset, this will default to a folder called `transforms` inside the current working directory.
 
 ### Transform shape
 
