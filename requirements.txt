@@ -1,0 +1,4 @@
+openpyxl>=3
+rdflib>=5
+xlrd>=1
+requests>=2.25
