@@ -38,9 +38,13 @@ def _parse_book_path(path):
 
 def _parse_transform_list(path):
     transforms = []
+    dir_path = os.path.dirname(path)
     with open(path, 'r') as f:
         for transform in f.read().splitlines():
-            transforms.extend(trans.Transform.iter_from_name(transform))
+            transforms.extend(
+                trans.Transform.iter_from_name(
+                    transform, base_path=dir_path)
+            )
     return transforms
 
 
