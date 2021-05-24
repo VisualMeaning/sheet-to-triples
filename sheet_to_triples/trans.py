@@ -81,7 +81,7 @@ class Transform:
 
     @classmethod
     def iter_from_name(cls, name, base_path=None):
-        if not base_path:
+        if base_path is None:
             base_path = os.getenv('TRANSFORMS_DIR', 'transforms')
         path = os.path.join(base_path, name)
         if not path.endswith('.py'):
