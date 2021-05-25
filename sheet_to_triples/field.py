@@ -114,7 +114,7 @@ class Cell:
 
     @property
     def as_date(self):
-        return _must(self._value.strftime('%Y-%m-%d'))
+        return self._value.strftime('%Y-%m-%d')
 
     @property
     def as_date_or_text(self):
