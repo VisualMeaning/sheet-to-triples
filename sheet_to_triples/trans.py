@@ -80,9 +80,13 @@ class Transform:
         return f'<{self.__class__.__name__} {self.name!r}>'
 
     @classmethod
-    def iter_from_name(cls, name):
-        transforms_dir = os.getenv('TRANSFORMS_DIR', 'transforms')
-        path = os.path.join(transforms_dir, name + '.py')
+    def iter_from_name(cls, name, base_path=None):
+        if not base_path:
+            base_path = os.getenv('TRANSFORMS_DIR', 'transforms')
+        path = os.path.join(base_path, name)
+        if not path.endswith('.py'):
+            path += '.py'
+
         with open(path, 'r', encoding='utf-8') as f:
             transform = ast.literal_eval(f.read())
             if isinstance(transform, list):
