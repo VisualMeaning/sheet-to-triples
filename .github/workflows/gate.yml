@@ -25,4 +25,7 @@ jobs:
           poetry install --no-root
       - name: test
         run: |
+          poetry run python -m unittest discover .
+      - name: lint
+        run: |
           poetry run python -m flake8
