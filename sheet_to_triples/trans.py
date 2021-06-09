@@ -73,6 +73,8 @@ class Transform:
         self.name = name
         self.book = None
         self.skip_empty_rows = False
+        self.lets = dict()
+        self.triples = []
         for k in details:
             setattr(self, k, details[k])
 
@@ -139,7 +141,7 @@ class Transform:
 
     def _process_row(self, _f, query_map, row, n):
         params = dict(query={}, row=row, n=n)
-        for k in getattr(self, 'lets', ()):
+        for k in self.lets:
             # TODO: Defaulting to empty string is wrong if variable can't bind
             params[k] = _as_obj(_f, self.lets[k], params) or ''
 
