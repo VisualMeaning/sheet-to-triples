@@ -128,10 +128,10 @@ class Row:
     """Group of fields keyed by name."""
 
     def __init__(self, fields):
-        self._fields = fields
+        self.fields = fields
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self._fields!r})'
+        return f'{self.__class__.__name__}({self.fields!r})'
 
     def __getitem__(self, key):
-        return Cell(self._fields[key])
+        return Cell(self.fields[key])
