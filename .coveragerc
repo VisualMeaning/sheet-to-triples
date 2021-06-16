@@ -1,0 +1,11 @@
+# .coveragerc to control coverage.py
+
+[report]
+exclude_lines = 
+    if __name__ == '__main__':
+
+[run]
+omit = 
+    sheet_to_triples/debug.py
+    sheet_to_triples/csv.py
+    sheet_to_triples/tests/*
