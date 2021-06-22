@@ -2,3 +2,5 @@ __pycache__/
 
 # No opinion about exact version of dependencies for now
 poetry.lock
+
+.coverage
