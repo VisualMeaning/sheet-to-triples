@@ -85,24 +85,25 @@ class TransformTestCase(unittest.TestCase):
     def test_uses_sheet_defaults_false(self):
         self.assertFalse(trans.Transform('test', {}).uses_sheet())
 
-    def test_required_rows(self):
+    def test_required_cols(self):
         details = {
             'lets': {
                 'testvar': 'prefix_{row[column_1]}',
                 'nonevar': 'no_row_reference',
             },
+            '_cross_cols': ['column_extra'],
             'triples': [
                 ('{testvar}', 'predicate', '{row[column_2]}')
             ]
         }
         transform = trans.Transform('test', details)
         self.assertEqual(
-            transform.required_rows(),
-            {'column_1', 'column_2'}
+            transform.required_cols(),
+            {'column_1', 'column_2', 'column_extra'}
         )
 
-    def test_required_rows_empty(self):
-        self.assertFalse(trans.Transform('test', {}).required_rows())
+    def test_required_cols_empty(self):
+        self.assertFalse(trans.Transform('test', {}).required_cols())
 
     @unittest.skip
     def test_prepare_queries(self):

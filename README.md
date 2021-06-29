@@ -81,6 +81,9 @@ The top level attributes of a transform are:
 * `skip_empty_rows: bool`
 
   By default the first empty row found in a sheet is treated as the EOF and row parsing will halt if one is encountered. If this flag is set to `True` then empty rows will be skipped over instead and the entire sheet will be parsed.
+* (provisional) `_cross_cols: List[str]`
+
+  If supplied, process triples not only for each row, but for each row/column pair by multiplying the columns given in this value. An extra variable `cell` will be available for interpolation within triples.
 
 
 ## Findings

@@ -67,6 +67,7 @@ class Transform:
         'non_unique',
         'allow_empty_subject',
         'skip_empty_rows',
+        '_cross_cols',
     )
 
     def __init__(self, name, details):
@@ -75,6 +76,7 @@ class Transform:
         self.skip_empty_rows = False
         self.lets = dict()
         self.triples = []
+        self._cross_cols = ()
         for k in details:
             setattr(self, k, details[k])
 
@@ -112,10 +114,12 @@ class Transform:
         strings = (s for s in nodes | lvars if '{' in s)
         return set(r[1] for n in strings for r in formatter.parse(n))
 
-    def required_rows(self):
+    def required_cols(self):
         pattern = re.compile(r'^row\[(.*?)\]')
         matches = (pattern.match(f) for f in self._fields() if f is not None)
-        return set(m.group(1) for m in matches if m is not None)
+        cols_used = set(m.group(1) for m in matches if m is not None)
+        cols_used.update(self._cross_cols)
+        return cols_used
 
     def prepare_queries(self, for_graph):
         if not getattr(self, 'queries', None):
@@ -150,7 +154,12 @@ class Transform:
             if result:
                 [[params[k]]] = result
 
-        yield from self._iter_row_triples(_f, params)
+        iter_row = self._iter_row_triples
+        if self._cross_cols:
+            for col in self._cross_cols:
+                yield from iter_row(_f, dict(params, cell=row.condition(col)))
+        else:
+            yield from iter_row(_f, params)
 
     @property
     def _iter_row_triples(self):

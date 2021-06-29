@@ -124,6 +124,24 @@ class Cell:
             return self.as_text
 
 
+class ConditionCell(Cell):
+    """Single value with some extra chaining properties."""
+
+    def __init__(self, colname, value):
+        self._colname = colname
+        self._value = value
+
+    @property
+    def colname(self):
+        return Cell(self._colname)
+
+    @property
+    def truth(self):
+        if self._value:
+            return self
+        raise ValueError('false value')
+
+
 class Row:
     """Group of fields keyed by name."""
 
@@ -135,3 +153,6 @@ class Row:
 
     def __getitem__(self, key):
         return Cell(self.fields[key])
+
+    def condition(self, key):
+        return ConditionCell(key, self.fields[key])
