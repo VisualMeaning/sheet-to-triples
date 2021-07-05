@@ -132,7 +132,10 @@ class TestParseArgs(unittest.TestCase):
                 _mock_os_path_walk(walk_data):
             args = main.parse_args(argv)
 
-        expected = ['rootdir1/book.xlsx', 'rootdir1/book.xls']
+        expected = [
+            os.path.normpath('rootdir1/book.xlsx'),
+            os.path.normpath('rootdir1/book.xls'),
+        ]
         self.assertEqual([b for b in args.book], expected)
 
         isdir.assert_called_once_with('rootdir1')
@@ -147,8 +150,8 @@ class TestParseArgs(unittest.TestCase):
 
         expected = [
             'transform1.py',
-            'testdir/listtrans.py',
-            'testdir/listtrans2.py',
+            os.path.normpath('testdir/listtrans.py'),
+            os.path.normpath('testdir/listtrans2.py'),
         ]
         self.assertEqual(
             [t.name for t in args.transform],

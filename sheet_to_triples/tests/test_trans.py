@@ -4,6 +4,7 @@
 """Unittests for the trans.py modules of sheet-to-triples."""
 
 import copy
+import os
 import unittest
 
 from unittest import mock
@@ -39,18 +40,18 @@ class TransformTestCase(unittest.TestCase):
         self.assertIsInstance(transform, trans.Transform)
         self.assertEqual(transform.allow_empty_subject, True)
         mock_open.assert_called_once_with(
-            'test_transforms/test.py', 'r', encoding='utf-8'
+            os.path.normpath('test_transforms/test.py'), 'r', encoding='utf-8'
         )
 
     def test_iter_from_name_with_base_path(self):
         strdetails = '{"allow_empty_subject": True}'
         with _mock_open(strdetails) as mock_open, _mock_env() as mock_env:
             next(trans.Transform.iter_from_name(
-                'test', base_path='/different/path'
+                'test', base_path=os.path.normpath('/different/path')
             ))
 
         mock_open.assert_called_once_with(
-            '/different/path/test.py', 'r', encoding='utf-8'
+            os.path.normpath('/different/path/test.py'), 'r', encoding='utf-8'
         )
         mock_env.assert_not_called()
 
