@@ -86,7 +86,7 @@ class Cell:
 
     @property
     def as_text(self):
-        return _str(self._value)
+        return self._value
 
     @property
     def as_capital(self):
