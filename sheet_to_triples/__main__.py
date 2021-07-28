@@ -104,8 +104,9 @@ def run_runner(runner, args):
     with debug.context(args.debug):
         if args.non_unique_from:
             runner.use_non_uniques(args.non_unique_from)
-        if args.transform:
-            runner.run(args.transform)
+        if args.add_graph or args.transform:
+            if args.transform:
+                runner.run(args.transform)
             if runner.model:
                 runner.save_model(args.model_out)
         elif runner.verbose:
