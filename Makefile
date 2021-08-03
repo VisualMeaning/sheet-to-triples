@@ -1,14 +1,16 @@
 .PHONY: test lint check
 
+DIR = sheet_to_triples/
+
+check: lint test
+
 test:
 	poetry run python -m unittest discover .
 
-lint: 
-	poetry run python -m flake8
+lint:
+	poetry run python -m flake8 $(DIR)
 
-check: test lint
-
-LIB := $(shell find sheet_to_triples/ -name "*.py")
+LIB := $(shell find $(DIR) -name "*.py")
 
 .coverage: $(LIB)
 	poetry run coverage run --source . -m unittest discover .
