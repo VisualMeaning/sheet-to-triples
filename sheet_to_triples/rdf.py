@@ -21,14 +21,12 @@ FOAF = rdflib.namespace.FOAF
 # Include test property via hack <http://xmlns.com/foaf/spec/#term_phone>
 FOAF._ClosedNamespace__uris['phone'] = rdflib.URIRef(FOAF.uri + 'phone')
 
-_PREFIXES = ('vm:', 'rdf:', 'rdfs:', 'skos:', 'foaf:', 'owl:')
-
 
 def _cast_from_term(t):
     return (
         rdflib.URIRef(t['subj']),
         rdflib.URIRef(t['pred']),
-        from_identifier(t['obj']),
+        from_identifier(t['obj'], None),
     )
 
 
@@ -40,26 +38,33 @@ def _n3(uri, namespace_manager):
     return rdflib.URIRef(uri).n3(namespace_manager)
 
 
-def from_qname(qname, namespaces=rdflib.namespace):
-    if qname.startswith('vm:'):
-        return VM[qname[3:]]
-    if qname.startswith('http:'):
+def from_qname(qname, resolver):
+    prefix, tail = qname.split(':', 1)
+    namespace = resolver(prefix)
+    if namespace:
+        return rdflib.URIRef(namespace + tail)
+    # TODO: Is this special casing for http: strictly needed now?
+    if prefix == 'http':
         return rdflib.URIRef(qname)
-    prefix, last = qname.split(':', 1)
-    return getattr(namespaces, prefix.upper())[last]
+    raise ValueError(f'unknown prefix: {prefix}')
 
 
-def from_identifier(value, prefixes=_PREFIXES):
+def from_identifier(value, resolver):
     if isinstance(value, rdflib.term.Identifier):
         return value
-    if value.startswith(prefixes):
+    prefix, _, tail = value.partition(':')
+    if tail and resolver:
         # This is something of a hack, but detecting property paths seems
         # difficult due to syntax overlap, will have to be explicit instead.
         if ' / ' in value:
             return functools.reduce(
-                operator.truediv, map(from_qname, value.split(' / ')))
-        return from_qname(value)
-    if value.startswith('http:'):
+                operator.truediv, map(
+                    lambda v: from_qname(v, resolver),
+                    value.split(' / ')))
+        namespace = resolver(prefix)
+        if namespace:
+            return rdflib.URIRef(namespace + tail)
+    if prefix == 'http':
         return rdflib.URIRef(value)
     return rdflib.Literal(value)
 

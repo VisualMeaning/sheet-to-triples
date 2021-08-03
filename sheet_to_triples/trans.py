@@ -29,28 +29,33 @@ from . import (
 )
 
 
-def _as_iri(formatter, template, params):
-    result = formatter.vformat(template, (), params)
-    return rdf.from_qname(result)
+class _Converter:
+    """Class to interpret transform value fields as graph identifiers."""
 
+    def __init__(self, reference_graph):
+        self.vformat = string.Formatter().vformat
+        self.resolver = reference_graph.store.namespace
 
-def _as_iri_or_none(formatter, template, params):
-    try:
-        result = formatter.vformat(template, (), params)
-    except (IndexError, KeyError, ValueError):
-        return None
-    if not result:
-        # TODO: Raise in this case, partial rows are problems here
-        return None
-    return rdf.from_qname(result)
+    def as_iri(self, template, params):
+        result = self.vformat(template, (), params)
+        return rdf.from_qname(result, self.resolver)
 
+    def as_iri_or_none(self, template, params):
+        try:
+            result = self.vformat(template, (), params)
+        except (IndexError, KeyError, ValueError):
+            return None
+        if not result:
+            # TODO: Raise in this case, partial rows are problems here
+            return None
+        return rdf.from_qname(result, self.resolver)
 
-def _as_obj(formatter, template, params):
-    try:
-        result = formatter.vformat(template, (), params)
-    except (IndexError, KeyError, ValueError):
-        return None
-    return rdf.from_identifier(result)
+    def as_obj(self, template, params):
+        try:
+            result = self.vformat(template, (), params)
+        except (IndexError, KeyError, ValueError):
+            return None
+        return rdf.from_identifier(result, self.resolver)
 
 
 class Transform:
@@ -99,10 +104,11 @@ class Transform:
             else:
                 yield cls(name, transform)
 
-    def get_non_uniques(self, ns):
+    def get_non_uniques(self, namespace_manager):
         non_unique = getattr(self, 'non_unique', ())
-        # would we ever want to template this and use _as_iri instead?
-        return set(rdf.from_qname(q, ns).toPython() for q in non_unique)
+        resolver = namespace_manager.store.namespace
+        # would we ever want to template this and use as_iri instead?
+        return set(rdf.from_qname(q, resolver).toPython() for q in non_unique)
 
     def uses_sheet(self):
         return hasattr(self, 'sheet')
@@ -137,17 +143,17 @@ class Transform:
         possible cleverness to do with detecting duplicated rows or
         generated iris.
         """
-        formatter = string.Formatter()
+        converter = _Converter(reference_graph)
         queries = self.prepare_queries(reference_graph)
 
         for n, row in enumerate(row_iter, 1):
-            yield from self._process_row(formatter, queries, row, n)
+            yield from self._process_row(converter, queries, row, n)
 
-    def _process_row(self, _f, query_map, row, n):
+    def _process_row(self, converter, query_map, row, n):
         params = dict(query={}, row=row, n=n)
         for k in self.lets:
             # TODO: Defaulting to empty string is wrong if variable can't bind
-            params[k] = _as_obj(_f, self.lets[k], params) or ''
+            params[k] = converter.as_obj(self.lets[k], params) or ''
 
         for k, q in query_map.items():
             result = list(q(initBindings=params))
@@ -157,9 +163,10 @@ class Transform:
         iter_row = self._iter_row_triples
         if self._cross_cols:
             for col in self._cross_cols:
-                yield from iter_row(_f, dict(params, cell=row.condition(col)))
+                yield from iter_row(
+                    converter, dict(params, cell=row.condition(col)))
         else:
-            yield from iter_row(_f, params)
+            yield from iter_row(converter, params)
 
     @property
     def _iter_row_triples(self):
@@ -167,16 +174,16 @@ class Transform:
             return self._iter_row_triples_some_subj
         return self._iter_row_triples_must_subj
 
-    def _iter_row_triples_must_subj(self, _f, params):
+    def _iter_row_triples_must_subj(self, _c, params):
         for s, p, o in self.triples:
-            obj = _as_obj(_f, o, params)
+            obj = _c.as_obj(o, params)
             if obj is not None:
-                yield (_as_iri(_f, s, params), _as_iri(_f, p, params), obj)
+                yield (_c.as_iri(s, params), _c.as_iri(p, params), obj)
 
-    def _iter_row_triples_some_subj(self, _f, params):
+    def _iter_row_triples_some_subj(self, _c, params):
         for s, p, o in self.triples:
-            obj = _as_obj(_f, o, params)
+            obj = _c.as_obj(o, params)
             if obj is not None:
-                subj = _as_iri_or_none(_f, s, params)
+                subj = _c.as_iri_or_none(s, params)
                 if subj is not None:
-                    yield (subj, _as_iri(_f, p, params), obj)
+                    yield (subj, _c.as_iri(p, params), obj)

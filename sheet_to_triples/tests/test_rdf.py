@@ -12,30 +12,34 @@ from .. import rdf
 
 class TestRDF(unittest.TestCase):
 
+    @property
+    def resolver(self):
+        return rdf._new_graph().store.namespace
+
     def test_from_qname(self):
-        term = rdf.from_qname('owl:test')
+        term = rdf.from_qname('owl:test', self.resolver)
         self.assertIsInstance(term, rdflib.term.URIRef)
         self.assertEqual(str(term), 'http://www.w3.org/2002/07/owl#test')
 
-    def test_from_qname_prefix_vm(self):
-        term = rdf.from_qname('vm:test')
-        self.assertIsInstance(term, rdflib.term.URIRef)
-        self.assertEqual(str(term), 'http://visual-meaning.com/rdf/test')
-
     def test_from_qname_prefix_http(self):
-        term = rdf.from_qname('http://test.test')
+        term = rdf.from_qname('http://test.test', self.resolver)
         self.assertIsInstance(term, rdflib.term.URIRef)
         self.assertEqual(str(term), 'http://test.test')
+
+    def test_from_qname_unknown_prefix(self):
+        with self.assertRaises(ValueError) as ctx:
+            rdf.from_qname('unk:test', self.resolver)
+        self.assertEqual(str(ctx.exception), 'unknown prefix: unk')
 
     def test_from_identifier_already_ident(self):
         term = rdflib.term.URIRef('test')
         self.assertEqual(
-            rdf.from_identifier(term),
+            rdf.from_identifier(term, None),
             term
         )
 
     def test_from_identifier_sequencepath(self):
-        term = rdf.from_identifier('vm:a / vm:b')
+        term = rdf.from_identifier('vm:a / vm:b', self.resolver)
         expected = [
             'http://visual-meaning.com/rdf/a',
             'http://visual-meaning.com/rdf/b',
@@ -47,13 +51,13 @@ class TestRDF(unittest.TestCase):
         )
 
     def test_from_identifier_prefix_http(self):
-        term = rdf.from_identifier('http://test.test')
+        term = rdf.from_identifier('http://test.test', None)
         self.assertIsInstance(term, rdflib.term.URIRef)
         self.assertEqual(str(term), 'http://test.test')
 
     def test_from_identifier_literal(self):
         self.assertEqual(
-            rdf.from_identifier('test'),
+            rdf.from_identifier('test', None),
             rdflib.Literal('test')
         )
 

@@ -7,7 +7,9 @@ import copy
 import os
 import unittest
 
+import rdflib
 from unittest import mock
+
 from .. import trans
 
 
@@ -27,6 +29,7 @@ class TransformTestCase(unittest.TestCase):
         self.assertEqual(transform.name, 'test')
         self.assertEqual(transform.book, 'test_book.xlsx')
         self.assertEqual(transform.sheet, 'test_sheet')
+        self.assertEqual(repr(transform), '<Transform \'test\'>')
 
     def test_cannot_init_with_bad_details(self):
         with self.assertRaises(AttributeError):
@@ -75,7 +78,7 @@ class TransformTestCase(unittest.TestCase):
         transform = trans.Transform('test', details)
 
         self.assertEqual(
-            transform.get_non_uniques('test-namespace'),
+            transform.get_non_uniques(rdflib.Graph().namespace_manager),
             {'http://a', 'http://b'}
         )
 
@@ -118,7 +121,9 @@ class TransformTestCase(unittest.TestCase):
         )
 
     def _process_and_assertEqual(self, details, expected):
-        rows = trans.Transform('test', details).process({}, details['data'])
+        transform = trans.Transform('test', details)
+        # TODO: Use map(field.Row, details['data']) for full attr handling?
+        rows = transform.process(rdflib.Graph(), details['data'])
         str_rows = [[str(x) for x in r] for r in rows]
         self.assertEqual(str_rows, expected)
 
@@ -179,7 +184,8 @@ class TransformTestCase(unittest.TestCase):
 
     def test_process_no_subj(self):
         details = copy.deepcopy(self.SUBJ_DETAILS)
-        rows = trans.Transform('test', details).process({}, details['data'])
+        g = rdflib.Graph()
+        rows = trans.Transform('test', details).process(g, details['data'])
         with self.assertRaises(ValueError):
             # need to unpack from generator to trigger error
             [x for x in rows]
