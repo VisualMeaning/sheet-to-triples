@@ -3,7 +3,9 @@
 
 """Unittests for the rdf.py module of sheet-to-triples."""
 
+import io
 import unittest
+from unittest import mock
 
 import rdflib.term
 
@@ -11,6 +13,10 @@ from .. import rdf
 
 
 class TestRDF(unittest.TestCase):
+
+    @property
+    def namespace_manager(self):
+        return rdf._new_graph().namespace_manager
 
     @property
     def resolver(self):
@@ -168,13 +174,16 @@ class TestRDF(unittest.TestCase):
         ]
         model = self._model_from_triples(triples)
 
-        rdf.normalise_model(model, 'dummy', [], False, False)
+        with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+            rdf.normalise_model(
+                model, self.namespace_manager, [], False, False)
 
         # it should take the last recorded triple in the list
         expected_triples = [
             ('test_subj', 'test_pred', 'test_obj2'),
         ]
         self.assertEqual(model, self._model_from_triples(expected_triples))
+        self.assertRegex(fake_out.getvalue(), r'^# dropping .*$')
 
     def test_normalise_model_non_unique_predicate(self):
         triples = [
@@ -183,7 +192,8 @@ class TestRDF(unittest.TestCase):
             ('test_subj', 'test_pred', 'test_obj2'),
         ]
         model = self._model_from_triples(triples)
-        rdf.normalise_model(model, 'dummy', ['test_pred'], False, False)
+        rdf.normalise_model(
+            model, self.namespace_manager, ['test_pred'], False, False)
         # should allow multiple obj values for one predicate
         expected_triples = [
             ('test_subj', 'test_pred', 'test_obj'),
@@ -200,12 +210,14 @@ class TestRDF(unittest.TestCase):
             ('test_subj2', 'test_pred2', 'test_obj2'),
         ]
         model = self._model_from_triples(triples)
-        rdf.normalise_model(model, 'dummy', [], True, False)
+        with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+            rdf.normalise_model(model, self.namespace_manager, [], True, False)
         expected_triples = [
             ('test_subj', 'test_pred', 'test_obj'),
             ('test_subj', 'test_pred2', 'test_obj2'),
         ]
         self.assertEqual(model, self._model_from_triples(expected_triples))
+        self.assertRegex(fake_out.getvalue(), r'^# dropping .*$')
 
     def test_normalise_model_ordering(self):
         triples = [
@@ -215,7 +227,8 @@ class TestRDF(unittest.TestCase):
             ('test_subj1', 'test_pred1', 'test_obj1'),
         ]
         model = self._model_from_triples(triples)
-        rdf.normalise_model(model, 'dummy', ['test_pred1'], False, False)
+        rdf.normalise_model(
+            model, self.namespace_manager, ['test_pred1'], False, False)
 
         expected_triples = [
             ('test_subj1', 'test_pred1', 'test_obj2'),
