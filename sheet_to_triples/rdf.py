@@ -151,7 +151,7 @@ def normalise_model(model, ns, non_uniques, resolve_same, verbose):
             if t[k] in same:
                 t[k] = same[t[k]]
         key = _to_key(t, non_uniques)
-        if verbose and key in by_key:
+        if key in by_key and (verbose or by_key[key]['obj'] != t['obj']):
             print('# dropping {s} {p} {o}'.format(
                 s=_n3(key[0], ns), p=_n3(key[1], ns), o=by_key[key]['obj']))
         by_key[key] = t
