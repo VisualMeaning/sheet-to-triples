@@ -54,16 +54,18 @@ def from_identifier(value, resolver):
         return value
     prefix, _, tail = value.partition(':')
     if tail and resolver:
-        # This is something of a hack, but detecting property paths seems
-        # difficult due to syntax overlap, will have to be explicit instead.
-        if ' / ' in value:
-            return functools.reduce(
-                operator.truediv, map(
-                    lambda v: from_qname(v, resolver),
-                    value.split(' / ')))
+        # Might be a qname or a sparql property path
         namespace = resolver(prefix)
         if namespace:
+            # Rough hack to see if this is a sequence path, and create
+            if ' / ' in tail:
+                return functools.reduce(
+                    operator.truediv, map(
+                        lambda v: from_qname(v, resolver),
+                        value.split(' / ')))
+            # Common case, this is just a qname
             return rdflib.URIRef(namespace + tail)
+        # Fall through for unresolved prefix
     if prefix == 'http':
         return rdflib.URIRef(value)
     return rdflib.Literal(value)
