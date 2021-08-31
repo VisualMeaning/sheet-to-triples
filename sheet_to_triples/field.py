@@ -101,8 +101,8 @@ class Cell:
         return _must(_TYPES.get(_str(self._value)[:4].lower()), TypeError)
 
     @property
-    def as_type_prefix(self):
-        return self.as_type.lower() + '-'
+    def as_type_slug(self):
+        return self.as_type[3:].lower()
 
     @property
     def as_geo(self):

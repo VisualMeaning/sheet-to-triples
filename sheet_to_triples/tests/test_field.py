@@ -106,13 +106,13 @@ class CellTestCase(unittest.TestCase):
                 with self.assertRaises(error):
                     field.Cell(value).as_type
 
-    def test_as_type_prefix(self):
+    def test_as_type_slug(self):
         self.assertEqual(
-            field.Cell('Painpoint').as_type_prefix,
-            'vm:painpoint-'
+            field.Cell('Painpoint').as_type_slug,
+            'painpoint'
         )
 
-    def test_as_type_prefix_bad_values(self):
+    def test_as_type_slug_bad_values(self):
         errors_cases = (
             (None, ValueError),
             ('notfound', TypeError),
@@ -121,7 +121,7 @@ class CellTestCase(unittest.TestCase):
         for value, error in errors_cases:
             with self.subTest(value=value):
                 with self.assertRaises(error):
-                    field.Cell(value).as_type_prefix
+                    field.Cell(value).as_type_slug
 
     def test_as_geo(self):
         self.assertEqual(
