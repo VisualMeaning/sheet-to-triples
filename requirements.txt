@@ -1,4 +1,4 @@
 openpyxl>=3
-rdflib>=5
+rdflib==5.0.0
 xlrd>=1
 requests>=2.25
