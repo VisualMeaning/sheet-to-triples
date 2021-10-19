@@ -57,10 +57,11 @@ def parse_args(argv):
         '--add-graph', action='append',
         help='path to existing graph to add to model')
     parser.add_argument(
-        '--model', help='path to json file with existing map model')
+        '--model',
+        help='path to json file with existing map model')
     parser.add_argument(
-        '--model-out', metavar='PATH', default='new.json',
-        help='path to write new jsom file with output map model')
+        '--model-out', metavar='PATH',
+        help='path to write new json file with output map model')
     arg_purge = parser.add_argument(
         '--purge-except', metavar='|'.join(PURGE_MAP.keys()),
         type=PURGE_MAP.get, default='none',
@@ -92,6 +93,8 @@ def parse_args(argv):
             parser.error(f'transforms {need_book} require --book')
     if not args.purge_except:
         parser.error('--purge-except must be one of ' + arg_purge.metavar)
+    if args.model_out and not args.model:
+        args.model = run.default_model
     return args
 
 
@@ -107,7 +110,7 @@ def run_runner(runner, args):
         if args.add_graph or args.transform:
             if args.transform:
                 runner.run(args.transform)
-            if runner.model:
+            if args.model_out:
                 runner.save_model(args.model_out)
         elif runner.verbose:
             run.show_graph(runner.graph)

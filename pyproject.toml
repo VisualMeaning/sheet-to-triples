@@ -8,8 +8,10 @@ description = "Convert tabular data into triples."
 [tool.poetry.dependencies]
 python = "^3.7"
 openpyxl = "^3"
-rdflib = {version = "^5", extras = ["sparql"]}
+rdflib = {version = "5", extras = ["sparql"]}
 xlrd = "^1"
+# pyparsing is sparql dependency? updated to 3.x recently which breaks things
+pyparsing = "^2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8"

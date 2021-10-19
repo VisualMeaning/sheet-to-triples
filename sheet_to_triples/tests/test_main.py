@@ -41,7 +41,7 @@ def _mock_os_path_isdir(isdir):
     return mock.patch('os.path.isdir', return_value=isdir)
 
 
-def _mock_open(data):
+def _mock_open(data=''):
     return mock.patch('builtins.open', mock.mock_open(read_data=data))
 
 
@@ -62,7 +62,7 @@ class TestParseArgs(unittest.TestCase):
             ('book', None),
             ('add_graph', None),
             ('model', None),
-            ('model_out', 'new.json'),
+            ('model_out', None),
             ('resolve_same', True),
             ('debug', False),
             ('verbose', False),
@@ -180,6 +180,11 @@ class TestParseArgs(unittest.TestCase):
 
         mo.assert_called_once_with('listpath.txt', 'r')
 
+    def test_parse_args_model_out_but_no_model(self):
+        argv = ['dummy', 'transform1', '--model-out', 'output.json']
+        args = main.parse_args(argv)
+        self.assertEqual(args.model, run.default_model)
+
     def test_parse_args_bad_purge_except(self):
         argv = ['dummy', 'transform1', '--purge-except', 'bogus']
         buffer = io.StringIO()
@@ -220,12 +225,12 @@ class StubSingleTransform(StubTransform):
 class TestMain(unittest.TestCase):
 
     def test_main_run_transform_save_model(self):
-        argv = ['dummy', 'transform1', '--model', 'test-in.json']
+        argv = ['dummy', 'transform1', '--model-out', 'new.json']
         triples = [('a', 'b', 'c')]
         transform = StubSingleTransform('transform1', triples=triples)
 
         with mock.patch(_iter_from_name, new=transform), \
-                _mock_open('{"terms": []}') as mo:
+                _mock_open() as mo:
             main.main(argv)
 
         # it should run tf.process(), add the triples to the runner model and

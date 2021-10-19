@@ -124,6 +124,32 @@ class RunnerTestCase(unittest.TestCase):
 
         self.assertEqual(runner.books, {})
 
+    def test_from_args_default_model(self):
+        argvalues = {
+            'book': [],
+            'model': run.default_model,
+            'purge_except': lambda x: True,
+            'resolve_same': False,
+            'verbose': False,
+        }
+        args = StubArgs(argvalues)
+        runner = run.Runner.from_args(args)
+
+        self.assertEqual(runner.model, {'terms': []})
+
+    def test_from_args_no_model(self):
+        argvalues = {
+            'book': [],
+            'model': None,
+            'purge_except': lambda x: True,
+            'resolve_same': False,
+            'verbose': False,
+        }
+        args = StubArgs(argvalues)
+        runner = run.Runner.from_args(args)
+
+        self.assertEqual(runner.model, None)
+
     def test_init_no_model(self):
         runner = StubRunner().get_runner(args={'model': None})
         self.assertIsInstance(runner.graph, rdflib.graph.Graph)
