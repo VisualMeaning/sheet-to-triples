@@ -7,6 +7,7 @@ description = "Convert tabular data into triples."
 
 [tool.poetry.dependencies]
 python = "^3.7"
+pycountry = "^20"
 openpyxl = "^3"
 rdflib = {version = "^5", extras = ["sparql"]}
 xlrd = "^1"

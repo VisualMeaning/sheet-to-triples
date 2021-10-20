@@ -1,4 +1,4 @@
-# Copyright 2020 Visual Meaning Ltd
+# Copyright 2021 Visual Meaning Ltd
 # This is free software licensed as GPL-3.0-or-later - see COPYING for terms.
 
 """Interfaces for mapping from tabular data."""
@@ -7,6 +7,7 @@ import ast
 import json
 import re
 
+import pycountry
 
 _TYPES = {
     'pain': 'vm:Painpoint',
@@ -122,6 +123,10 @@ class Cell:
             return self.as_date
         except AttributeError:
             return self.as_text
+
+    @property
+    def as_country_code(self):
+        return _must(pycountry.countries.get(name=_str(self._value)).alpha_2)
 
 
 class ConditionCell(Cell):
