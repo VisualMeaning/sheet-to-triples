@@ -152,3 +152,20 @@ class CellTestCase(unittest.TestCase):
             field.Cell('7th June').as_date_or_text,
             '7th June'
         )
+
+    def test_as_country_code(self):
+        self.assertEqual(
+            field.Cell('Brazil').as_country_code,
+            'BR'
+        )
+
+    def test_as_country_code_bad_values(self):
+        errors_cases = (
+            (None, ValueError),
+            ('notfound', AttributeError),
+            ('   ', ValueError),
+        )
+        for value, error in errors_cases:
+            with self.subTest(value=value):
+                with self.assertRaises(error):
+                    field.Cell(value).as_country_code
