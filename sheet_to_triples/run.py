@@ -12,6 +12,8 @@ from . import (
     xl,
 )
 
+default_model = object()
+
 
 class Runner:
     """Encapsulation of new data, existing model, and transform running."""
@@ -34,6 +36,9 @@ class Runner:
             book = {os.path.basename(b): xl.load_book(b) for b in args.book}
         else:
             book = dict()
+        # if args.model == 'default':
+        #     model = {'terms': []}
+        # else:
         model = args.model and cls.load_model(args.model)
         return cls(
             book, model, args.purge_except, args.resolve_same, args.verbose)
@@ -85,6 +90,8 @@ class Runner:
 
     @staticmethod
     def load_model(filepath):
+        if filepath is default_model:
+            return {'terms': []}
         with open(filepath, 'rb') as f:
             return json.load(f)
 
