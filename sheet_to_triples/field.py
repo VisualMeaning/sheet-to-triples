@@ -4,6 +4,7 @@
 """Interfaces for mapping from tabular data."""
 
 import ast
+import functools
 import json
 import re
 
@@ -55,6 +56,11 @@ def _literal(value):
         if isinstance(value, str):
             return ast.literal_eval(value.strip())
     raise ValueError('not a data field')
+
+
+@functools.lru_cache
+def _resolve_country(name):
+    return pycountry.countries.search_fuzzy(name)[0]
 
 
 class Cell:
@@ -126,7 +132,7 @@ class Cell:
 
     @property
     def as_country_code(self):
-        return _must(pycountry.countries.get(name=_str(self._value)).alpha_2)
+        return _resolve_country(_str(self._value)).alpha_2.lower()
 
 
 class ConditionCell(Cell):
