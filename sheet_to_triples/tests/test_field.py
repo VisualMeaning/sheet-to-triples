@@ -154,15 +154,15 @@ class CellTestCase(unittest.TestCase):
         )
 
     def test_as_country_code(self):
-        self.assertEqual(
-            field.Cell('Brazil').as_country_code,
-            'BR'
-        )
+        self.assertEqual(field.Cell('Brazil').as_country_code, 'br')
+
+    def test_as_country_code_fuzzy(self):
+        self.assertEqual(field.Cell('Russia').as_country_code, 'ru')
 
     def test_as_country_code_bad_values(self):
         errors_cases = (
             (None, ValueError),
-            ('notfound', AttributeError),
+            ('notfound', LookupError),
             ('   ', ValueError),
         )
         for value, error in errors_cases:
