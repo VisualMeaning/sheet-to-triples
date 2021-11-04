@@ -17,10 +17,6 @@ _USES_MAP_TILES = VM.usesMapTiles
 
 _GEO = (VM.atGeoPoint.toPython(), VM.atGeoPoly.toPython(), VM.name.toPython())
 
-FOAF = rdflib.namespace.FOAF
-# Include test property via hack <http://xmlns.com/foaf/spec/#term_phone>
-FOAF._ClosedNamespace__uris['phone'] = rdflib.URIRef(FOAF.uri + 'phone')
-
 
 def _cast_from_term(t):
     return (

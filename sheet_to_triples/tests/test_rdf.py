@@ -27,6 +27,12 @@ class TestRDF(unittest.TestCase):
         self.assertIsInstance(term, rdflib.term.URIRef)
         self.assertEqual(str(term), 'http://www.w3.org/2002/07/owl#test')
 
+    def test_from_foaf_phone(self):
+        """Not fully standardised foaf qname still resolves."""
+        term = rdf.from_qname('foaf:phone', self.resolver)
+        self.assertIsInstance(term, rdflib.term.URIRef)
+        self.assertEqual(str(term), 'http://xmlns.com/foaf/0.1/phone')
+
     def test_from_qname_prefix_http(self):
         term = rdf.from_qname('http://test.test', self.resolver)
         self.assertIsInstance(term, rdflib.term.URIRef)
