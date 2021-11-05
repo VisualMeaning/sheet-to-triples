@@ -102,4 +102,4 @@ class Runner:
 
 def show_graph(graph):
     """Print graph in human-readable turtle format."""
-    print(graph.serialize(format='turtle').decode('utf-8'))
+    print(graph.serialize(format='turtle'))
