@@ -58,7 +58,7 @@ def _literal(value):
     raise ValueError('not a data field')
 
 
-@functools.lru_cache
+@functools.lru_cache(maxsize=None)
 def _resolve_country(name):
     return pycountry.countries.search_fuzzy(name)[0]
 
