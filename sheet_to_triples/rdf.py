@@ -64,6 +64,9 @@ def from_identifier(value, resolver):
         # Fall through for unresolved prefix
     if prefix == 'http':
         return rdflib.URIRef(value)
+    # if ends with language tag, create a Literal with the appropriate lang
+    if re.search(r"@[a-z]{2}$", value):
+        return rdflib.Literal(value, lang=value[-2:])
     return rdflib.Literal(value)
 
 
