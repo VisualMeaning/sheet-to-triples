@@ -169,6 +169,17 @@ class TestRDF(unittest.TestCase):
         }
         self.assertEqual(model, expected)
 
+    def test_update_model_terms_exclude_bnodes(self):
+        """Filter triples out if EITHER the subj or obj are type BNodes."""
+        model = {'terms': []}
+        bnodes = [
+            (rdflib.term.BNode('subj'), 'pred', 'obj'),
+            ('subj', 'pred', rdflib.term.BNode('obj')),
+        ]
+        rdf.update_model_terms(model, bnodes)
+        expected = {'terms': []}
+        self.assertEqual(model, expected)
+
     def _model_from_triples(self, triples):
         terms = [{'subj': s, 'pred': p, 'obj': o} for s, p, o in triples]
         return {'terms': terms}

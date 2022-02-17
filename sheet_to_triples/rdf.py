@@ -108,9 +108,14 @@ def graph_from_model(model):
     return g
 
 
+def _maybe_bnode(s, p, o):
+    return isinstance(s, rdflib.term.BNode) or isinstance(o, rdflib.term.BNode)
+
+
 def update_model_terms(model, triples):
     model['terms'].extend(
-        dict(subj=str(s), pred=str(p), obj=str(o)) for s, p, o in triples)
+        dict(subj=str(s), pred=str(p), obj=str(o)) for s, p, o in triples
+        if not _maybe_bnode(s, p, o))
 
 
 def _with_int_maybe(iri):
