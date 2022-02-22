@@ -169,3 +169,55 @@ class CellTestCase(unittest.TestCase):
             with self.subTest(value=value):
                 with self.assertRaises(error):
                     field.Cell(value).as_country_code
+
+    def test_exists_true(self):
+        self.assertTrue(field.Cell('exists').exists)
+
+    def test_exists_false(self):
+        self.assertFalse(field.Cell(None).exists)
+
+    def test_not_exists_true(self):
+        self.assertTrue(field.Cell(None).not_exists)
+
+    def test_not_exists_false(self):
+        self.assertFalse(field.Cell('exists').not_exists)
+
+
+class RowTestCase(unittest.TestCase):
+
+    def test_cols_disjoint_true(self):
+        row = field.Row({'col1': 'a', 'col2': 'b'})
+        self.assertTrue(row.cols_disjoint(['col3', 'col4']))
+
+    def test_cols_disjoint_false(self):
+        row = field.Row({'col1': 'a', 'col2': 'b'})
+        self.assertFalse(row.cols_disjoint(['col2', 'col3']))
+
+    def test_melt(self):
+        self.maxDiff = None
+        row = field.Row({'col1': 'a', 'col2': 'b', 'col3': 'c'})
+
+        expected = [
+            {
+                'col1': 'a', 'col2': 'b', 'col3': 'c',
+                '_melt_colname': 'col2', '_melt_value': 'b', '_has_melt': True
+            },
+            {
+                'col1': 'a', 'col2': 'b', 'col3': 'c',
+                '_melt_colname': 'col3', '_melt_value': 'c', '_has_melt': True
+            },
+        ]
+        self.assertEqual(
+            [r for r in row.melt(['col2', 'col3'])],
+            [field.Row(r) for r in expected]
+        )
+
+    def test_has_melt_false_if_no_melt_cols(self):
+        row = field.Row({'col1': 'a', 'col2': 'b', 'col3': 'c'})
+        expected = [
+            {'col1': 'a', 'col2': 'b', 'col3': 'c', '_has_melt': False}
+        ]
+        self.assertEqual(
+            [r for r in row.melt(['col4'])],
+            [field.Row(r) for r in expected]
+        )

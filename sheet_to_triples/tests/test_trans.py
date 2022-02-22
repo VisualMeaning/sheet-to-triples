@@ -95,7 +95,14 @@ class TransformTestCase(unittest.TestCase):
                 'testvar': 'prefix_{row[column_1]}',
                 'nonevar': 'no_row_reference',
             },
-            '_cross_cols': ['column_extra'],
+            'conds': {
+                'condition': (
+                    '{row[cond_col_a]}',
+                    '{row[cond_col_b]}',
+                    '{row[cond_col_c]}',
+                )
+            },
+            'melt_cols': ['column_extra'],
             'triples': [
                 ('{testvar}', 'predicate', '{row[column_2]}')
             ]
@@ -103,7 +110,14 @@ class TransformTestCase(unittest.TestCase):
         transform = trans.Transform('test', details)
         self.assertEqual(
             transform.required_cols(),
-            {'column_1', 'column_2', 'column_extra'}
+            {
+                'column_1',
+                'column_2',
+                'column_extra',
+                'cond_col_a',
+                'cond_col_b',
+                'cond_col_c',
+            }
         )
 
     def test_required_cols_empty(self):
@@ -231,3 +245,57 @@ class TransformTestCase(unittest.TestCase):
     def test_process_query_map(self):
         # unsure how to test this
         pass
+
+    def test_melt_cols(self):
+        details = {
+            'data': [
+                {'col1': 'http://a.test', 'col2': 'a'},
+                {'col1': 'http://b.test', 'col2': 'b'},
+                {'col1': 'http://c.test'},
+            ],
+            'lets': {
+                'iri': '{row[col1]}/iri'
+            },
+            'melt_cols': [
+                'col2'
+            ],
+            'triples': [
+                ('{iri}', 'http://column.test', '{row[_melt_colname]}'),
+                ('{iri}', 'http://value.test', '{row[_melt_value]}'),
+                ('{iri}', 'http://has_melt.test', '{row[_has_melt]}'),
+            ]
+        }
+        expected = [
+            ['http://a.test/iri', 'http://column.test', 'col2'],
+            ['http://a.test/iri', 'http://value.test', 'a'],
+            ['http://a.test/iri', 'http://has_melt.test', 'True'],
+            ['http://b.test/iri', 'http://column.test', 'col2'],
+            ['http://b.test/iri', 'http://value.test', 'b'],
+            ['http://b.test/iri', 'http://has_melt.test', 'True'],
+            ['http://c.test/iri', 'http://has_melt.test', 'False'],
+        ]
+        self._process_and_assertEqual(details, expected)
+
+    def test_conds(self):
+        details = {
+            'data': [
+                {'col1': 'http://a.test', 'col2': '1'},
+                {'col1': 'http://b.test'}
+            ],
+            'lets': {
+                'iri': '{row[col1]}/iri'
+            },
+            'conds': {
+                'col2_exists': (
+                    '{row[col2].exists}', 'exists', 'not exists'
+                )
+            },
+            'triples': [
+                ('{iri}', 'http://predicate.test', '{col2_exists}'),
+            ]
+        }
+        expected = [
+            ['http://a.test/iri', 'http://predicate.test', 'exists'],
+            ['http://b.test/iri', 'http://predicate.test', 'not exists'],
+        ]
+        self._process_and_assertEqual(details, expected)
