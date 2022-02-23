@@ -171,7 +171,7 @@ class Transform:
             cond, true, false = (
                 converter.as_obj(n, params) for n in self.conds[c]
             )
-            params[c] = str(true) if cond else str(false)
+            params[c] = str(true) if str(cond) == "True" else str(false)
 
         for k, q in query_map.items():
             result = list(q(initBindings=params))

@@ -280,7 +280,7 @@ class TransformTestCase(unittest.TestCase):
         details = {
             'data': [
                 {'col1': 'http://a.test', 'col2': '1'},
-                {'col1': 'http://b.test'}
+                {'col1': 'http://b.test', 'col2': None},
             ],
             'lets': {
                 'iri': '{row[col1]}/iri'
