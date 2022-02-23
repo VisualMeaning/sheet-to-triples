@@ -66,6 +66,11 @@ The top level attributes of a transform are:
 * `lets: Dict[str, str_template]`
 
   Bind variables which will be set for each row.
+
+* `conds: Dict[str, Tuple(str_template, str_template, str_template)]`
+
+  Variables that are the result of some conditional. The first item in the tuple is the condition, evaluated with `Cell` methods such as `exists`. The second item is the value if True, and the third item is the value if False.
+
 * `query: Dict[str, str_query]`
 
   Bind result of query to be run for each row.
@@ -81,9 +86,9 @@ The top level attributes of a transform are:
 * `skip_empty_rows: bool`
 
   By default the first empty row found in a sheet is treated as the EOF and row parsing will halt if one is encountered. If this flag is set to `True` then empty rows will be skipped over instead and the entire sheet will be parsed.
-* (provisional) `_cross_cols: List[str]`
+* (provisional) `melt_cols: List[str]`
 
-  If supplied, process triples not only for each row, but for each row/column pair by multiplying the columns given in this value. An extra variable `cell` will be available for interpolation within triples.
+  If supplied, process triples not only for each row, but for each row/column pair by multiplying the columns given in this value. Including `melt_cols` will cause an additional column to be added to every row called `_has_melt`, which is a boolean value indicating whether this row contains melted values or not. If `_has_melt` is True, two further columns will be added, `_melt_colname` and `_melt_value`, which contain the column-value pairings for this row for each column in `melt_cols`.
 
 
 ## Findings

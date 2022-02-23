@@ -134,23 +134,13 @@ class Cell:
     def as_country_code(self):
         return _resolve_country(_str(self._value)).alpha_2.lower()
 
-
-class ConditionCell(Cell):
-    """Single value with some extra chaining properties."""
-
-    def __init__(self, colname, value):
-        self._colname = colname
-        self._value = value
+    @property
+    def exists(self):
+        return True if self._value else False
 
     @property
-    def colname(self):
-        return Cell(self._colname)
-
-    @property
-    def truth(self):
-        if self._value:
-            return self
-        raise ValueError('false value')
+    def not_exists(self):
+        return not self.exists
 
 
 class Row:
@@ -165,5 +155,23 @@ class Row:
     def __getitem__(self, key):
         return Cell(self.fields[key])
 
-    def condition(self, key):
-        return ConditionCell(key, self.fields[key])
+    def __setitem__(self, key, value):
+        self.fields[key] = value
+
+    def __contains__(self, item):
+        return item in self.fields
+
+    def __eq__(self, other):
+        return self.fields == other.fields
+
+    def cols_disjoint(self, cols):
+        return self.fields.keys().isdisjoint(cols)
+
+    def melt(self, melt_cols):
+        self.fields['_has_melt'] = not self.cols_disjoint(melt_cols)
+        for col in melt_cols:
+            melted_row = Row(dict(self.fields))
+            if col in melted_row and melted_row[col].exists:
+                melted_row['_melt_colname'] = col
+                melted_row['_melt_value'] = str(melted_row[col])
+            yield melted_row

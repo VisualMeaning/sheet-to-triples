@@ -18,6 +18,7 @@ But this is already too large for what was meant to be a simple experiment.
 
 import ast
 import functools
+import itertools
 import os
 import re
 import string
@@ -26,6 +27,7 @@ from rdflib.plugins import sparql
 
 from . import (
     rdf,
+    field,
 )
 
 
@@ -67,12 +69,13 @@ class Transform:
         'book',
         'sheet',
         'lets',
+        'conds',
         'queries',
         'triples',
         'non_unique',
         'allow_empty_subject',
         'skip_empty_rows',
-        '_cross_cols',
+        'melt_cols',
     )
 
     def __init__(self, name, details):
@@ -80,8 +83,9 @@ class Transform:
         self.book = None
         self.skip_empty_rows = False
         self.lets = dict()
+        self.conds = dict()
         self.triples = []
-        self._cross_cols = ()
+        self.melt_cols = ()
         for k in details:
             setattr(self, k, details[k])
 
@@ -117,14 +121,21 @@ class Transform:
         formatter = string.Formatter()
         lvars = set(v for v in self.lets.values())
         nodes = set(n for t in self.triples for n in t)
-        strings = (s for s in nodes | lvars if '{' in s)
+        condvars = set(
+            itertools.chain.from_iterable(c for c in self.conds.values())
+        )
+        strings = (s for s in nodes | lvars | condvars if '{' in s)
         return set(r[1] for n in strings for r in formatter.parse(n))
 
     def required_cols(self):
         pattern = re.compile(r'^row\[(.*?)\]')
         matches = (pattern.match(f) for f in self._fields() if f is not None)
-        cols_used = set(m.group(1) for m in matches if m is not None)
-        cols_used.update(self._cross_cols)
+        cols_used = set(
+            m.group(1) for m in matches if m is not None
+            # columns with underscores are internally set after data ingestion
+            and not m.group(1).startswith('_')
+        )
+        cols_used.update(self.melt_cols)
         return cols_used
 
     def prepare_queries(self, for_graph):
@@ -149,23 +160,40 @@ class Transform:
         for n, row in enumerate(row_iter, 1):
             yield from self._process_row(converter, queries, row, n)
 
-    def _process_row(self, converter, query_map, row, n):
+    def _generate_params(self, converter, query_map, row, n):
         params = dict(query={}, row=row, n=n)
+
         for k in self.lets:
             # TODO: Defaulting to empty string is wrong if variable can't bind
             params[k] = converter.as_obj(self.lets[k], params) or ''
+
+        for c in self.conds:
+            cond, true, false = (
+                converter.as_obj(n, params) for n in self.conds[c]
+            )
+            params[c] = str(true) if cond else str(false)
 
         for k, q in query_map.items():
             result = list(q(initBindings=params))
             if result:
                 [[params[k]]] = result
 
+        return params
+
+    def _process_row(self, converter, query_map, row, n):
         iter_row = self._iter_row_triples
-        if self._cross_cols:
-            for col in self._cross_cols:
-                yield from iter_row(
-                    converter, dict(params, cell=row.condition(col)))
+
+        # if it's fed in directly from the transform data field,
+        # convert to Row for access to Row methods
+        if isinstance(row, dict):
+            row = field.Row(row)
+
+        if self.melt_cols:
+            for row in row.melt(self.melt_cols):
+                params = self._generate_params(converter, query_map, row, n)
+                yield from iter_row(converter, params)
         else:
+            params = self._generate_params(converter, query_map, row, n)
             yield from iter_row(converter, params)
 
     @property
