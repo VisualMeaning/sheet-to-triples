@@ -164,14 +164,19 @@ class Row:
     def __eq__(self, other):
         return self.fields == other.fields
 
+    def col_exists(self, col):
+        # check if a column exists with a value that isn't None
+        return self.fields.get(col) is not None
+
     def cols_disjoint(self, cols):
-        return self.fields.keys().isdisjoint(cols)
+        exists_cols = {k for k, v in self.fields.items() if v is not None}
+        return exists_cols.isdisjoint(cols)
 
     def melt(self, melt_cols):
         self.fields['_has_melt'] = not self.cols_disjoint(melt_cols)
         for col in melt_cols:
             melted_row = Row(dict(self.fields))
-            if col in melted_row and melted_row[col].exists:
+            if melted_row.col_exists(col):
                 melted_row['_melt_colname'] = col
                 melted_row['_melt_value'] = str(melted_row[col])
             yield melted_row

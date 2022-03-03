@@ -186,7 +186,7 @@ class CellTestCase(unittest.TestCase):
 class RowTestCase(unittest.TestCase):
 
     def test_cols_disjoint_true(self):
-        row = field.Row({'col1': 'a', 'col2': 'b'})
+        row = field.Row({'col1': 'a', 'col2': 'b', 'col3': None})
         self.assertTrue(row.cols_disjoint(['col3', 'col4']))
 
     def test_cols_disjoint_false(self):
