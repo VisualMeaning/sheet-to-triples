@@ -372,7 +372,7 @@ class RunnerTestCase(unittest.TestCase):
 
         self.assertEqual(
             buffer.getvalue(),
-            ('# dropped 0 terms\n@prefix ns1: <http://> .\n\n'
+            ('# not retained 0 terms\n@prefix ns1: <http://> .\n\n'
              'ns1:a.test ns1:b.test "c" .\n\n\n')
         )
 

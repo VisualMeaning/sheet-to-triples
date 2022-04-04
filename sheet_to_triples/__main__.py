@@ -42,8 +42,7 @@ def _parse_transform_list(path):
     with open(path, 'r') as f:
         for transform in f.read().splitlines():
             transforms.extend(
-                trans.Transform.iter_from_name(
-                    transform, base_path=dir_path)
+                trans.Transform.iter_from_name(transform, base_path=dir_path)
             )
     return transforms
 
@@ -72,7 +71,7 @@ def parse_args(argv):
     parser.add_argument(
         '--debug', action='store_true', help='debug interactively any error')
     parser.add_argument(
-        '--verbose', action='store_true', help='show details as turtle')
+        '-v', '--verbose', action='store_true', help='show details as turtle')
     parser.add_argument(
         '--from-list', type=_parse_transform_list,
         help='add multiple transforms from a text file of transform names')
@@ -99,17 +98,16 @@ def parse_args(argv):
 
 
 def run_runner(runner, args):
-    if args.add_graph:
-        for graph_to_add in args.add_graph:
-            runner.graph.parse(graph_to_add, format='ttl')
-        runner.set_terms(iter(runner.graph))
-
     with debug.context(args.debug):
+        if args.add_graph:
+            for graph_to_add in args.add_graph:
+                runner.graph.parse(graph_to_add, format='ttl')
+            runner.set_terms(iter(runner.graph))
+
         if args.non_unique_from:
             runner.use_non_uniques(args.non_unique_from)
         if args.add_graph or args.transform:
-            if args.transform:
-                runner.run(args.transform)
+            runner.run(args.transform)
             if args.model_out:
                 runner.save_model(args.model_out)
         elif runner.verbose:

@@ -50,7 +50,7 @@ class Runner:
     def set_terms(self, triples):
         if self.model:
             self.model['terms'][:] = ()
-            rdf.update_model_terms(self.model, triples)
+            rdf.update_model_terms(self.model, sorted(triples))
 
     def run(self, transforms):
         for tf in transforms:
