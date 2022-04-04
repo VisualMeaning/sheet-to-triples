@@ -14,6 +14,7 @@ class StubSheet:
 
     def __init__(self, name):
         self.name = name
+        self.merged_cells = None
 
     def _get_rows(self, caller):
         return 'test {} {}'.format(caller, self.name)

@@ -24,4 +24,14 @@ class Book:
             return cls(openpyxl.load_workbook(path, data_only=True))
 
     def iter_rows_in_sheet(self, sheet):
-        return self._book[sheet].iter_rows()
+        sheet = self._book[sheet]
+        while sheet.merged_cells:
+            for merged in sheet.merged_cells:
+                mc_value = str(merged.start_cell.value).strip()
+                sheet.unmerge_cells(str(merged))
+                for merged_cell in merged.cells:
+                    sheet.cell(
+                        row=merged_cell[0],
+                        column=merged_cell[1],
+                    ).value = mc_value
+        return sheet.iter_rows()

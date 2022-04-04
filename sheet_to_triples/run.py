@@ -3,6 +3,7 @@
 
 """Run group of transforms on existing data and graph."""
 
+import itertools
 import json
 import os
 
@@ -83,7 +84,14 @@ class Runner:
 
     def _iter_data(self, tf):
         if self.books and tf.uses_sheet():
-            row_iter = xl.iter_sheet(self._get_books(tf.book), tf.sheet)
+            if isinstance(tf.sheet, list):
+                row_iter = itertools.chain(
+                    *[xl.iter_sheet(
+                        self._get_books(tf.book), sheet
+                    ) for sheet in tf.sheet]
+                )
+            else:
+                row_iter = xl.iter_sheet(self._get_books(tf.book), tf.sheet)
             return xl.as_rows(
                 row_iter, tf.required_cols(), tf.skip_empty_rows)
         return (field.Row(r) for r in getattr(tf, 'data', ()))
