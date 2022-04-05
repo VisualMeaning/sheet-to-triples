@@ -81,14 +81,14 @@ def relates_issue(term):
 
 
 def purge_terms(model, retain, verbose):
-    """Update model to only include terms that are not issues."""
+    """Update model to only include terms that should be retained."""
     start_len = len(model['terms'])
     model['terms'] = [term for term in model['terms'] if retain(term)]
     for term in model['terms']:
         term['obj'] = _norm(term['obj'])
     if verbose:
         n_dropped = start_len - len(model['terms'])
-        print(f'# dropped {n_dropped} terms')
+        print(f'# not retained {n_dropped} terms')
 
 
 def _new_graph():

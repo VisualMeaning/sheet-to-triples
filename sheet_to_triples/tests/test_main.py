@@ -6,8 +6,8 @@
 import io
 import json
 import os
-import unittest
 
+from pyfakefs import fake_filesystem_unittest
 from unittest import mock
 
 from .. import __main__ as main, run
@@ -29,31 +29,18 @@ class StubTransform:
         return [cls(os.path.join(base_path, name) + '.py')]
 
 
-def _mock_os_path_walk(walk_data):
-    return mock.patch('os.walk', return_value=walk_data)
-
-
-def _mock_os_path_dirname(dirname):
-    return mock.patch('os.path.dirname', return_value=dirname)
-
-
-def _mock_os_path_isdir(isdir):
-    return mock.patch('os.path.isdir', return_value=isdir)
-
-
-def _mock_open(data=''):
-    return mock.patch('builtins.open', mock.mock_open(read_data=data))
-
-
-def _mock_stderr(buffer):
-    return mock.patch('sys.stderr', new=buffer)
+def _mock_stderr(io_class=io.StringIO):
+    return mock.patch('sys.stderr', new_callable=io_class)
 
 
 _iter_from_name = 'sheet_to_triples.trans.Transform'
 
 
 @mock.patch(_iter_from_name, new=StubTransform('dummy'))
-class TestParseArgs(unittest.TestCase):
+class TestParseArgs(fake_filesystem_unittest.TestCase):
+
+    def setUp(self):
+        self.setUpPyfakefs()
 
     def test_parse_args_default(self):
         argv = ['dummy', 'transform1']
@@ -85,68 +72,57 @@ class TestParseArgs(unittest.TestCase):
 
     def test_parse_args_transform_error_if_requires_book(self):
         argv = ['dummy', 'booktransform1']
-        buffer = io.StringIO()
 
         # this makes any unexpected lower level exceptions harder to debug
         # TODO: come up with a nicer way of suppressing "normal" error output
-        with _mock_stderr(buffer), self.assertRaises(SystemExit) as e:
+        with _mock_stderr() as stderr, self.assertRaises(SystemExit) as e:
             main.parse_args(argv)
 
         self.assertEqual(e.exception.code, 2)
 
         # argparse spits out usage info so need to isolate error message
-        message = buffer.getvalue().strip().splitlines()[-1]
+        message = stderr.getvalue().strip().splitlines()[-1]
         self.assertEqual(
             message,
             'dummy: error: transforms {\'booktransform1.py\'} require --book'
         )
 
     def test_parse_args_book_is_book(self):
+        self.fs.create_file('book.xlsx')
+        self.fs.create_file('book.xls')
         argv = [
             'dummy', 'transform1',
             '--book', 'book.xlsx',
             '--book', 'book.xls',
         ]
-
-        with _mock_os_path_isdir(False) as isdir:
-            args = main.parse_args(argv)
+        args = main.parse_args(argv)
 
         expected = ['book.xlsx', 'book.xls']
-        self.assertEqual([b for b in args.book], expected)
-
-        self.assertEqual(
-            [c.args[0] for c in isdir.call_args_list],
-            expected
-        )
+        self.assertEqual(args.book, expected)
 
     def test_parse_args_book_is_dir(self):
+        self.fs.create_file('rootdir1/book.xlsx')
+        self.fs.create_file('rootdir1/book.xls')
+        self.fs.create_file('rootdir1/notabook')
         argv = [
             'dummy', 'transform1',
             '--book', 'rootdir1'
         ]
-        walk_data = [
-            ('rootdir1', '_', ('book.xlsx', 'notabook', 'book.xls')),
-        ]
 
-        with _mock_os_path_isdir(True) as isdir, \
-                _mock_os_path_walk(walk_data):
-            args = main.parse_args(argv)
+        args = main.parse_args(argv)
 
         expected = [
             os.path.normpath('rootdir1/book.xlsx'),
             os.path.normpath('rootdir1/book.xls'),
         ]
-        self.assertEqual([b for b in args.book], expected)
-
-        isdir.assert_called_once_with('rootdir1')
+        self.assertEqual(args.book, expected)
 
     def test_parse_args_from_list(self):
-        data = 'listtrans\nlisttrans2'
+        self.fs.create_file('listpath.txt', contents=(
+            'testdir/listtrans\ntestdir/listtrans2'))
         argv = ['dummy', 'transform1', '--from-list', 'listpath.txt']
 
-        with _mock_os_path_dirname('testdir'), \
-                _mock_open(data) as mo:
-            args = main.parse_args(argv)
+        args = main.parse_args(argv)
 
         expected = [
             'transform1.py',
@@ -158,15 +134,11 @@ class TestParseArgs(unittest.TestCase):
             expected
         )
 
-        mo.assert_called_once_with('listpath.txt', 'r')
-
     def test_parse_args_non_unique_from(self):
-        data = 'listtrans\nlisttrans2'
+        self.fs.create_file('listpath.txt', contents='listtrans\nlisttrans2')
         argv = ['dummy', 'transform1', '--non-unique-from', 'listpath.txt']
 
-        with _mock_os_path_dirname(''), \
-                _mock_open(data) as mo:
-            args = main.parse_args(argv)
+        args = main.parse_args(argv)
 
         self.assertEqual(
             [t.name for t in args.transform],
@@ -178,8 +150,6 @@ class TestParseArgs(unittest.TestCase):
             ['listtrans.py', 'listtrans2.py']
         )
 
-        mo.assert_called_once_with('listpath.txt', 'r')
-
     def test_parse_args_model_out_but_no_model(self):
         argv = ['dummy', 'transform1', '--model-out', 'output.json']
         args = main.parse_args(argv)
@@ -187,16 +157,14 @@ class TestParseArgs(unittest.TestCase):
 
     def test_parse_args_bad_purge_except(self):
         argv = ['dummy', 'transform1', '--purge-except', 'bogus']
-        buffer = io.StringIO()
 
         # TODO: come up with a nicer way of suppressing "normal" error output
-        with _mock_stderr(buffer), \
-                self.assertRaises(SystemExit) as e:
+        with _mock_stderr() as stderr, self.assertRaises(SystemExit) as e:
             main.parse_args(argv)
 
         self.assertEqual(e.exception.code, 2)
 
-        message = buffer.getvalue().strip().splitlines()[-1]
+        message = stderr.getvalue().strip().splitlines()[-1]
         self.assertEqual(
             message,
             'dummy: error: --purge-except must be one of none|geo|issues'
@@ -222,21 +190,22 @@ class StubSingleTransform(StubTransform):
         return [self]
 
 
-class TestMain(unittest.TestCase):
+class TestMain(fake_filesystem_unittest.TestCase):
+
+    def setUp(self):
+        self.setUpPyfakefs()
 
     def test_main_run_transform_save_model(self):
         argv = ['dummy', 'transform1', '--model-out', 'new.json']
         triples = [('a', 'b', 'c')]
         transform = StubSingleTransform('transform1', triples=triples)
 
-        with mock.patch(_iter_from_name, new=transform), \
-                _mock_open() as mo:
+        with mock.patch(_iter_from_name, new=transform):
             main.main(argv)
 
         # it should run tf.process(), add the triples to the runner model and
         # write to the buffer in our mock open object
-        handle = mo()
-        jsonstring = ''.join([c.args[0] for c in handle.write.mock_calls])
+        jsonstring = self.fs.get_object('new.json').contents
         expected = '{"terms": [{"subj": "a", "pred": "b", "obj": "c"}]}'
         self.assertEqual(jsonstring, expected)
 
@@ -247,29 +216,53 @@ class TestMain(unittest.TestCase):
                 {'subj': 'http://a.test', 'pred': 'http://b.test', 'obj': 'c'}
             ]
         }
-        transform = StubSingleTransform('transform1')
-        buffer = io.StringIO()
+        self.fs.create_file('test-in.json', contents=json.dumps(model))
 
-        with mock.patch(_iter_from_name, new=transform), \
-                mock.patch('sys.stdout', new=buffer), \
-                _mock_open(json.dumps(model)):
+        with mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
             main.main(argv)
 
         self.assertEqual(
-            buffer.getvalue(),
-            ('# dropped 0 terms\n@prefix ns1: <http://> .\n\n'
-             'ns1:a.test ns1:b.test "c" .\n\n\n')
+            stdout.getvalue(),
+            '# not retained 0 terms\n'
+            '@prefix ns1: <http://> .\n\n'
+            'ns1:a.test ns1:b.test "c" .\n\n\n'
         )
 
+    def test_main_add_graph_verbose(self):
+        """Adding a graph should update the model and normalise after."""
+        argv = [
+            'dummy', '--model', 'in.json', '--add-graph', 'bits.ttl',
+            '--model-out', 'new.json', '-v'
+        ]
+        model = {
+            'terms': [
+                {'subj': 'http://a.test', 'pred': 'http://b.test', 'obj': 'c'}
+            ]
+        }
+        self.fs.create_file('in.json', contents=json.dumps(model))
+        self.fs.create_file('bits.ttl', contents=(
+            '<http://a.test> <http://b.test> "b" .\n'))
+
+        with mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
+            main.main(argv)
+
+        new_model = json.loads(self.fs.get_object('new.json').contents)
+        self.assertEqual(model, new_model)
+        self.assertEqual(
+            '# not retained 0 terms\n'
+            '# dropping <http://a.test> <http://b.test> b\n',
+            stdout.getvalue())
+
     def test_run_runner_non_unique_from(self):
-        argv = ['dummy', '--non-unique-from', 'transform2']
+        argv = ['dummy', '--non-unique-from', 'list.txt']
         non_uniques = {'col1', 'col2'}
         transform = StubSingleTransform('transform1', non_uniques=non_uniques)
+        self.fs.create_file('list.txt', contents='transform1')
 
-        with mock.patch(_iter_from_name, new=transform), \
-                _mock_open('dummy'),  _mock_os_path_dirname(''):
+        with mock.patch(_iter_from_name, new=transform):
             args = main.parse_args(argv)
-            runner = run.Runner.from_args(args)
-            main.run_runner(runner, args)
+
+        runner = run.Runner.from_args(args)
+        main.run_runner(runner, args)
 
         self.assertEqual(runner.non_unique, non_uniques)

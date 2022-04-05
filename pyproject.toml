@@ -15,3 +15,4 @@ xlrd = "^1"
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8"
 coverage = "^5.5"
+pyfakefs = "^4.5"
