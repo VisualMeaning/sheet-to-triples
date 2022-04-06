@@ -8,6 +8,12 @@ import warnings
 import openpyxl
 
 
+def _clean(cell):
+    if isinstance(cell.value, str):
+        cell.value = openpyxl.utils.escape.unescape(cell.value)
+    return cell
+
+
 class Book:
     """Wrapper around openpyxl.Workbook to present common interface."""
 
@@ -24,4 +30,7 @@ class Book:
             return cls(openpyxl.load_workbook(path, data_only=True))
 
     def iter_rows_in_sheet(self, sheet):
-        return self._book[sheet].iter_rows()
+        return (
+            tuple(_clean(cell) for cell in row)
+            for row in self._book[sheet].iter_rows()
+        )

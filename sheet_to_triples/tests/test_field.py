@@ -25,6 +25,10 @@ class CellTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             field.Cell('').as_slug
 
+    def test_as_slug_emptystring(self):
+        with self.assertRaises(ValueError):
+            field.Cell('    ').as_slug
+
     def test_as_uc(self):
         self.assertEqual(
             field.Cell('   Some?letters+<and>characters   ').as_uc,
