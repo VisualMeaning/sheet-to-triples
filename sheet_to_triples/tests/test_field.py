@@ -89,6 +89,23 @@ class CellTestCase(unittest.TestCase):
                 with self.assertRaises(error):
                     field.Cell(value).as_capital_effect
 
+    def test_as_rag_category(self):
+        self.assertEqual(
+            field.Cell('Amber').as_rag_category,
+            'vm:_judged-neutral'
+        )
+
+    def test_as_rag_category_bad_values(self):
+        errors_cases = (
+            (None, ValueError),
+            ('notfound', ValueError),
+            ('   ', ValueError),
+        )
+        for value, error in errors_cases:
+            with self.subTest(value=value):
+                with self.assertRaises(error):
+                    field.Cell(value).as_rag_category
+
     def test_as_type(self):
         self.assertEqual(
             field.Cell('   Painpoint   ').as_type,
@@ -181,6 +198,13 @@ class CellTestCase(unittest.TestCase):
 
     def test_not_exists_false(self):
         self.assertFalse(field.Cell('exists').not_exists)
+
+    def test_must_exist_true(self):
+        self.assertEqual(field.Cell('exists').must_exist, '')
+
+    def test_must_exist_false(self):
+        with self.assertRaises(ValueError):
+            field.Cell('').must_exist
 
 
 class RowTestCase(unittest.TestCase):
