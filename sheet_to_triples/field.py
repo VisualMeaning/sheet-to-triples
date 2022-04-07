@@ -146,7 +146,7 @@ class Cell:
 
     @property
     def must_exist(self):
-        if _must(self._value):
+        if _must(_str(self._value)):
             return ''
 
     @property

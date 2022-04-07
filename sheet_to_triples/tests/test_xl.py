@@ -43,6 +43,22 @@ class StubCell:
         self.value = value
 
 
+class StubXlsxSheet:
+
+    def __init__(self, rows):
+        # long-winded because generators and mapping produced weird behaviour
+        self.rows = []
+        for row in rows:
+            newrow = []
+            for value in row:
+                newrow.append(StubCell(value))
+            self.rows.append(newrow)
+
+    def iter_rows(self):
+        for row in self.rows:
+            yield row
+
+
 class TestXL(unittest.TestCase):
 
     _mock_xls_open = mock.patch(
@@ -78,17 +94,18 @@ class TestXL(unittest.TestCase):
 
     def test_iter_sheet_xlsx(self):
         books = [
-            {'a': StubSheet('a')},
-            {'b': StubSheet('b')},
+            {'a': StubXlsxSheet([('a',)])},
+            {'b': StubXlsxSheet([('b',)])},
         ]
-        xslx_books = [xlsx.Book(book) for book in books]
-        value = xl.iter_sheet(xslx_books, 'b')
-        self.assertEqual(value, 'test iter_rows b')
+        xlsx_books = [xlsx.Book(book) for book in books]
+        rowvalue = list(xl.iter_sheet(xlsx_books, 'b'))[0][0].value
+
+        self.assertEqual(rowvalue, 'b')
 
     def test_iter_sheet_xlsx_no_matching_sheet(self):
         books = [
-            {'a': StubSheet('a')},
-            {'b': StubSheet('b')},
+            {'a': StubXlsxSheet([('a',)])},
+            {'b': StubXlsxSheet([('b',)])},
         ]
         xlsx_books = [xlsx.Book(book) for book in books]
         with self.assertRaises(ValueError) as error:
@@ -181,3 +198,17 @@ class TestXL(unittest.TestCase):
             str(error.exception),
             'required headers not found: col3, col4'
         )
+
+
+class TestXlsx(unittest.TestCase):
+
+    def test_clean_carriage_return(self):
+        test_data = [
+            ('a_x000D_', 'b_x000D_', None),
+        ]
+        test_book = xlsx.Book({'sheet': StubXlsxSheet(test_data)})
+        output = [
+            cell.value for cell in
+            list(test_book.iter_rows_in_sheet('sheet'))[0]
+        ]
+        self.assertEqual(output, ['a\r', 'b\r', None])
