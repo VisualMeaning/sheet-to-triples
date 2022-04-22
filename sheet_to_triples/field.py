@@ -146,12 +146,14 @@ class Cell:
 
     @property
     def must_exist(self):
-        if _must(_str(self._value)):
+        v = self._value
+        if _str(v) if isinstance(v, str) else _must(v):
             return ''
 
     @property
     def exists(self):
-        return True if self._value else False
+        # Note, a whitespace-only string does exist, may be confusing!
+        return bool(self._value)
 
     @property
     def not_exists(self):
