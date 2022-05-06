@@ -27,7 +27,7 @@ def _cast_from_term(t):
 
 
 def _norm(s, _w=re.compile(r'(?:(?!\n)\s)+')):
-    return _w.sub(' ', s.replace('\u200b', ''))
+    return _w.sub(' ', s.replace('\r\n', '\n').replace('\u200b', ''))
 
 
 def _n3(uri, namespace_manager):
@@ -64,6 +64,7 @@ def from_identifier(value, resolver):
         # Fall through for unresolved prefix
     if prefix == 'http':
         return rdflib.URIRef(value)
+    value = _norm(value)
     # if ends with language tag, create a Literal with the appropriate lang
     if re.search(r"@[a-z]{2}$", value):
         return rdflib.Literal(value, lang=value[-2:])
