@@ -26,23 +26,39 @@ class StubTransform:
 
     @classmethod
     def iter_from_name(cls, name, base_path=''):
-        return [cls(os.path.join(base_path, name) + '.py')]
+        if name.startswith('missing'):
+            raise FileNotFoundError(name)
+        if name.startswith('bad'):
+            raise ValueError('malformed node or something')
+        yield cls(os.path.join(base_path, name) + '.py')
 
 
 def _mock_stderr(io_class=io.StringIO):
     return mock.patch('sys.stderr', new_callable=io_class)
 
 
-_iter_from_name = 'sheet_to_triples.trans.Transform'
+_Transform = 'sheet_to_triples.trans.Transform'
 
 
-@mock.patch(_iter_from_name, new=StubTransform('dummy'))
 class TestParseArgs(fake_filesystem_unittest.TestCase):
 
     def setUp(self):
         self.setUpPyfakefs()
+        patcher = mock.patch(_Transform, new=StubTransform('dummy'))
+        self._stub_transform = patcher.start()
+        self.addCleanup(patcher.stop)
 
-    def test_parse_args_default(self):
+    def expect_parser_error(self, argv):
+        """Do argv parsing and expect parsing error to check."""
+
+        with _mock_stderr() as stderr, self.assertRaises(SystemExit) as e:
+            main.parse_args(argv)
+
+        self.assertEqual(e.exception.code, 2)
+
+        return stderr.getvalue().partition(' error: ')[2].strip()
+
+    def test_default(self):
         argv = ['dummy', 'transform1']
         args = main.parse_args(argv)
         defaults = [
@@ -53,15 +69,14 @@ class TestParseArgs(fake_filesystem_unittest.TestCase):
             ('resolve_same', True),
             ('debug', False),
             ('verbose', False),
-            ('from_list', None),
-            ('non_unique_from', None),
+            ('non_unique_from', []),
         ]
 
         for arg, expected in defaults:
             with self.subTest(arg=arg):
                 self.assertEqual(getattr(args, arg), expected)
 
-    def test_parse_args_transform(self):
+    def test_transform(self):
         argv = ['dummy', 'transform1', 'transform2']
         args = main.parse_args(argv)
 
@@ -70,24 +85,27 @@ class TestParseArgs(fake_filesystem_unittest.TestCase):
             ['transform1.py', 'transform2.py']
         )
 
-    def test_parse_args_transform_error_if_requires_book(self):
-        argv = ['dummy', 'booktransform1']
+    def test_transform_bad_transform(self):
+        argv = ['dummy', 'transform1', 'bad2']
 
-        # this makes any unexpected lower level exceptions harder to debug
-        # TODO: come up with a nicer way of suppressing "normal" error output
-        with _mock_stderr() as stderr, self.assertRaises(SystemExit) as e:
-            main.parse_args(argv)
+        message = self.expect_parser_error(argv)
 
-        self.assertEqual(e.exception.code, 2)
-
-        # argparse spits out usage info so need to isolate error message
-        message = stderr.getvalue().strip().splitlines()[-1]
         self.assertEqual(
             message,
-            'dummy: error: transforms {\'booktransform1.py\'} require --book'
+            'bad2 argument: malformed node or something'
         )
 
-    def test_parse_args_book_is_book(self):
+    def test_transform_error_if_requires_book(self):
+        argv = ['dummy', 'booktransform1']
+
+        message = self.expect_parser_error(argv)
+
+        self.assertEqual(
+            message,
+            'transforms {\'booktransform1.py\'} require --book'
+        )
+
+    def test_book_is_book(self):
         self.fs.create_file('book.xlsx')
         self.fs.create_file('book.xls')
         argv = [
@@ -100,7 +118,7 @@ class TestParseArgs(fake_filesystem_unittest.TestCase):
         expected = ['book.xlsx', 'book.xls']
         self.assertEqual(args.book, expected)
 
-    def test_parse_args_book_is_dir(self):
+    def test_book_is_dir(self):
         self.fs.create_file('rootdir1/book.xlsx')
         self.fs.create_file('rootdir1/book.xls')
         self.fs.create_file('rootdir1/notabook')
@@ -117,7 +135,7 @@ class TestParseArgs(fake_filesystem_unittest.TestCase):
         ]
         self.assertEqual(args.book, expected)
 
-    def test_parse_args_from_list(self):
+    def test_from_list(self):
         self.fs.create_file('listpath.txt', contents=(
             'testdir/listtrans\ntestdir/listtrans2'))
         argv = ['dummy', 'transform1', '--from-list', 'listpath.txt']
@@ -134,7 +152,7 @@ class TestParseArgs(fake_filesystem_unittest.TestCase):
             expected
         )
 
-    def test_parse_args_non_unique_from(self):
+    def test_non_unique_from(self):
         self.fs.create_file('listpath.txt', contents='listtrans\nlisttrans2')
         argv = ['dummy', 'transform1', '--non-unique-from', 'listpath.txt']
 
@@ -150,24 +168,28 @@ class TestParseArgs(fake_filesystem_unittest.TestCase):
             ['listtrans.py', 'listtrans2.py']
         )
 
-    def test_parse_args_model_out_but_no_model(self):
+    def test_non_unique_from_bad_transform(self):
+        self.fs.create_file('listpath.txt', contents='bad_trans')
+        argv = ['dummy', 'transform1', '--non-unique-from', 'listpath.txt']
+
+        message = self.expect_parser_error(argv)
+        self.assertEqual(
+            message,
+            '--non-unique-from argument: malformed node or something'
+        )
+
+    def test_model_out_but_no_model(self):
         argv = ['dummy', 'transform1', '--model-out', 'output.json']
         args = main.parse_args(argv)
         self.assertEqual(args.model, run.default_model)
 
-    def test_parse_args_bad_purge_except(self):
+    def test_bad_purge_except(self):
         argv = ['dummy', 'transform1', '--purge-except', 'bogus']
 
-        # TODO: come up with a nicer way of suppressing "normal" error output
-        with _mock_stderr() as stderr, self.assertRaises(SystemExit) as e:
-            main.parse_args(argv)
-
-        self.assertEqual(e.exception.code, 2)
-
-        message = stderr.getvalue().strip().splitlines()[-1]
+        message = self.expect_parser_error(argv)
         self.assertEqual(
             message,
-            'dummy: error: --purge-except must be one of none|geo|issues'
+            '--purge-except must be one of none|geo|issues'
         )
 
 
@@ -200,7 +222,7 @@ class TestMain(fake_filesystem_unittest.TestCase):
         triples = [('a', 'b', 'c')]
         transform = StubSingleTransform('transform1', triples=triples)
 
-        with mock.patch(_iter_from_name, new=transform):
+        with mock.patch(_Transform, new=transform):
             main.main(argv)
 
         # it should run tf.process(), add the triples to the runner model and
@@ -259,7 +281,7 @@ class TestMain(fake_filesystem_unittest.TestCase):
         transform = StubSingleTransform('transform1', non_uniques=non_uniques)
         self.fs.create_file('list.txt', contents='transform1')
 
-        with mock.patch(_iter_from_name, new=transform):
+        with mock.patch(_Transform, new=transform):
             args = main.parse_args(argv)
 
         runner = run.Runner.from_args(args)
