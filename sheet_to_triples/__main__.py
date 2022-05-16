@@ -36,15 +36,26 @@ def _parse_book_path(path):
         yield path
 
 
-def _parse_transform_list(path):
-    transforms = []
+def _transform_list(path):
+    if path is None:
+        return
     dir_path = os.path.dirname(path)
     with open(path, 'r') as f:
-        for transform in f.read().splitlines():
-            transforms.extend(
-                trans.Transform.iter_from_name(transform, base_path=dir_path)
-            )
-    return transforms
+        transform_names = f.read().splitlines()
+    for name in transform_names:
+        yield from trans.Transform.iter_from_name(name, base_path=dir_path)
+
+
+def list_from_parser_iter(parser, iterator, argument):
+    """Make parser errors from delayed execution during argument iteration.
+
+    Note, this stops on the first error in the iterator still, rather than
+    collecting all errors and exhausing the iterator.
+    """
+    try:
+        return list(iterator)
+    except (EnvironmentError, ValueError) as err:
+        parser.error('{a} argument: {e}'.format(a=argument, e=err))
 
 
 def parse_args(argv):
@@ -73,19 +84,27 @@ def parse_args(argv):
     parser.add_argument(
         '-v', '--verbose', action='store_true', help='show details as turtle')
     parser.add_argument(
-        '--from-list', type=_parse_transform_list,
+        '--from-list', dest='_from_list',
         help='add multiple transforms from a text file of transform names')
     parser.add_argument(
-        '--non-unique-from', type=_parse_transform_list,
+        '--non-unique-from', dest='_non_unique_from',
         help='load non unique triple properties from list of past transforms')
     parser.add_argument(
-        'transform', nargs='*', type=trans.Transform.iter_from_name,
+        'transform', nargs='*',
         help='names of any transforms to run')
     args = parser.parse_args(argv[1:])
-    # need to flatten this slightly awkward way as action=extend doesn't work
-    args.transform = list(itertools.chain(*args.transform))
-    if args.from_list:
-        args.transform.extend(args.from_list)
+
+    # Load transform lists and report errors from filesystem or content
+    args.transform = list(itertools.chain.from_iterable(
+        list_from_parser_iter(
+            parser, trans.Transform.iter_from_name(name), name
+        ) for name in args.transform
+    ))
+    args.transform.extend(list_from_parser_iter(
+        parser, _transform_list(args._from_list), '--from-list'))
+    args.non_unique_from = list_from_parser_iter(
+        parser, _transform_list(args._non_unique_from), '--non-unique-from')
+
     if not args.book:
         need_book = set(tf.name for tf in args.transform if tf.uses_sheet())
         if need_book:
