@@ -143,9 +143,9 @@ class TestParseArgs(fake_filesystem_unittest.TestCase):
         args = main.parse_args(argv)
 
         expected = [
-            'transform1.py',
             os.path.normpath('testdir/listtrans.py'),
             os.path.normpath('testdir/listtrans2.py'),
+            'transform1.py',
         ]
         self.assertEqual(
             [t.name for t in args.transform],

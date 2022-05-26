@@ -100,8 +100,8 @@ def parse_args(argv):
             parser, trans.Transform.iter_from_name(name), name
         ) for name in args.transform
     ))
-    args.transform.extend(list_from_parser_iter(
-        parser, _transform_list(args._from_list), '--from-list'))
+    args.transform[:0] = list_from_parser_iter(
+        parser, _transform_list(args._from_list), '--from-list')
     args.non_unique_from = list_from_parser_iter(
         parser, _transform_list(args._non_unique_from), '--non-unique-from')
 
