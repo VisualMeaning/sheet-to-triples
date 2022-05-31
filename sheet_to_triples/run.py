@@ -14,11 +14,22 @@ from . import (
 
 default_model = object()
 
+# TODO: this should not hardcode RDF namespaces
+_default_non_unique = {'http://visual-meaning.com/rdf/classOfInterest'}
+
 
 class Runner:
     """Encapsulation of new data, existing model, and transform running."""
 
-    def __init__(self, books, model, purge_except, resolve_same, verbose):
+    def __init__(
+        self,
+        books,
+        model,
+        purge_except,
+        resolve_same,
+        verbose,
+        non_unique=None
+    ):
         self.books = books
         self.model = model
         if model:
@@ -26,7 +37,9 @@ class Runner:
             self.graph = rdf.graph_from_model(model)
         else:
             self.graph = rdf.graph_from_triples(())
-        self.non_unique = set()
+        self.non_unique = non_unique
+        if self.non_unique is None:
+            self.non_unique = _default_non_unique
         self.resolve_same = resolve_same
         self.verbose = verbose
 

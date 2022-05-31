@@ -63,6 +63,7 @@ class StubRunner:
             'purge_except': lambda x: True,
             'resolve_same': False,
             'verbose': False,
+            'non_unique': set(),
         }
 
     def get_runner(self, args={}):
@@ -97,9 +98,9 @@ class RunnerTestCase(unittest.TestCase):
         expected_attrs = [
             ('books', expected_books),
             ('model', model),
-            ('non_unique', set()),
             ('resolve_same', False),
-            ('verbose', False)
+            ('verbose', False),
+            ('non_unique', run._default_non_unique),
         ]
         for attr, expected in expected_attrs:
             with self.subTest(attr=attr):
@@ -231,9 +232,10 @@ class RunnerTestCase(unittest.TestCase):
             'non_unique': ['http://pred']
         }
         transform = trans.Transform('test', details)
-        runner = StubRunner().get_runner()
+        # initialise with non-empty default non_unique list
+        runner = StubRunner().get_runner({'non_unique': {'http://a.test'}})
         runner.run([transform])
-        self.assertEqual(runner.non_unique, {'http://pred'})
+        self.assertEqual(runner.non_unique, {'http://a.test', 'http://pred'})
 
     def _create_row_iter(self, rows):
         row_iter = []
