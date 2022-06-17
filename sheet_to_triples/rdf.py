@@ -26,7 +26,7 @@ def _cast_from_term(t):
     )
 
 
-def _norm(s, _w=re.compile(r'(?:(?!\n)\s)+')):
+def _norm(s, _w=re.compile(r'(?:(?<=\S)[^\S\n]+)')):
     return _w.sub(' ', s.replace('\r\n', '\n').replace('\u200b', ''))
 
 

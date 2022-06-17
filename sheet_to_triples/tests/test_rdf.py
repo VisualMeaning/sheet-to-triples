@@ -73,6 +73,12 @@ class TestRDF(unittest.TestCase):
             rdflib.Literal('test')
         )
 
+    def test_from_identifier_meaningful_whitspace(self):
+        self.assertEqual(
+            rdf.from_identifier('* a\r\n  * a\t1\r\n  * a  2\r\n', None),
+            rdflib.Literal('* a\n  * a 1\n  * a 2\n')
+        )
+
     def test_relates_geo_name_true(self):
         for path in ('atGeoPoint', 'atGeoPoly', 'name'):
             term = {'pred': 'http://visual-meaning.com/rdf/' + path}
