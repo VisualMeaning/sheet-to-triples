@@ -15,7 +15,11 @@ from . import (
 default_model = object()
 
 # TODO: this should not hardcode RDF namespaces
-_default_non_unique = {'http://visual-meaning.com/rdf/classOfInterest'}
+# TODO: move this somewhere more appropriate
+_default_non_unique = {
+    'http://visual-meaning.com/rdf/classOfInterest',
+    'http://visual-meaning.com/rdf/useFilters',
+}
 
 
 class Runner:
