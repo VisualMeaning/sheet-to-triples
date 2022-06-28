@@ -29,6 +29,20 @@ class CellTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             field.Cell('    ').as_slug
 
+    def test_as_slug_oddities(self):
+        cases = [
+            ('Oliver!', 'oliver'),
+            ("'nduja", 'nduja'),
+            ('C&P', 'c-and-p'),
+            ('Update State of Railway (e.g. lock route etc.)',
+             'update-state-of-railway-e-g-lock-route-etc'),
+            ('Shan\ufffd', 'shan'),
+            ('Siân', 'siân'),
+        ]
+        for value, expected in cases:
+            with self.subTest(value=value):
+                self.assertEqual(field.Cell(value).as_slug, expected)
+
     def test_as_uc(self):
         self.assertEqual(
             field.Cell('   Some?letters+<and>characters   ').as_uc,
