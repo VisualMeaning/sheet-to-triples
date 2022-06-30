@@ -85,8 +85,8 @@ class Cell:
 
     @property
     def as_slug(self):
-        content = _str(self._value).replace('&', 'and')
-        return _must(self._pattern.sub('-', content).lower())
+        content = _str(self._value).replace('&', ' and ')
+        return _must(self._pattern.sub('-', content).strip('-').lower())
 
     @property
     def as_uc(self):
