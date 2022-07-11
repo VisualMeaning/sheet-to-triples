@@ -94,7 +94,8 @@ class Cell:
 
     @property
     def as_lc(self):
-        return self.as_uc[0].lower() + self.as_uc[1:]
+        uc = self.as_uc
+        return uc[0].lower() + uc[1:]
 
     @property
     def as_json(self):
@@ -158,9 +159,9 @@ class Cell:
     def must_not_exist(self):
         try:
             self.must_exist
-            raise AttributeError('exists')
-        except Exception as e:
+        except Exception:
             return ''
+        raise ValueError('exists')
 
     @property
     def exists(self):

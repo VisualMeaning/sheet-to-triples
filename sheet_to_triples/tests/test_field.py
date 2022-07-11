@@ -53,6 +53,12 @@ class CellTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             field.Cell('').as_uc
 
+    def test_as_lc(self):
+        self.assertEqual(
+            field.Cell('   Some?letters+<and>characters   ').as_lc,
+            'someLettersAndCharacters'
+        )
+
     def test_as_json(self):
         self.assertEqual(
             field.Cell({'list': ['é', 1, None]}).as_json,
@@ -223,6 +229,13 @@ class CellTestCase(unittest.TestCase):
     def test_must_exist_false(self):
         with self.assertRaises(ValueError):
             field.Cell('').must_exist
+
+    def test_must_not_exist_true(self):
+        self.assertEqual(field.Cell('').must_not_exist, '')
+
+    def test_must_not_exist_false(self):
+        with self.assertRaises(ValueError):
+            field.Cell('exists').must_not_exist
 
 
 class RowTestCase(unittest.TestCase):
