@@ -93,6 +93,11 @@ class Cell:
         return _must(self._pattern.sub('', _str(self._value).title()))
 
     @property
+    def as_lc(self):
+        uc = self.as_uc
+        return uc[0].lower() + uc[1:]
+
+    @property
     def as_json(self):
         return json.dumps(
             _must(self._value), ensure_ascii=False, separators=(',', ':'))
@@ -149,6 +154,14 @@ class Cell:
         v = self._value
         if _str(v) if isinstance(v, str) else _must(v):
             return ''
+
+    @property
+    def must_not_exist(self):
+        try:
+            self.must_exist
+        except Exception:
+            return ''
+        raise ValueError('exists')
 
     @property
     def exists(self):
