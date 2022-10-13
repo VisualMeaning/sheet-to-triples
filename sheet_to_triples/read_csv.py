@@ -26,8 +26,8 @@ class Book:
     def from_path(cls, path):
         return cls(path)
 
-    def iter_rows_in_sheet(self, sheet):
-        with open(self._path, 'r') as csv_file:
+    def iter_rows_in_sheet(self, sheet, sheet_encoding):
+        with open(self._path, 'r', encoding=sheet_encoding) as csv_file:
             try:
                 for index, row in enumerate(csv.reader(csv_file)):
                     yield [Cell(v) for v in row]

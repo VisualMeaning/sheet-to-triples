@@ -29,7 +29,7 @@ class Book:
             warnings.filterwarnings('ignore', '.*extension is not supported')
             return cls(openpyxl.load_workbook(path, data_only=True))
 
-    def iter_rows_in_sheet(self, sheet):
+    def iter_rows_in_sheet(self, sheet, *args):
         return (
             tuple(_clean(cell) for cell in row)
             for row in self._book[sheet].iter_rows()

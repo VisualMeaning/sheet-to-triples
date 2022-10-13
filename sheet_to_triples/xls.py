@@ -19,7 +19,7 @@ class Book:
     def from_path(cls, path):
         return cls(xlrd.open_workbook(path))
 
-    def iter_rows_in_sheet(self, sheet):
+    def iter_rows_in_sheet(self, sheet, *args):
         if sheet not in self._book.sheet_names():
             raise KeyError(sheet)
         return self._book.sheet_by_name(sheet).get_rows()

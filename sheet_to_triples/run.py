@@ -32,10 +32,12 @@ class Runner:
         purge_except,
         resolve_same,
         verbose,
+        sheet_encoding='utf-8',
         non_unique=None
     ):
         self.books = books
         self.model = model
+        self.sheet_encoding = sheet_encoding
         if model:
             rdf.purge_terms(model, purge_except, verbose)
             self.graph = rdf.graph_from_model(model)
@@ -58,7 +60,8 @@ class Runner:
         # else:
         model = args.model and cls.load_model(args.model)
         return cls(
-            book, model, args.purge_except, args.resolve_same, args.verbose)
+            book, model, args.purge_except, args.resolve_same, args.verbose,
+            args.sheet_encoding)
 
     def use_non_uniques(self, old_transforms):
         for tf in old_transforms:
@@ -100,7 +103,8 @@ class Runner:
 
     def _iter_data(self, tf):
         if self.books and tf.uses_sheet():
-            row_iter = xl.iter_sheet(self._get_books(tf.book), tf.sheet)
+            row_iter = xl.iter_sheet(
+                self._get_books(tf.book), tf.sheet, self.sheet_encoding)
             return xl.as_rows(
                 row_iter, tf.required_cols(), tf.skip_empty_rows)
         return (field.Row(r) for r in getattr(tf, 'data', ()))
