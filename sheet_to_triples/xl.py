@@ -14,6 +14,8 @@ def load_book(filepath):
         from .xls import Book
     elif ext == 'xlsx':
         from .xlsx import Book
+    elif ext == 'csv':
+        from .read_csv import Book
     else:
         raise ValueError(f'unsupported format: .{ext}')
     return Book.from_path(filepath)
