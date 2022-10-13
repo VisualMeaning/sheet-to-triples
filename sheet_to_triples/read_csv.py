@@ -12,26 +12,24 @@ class Cell:
     def __init__(self, value):
         self.value = value
 
-    def value(self):
-        return self.value
 
 class Book:
     """Wrapper around csv reader object to present common interface."""
 
-    def __init__(self, book):
-        self._book = book
+    def __init__(self, path):
+        self._path = path
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self._book})'
+        return f'{self.__class__.__name__}({self._path})'
 
     @classmethod
     def from_path(cls, path):
-        csv_file = open(path, 'r')
-        return cls(csv.reader(csv_file))
+        return cls(path)
 
     def iter_rows_in_sheet(self, sheet):
-        try:
-            for row in self._book:
-                yield [Cell(v) for v in row]
-        except UnicodeDecodeError:
-            raise ValueError(f'Invalid encoding on row {row[0]}')
+        with open(self._path, 'r') as csv_file:
+            try:
+                for index, row in enumerate(csv.reader(csv_file)):
+                    yield [Cell(v) for v in row]
+            except UnicodeDecodeError:
+                raise ValueError(f'Invalid encoding on row number {index}')
