@@ -84,9 +84,6 @@ def parse_args(argv):
     parser.add_argument(
         '-v', '--verbose', action='store_true', help='show details as turtle')
     parser.add_argument(
-        '--sheet-encoding', default='utf-8',
-        help='encoding method for csv file')
-    parser.add_argument(
         '--from-list', dest='_from_list',
         help='add multiple transforms from a text file of transform names')
     parser.add_argument(

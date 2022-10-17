@@ -76,6 +76,7 @@ class Transform:
         'allow_empty_subject',
         'skip_empty_rows',
         'melt_cols',
+        'sheet_encoding',
     )
 
     def __init__(self, name, details):
@@ -86,6 +87,7 @@ class Transform:
         self.conds = dict()
         self.triples = []
         self.melt_cols = ()
+        self.sheet_encoding = 'utf-8'
         for k in details:
             setattr(self, k, details[k])
 

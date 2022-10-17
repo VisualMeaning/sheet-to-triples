@@ -84,7 +84,6 @@ class RunnerTestCase(unittest.TestCase):
             'purge_except': lambda x: True,
             'resolve_same': False,
             'verbose': False,
-            'sheet_encoding': 'utf-8',
         }
         args = StubArgs(argvalues)
         model_data = json.dumps(model)
@@ -118,7 +117,6 @@ class RunnerTestCase(unittest.TestCase):
             'purge_except': lambda x: True,
             'resolve_same': False,
             'verbose': False,
-            'sheet_encoding': 'utf-8',
         }
         args = StubArgs(argvalues)
         model_data = json.dumps({'terms': []})
@@ -134,7 +132,6 @@ class RunnerTestCase(unittest.TestCase):
             'purge_except': lambda x: True,
             'resolve_same': False,
             'verbose': False,
-            'sheet_encoding': 'utf-8',
         }
         args = StubArgs(argvalues)
         runner = run.Runner.from_args(args)
@@ -148,7 +145,6 @@ class RunnerTestCase(unittest.TestCase):
             'purge_except': lambda x: True,
             'resolve_same': False,
             'verbose': False,
-            'sheet_encoding': 'utf-8',
         }
         args = StubArgs(argvalues)
         runner = run.Runner.from_args(args)
