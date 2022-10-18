@@ -100,7 +100,8 @@ class Runner:
 
     def _iter_data(self, tf):
         if self.books and tf.uses_sheet():
-            row_iter = xl.iter_sheet(self._get_books(tf.book), tf.sheet)
+            row_iter = xl.iter_sheet(
+                self._get_books(tf.book), tf.sheet, tf.sheet_encoding)
             return xl.as_rows(
                 row_iter, tf.required_cols(), tf.skip_empty_rows)
         return (field.Row(r) for r in getattr(tf, 'data', ()))

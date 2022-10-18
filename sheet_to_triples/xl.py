@@ -21,11 +21,11 @@ def load_book(filepath):
     return Book.from_path(filepath)
 
 
-def iter_sheet(books, sheet_name):
+def iter_sheet(books, sheet_name, sheet_encoding='utf-8'):
     last_err = None
     for book in books:
         try:
-            return book.iter_rows_in_sheet(sheet_name)
+            return book.iter_rows_in_sheet(sheet_name, sheet_encoding)
         except KeyError as e:
             last_err = e
     raise ValueError(f'sheet {sheet_name!r} not found') from last_err

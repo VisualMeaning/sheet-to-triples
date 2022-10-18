@@ -287,7 +287,8 @@ class RunnerTestCase(unittest.TestCase):
             },
         ]
         self.assertEqual(runner.model, {'terms': expected_terms})
-        mis.assert_called_once_with(['book object'], 'test_sheet.xlsx')
+        mis.assert_called_once_with(
+            ['book object'], 'test_sheet.xlsx', 'utf-8')
 
     def test_run_with_sheet_but_no_book(self):
         details = {
