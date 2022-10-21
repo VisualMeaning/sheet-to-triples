@@ -86,6 +86,9 @@ The top level attributes of a transform are:
 * `skip_empty_rows: bool`
 
   By default the first empty row found in a sheet is treated as the EOF and row parsing will halt if one is encountered. If this flag is set to `True` then empty rows will be skipped over instead and the entire sheet will be parsed.
+* `sheet_encoding: str_encoding`
+
+  For tabular input data that does not include the text encoding as part of the format, for instance CSV, the name of the Python encoding to decode the content using. By default 'utf-8' is used, and an exception is thrown for invalid content.
 * (provisional) `melt_cols: List[str]`
 
   If supplied, process triples not only for each row, but for each row/column pair by multiplying the columns given in this value. Including `melt_cols` will cause an additional column to be added to every row called `_has_melt`, which is a boolean value indicating whether this row contains melted values or not. If `_has_melt` is True, two further columns will be added, `_melt_colname` and `_melt_value`, which contain the column-value pairings for this row for each column in `melt_cols`.
