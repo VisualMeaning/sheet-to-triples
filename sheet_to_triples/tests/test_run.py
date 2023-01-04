@@ -383,11 +383,26 @@ class RunnerTestCase(unittest.TestCase):
         runner = StubRunner().get_runner()
         self.assertIsInstance(runner.ns, rdflib.namespace.NamespaceManager)
 
-    def test_load_model(self):
-        with _mock_open('["some", "json"]') as mo:
+    def test_load_model_full(self):
+        with _mock_open('{"terms": []}') as mo:
             data = run.Runner.load_model('test.json')
 
-        self.assertEqual(data, ['some', 'json'])
+        self.assertEqual(data, {'terms': []})
+        mo.assert_called_once_with('test.json', 'rb')
+
+    def test_load_model_terms(self):
+        terms = [{'subj': 'a-subj', 'pred': 'a-pred', 'obj': 'a-obj'}]
+        with _mock_open(json.dumps(terms)) as mo:
+            data = run.Runner.load_model('test.json')
+
+        self.assertEqual(data, {'terms': terms})
+        mo.assert_called_once_with('test.json', 'rb')
+
+    def test_load_model_invalid(self):
+        with _mock_open('["some", "json"]') as mo:
+            with self.assertRaises(ValueError):
+                run.Runner.load_model('test.json')
+
         mo.assert_called_once_with('test.json', 'rb')
 
     def test_save_model(self):

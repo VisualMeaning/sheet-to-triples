@@ -53,9 +53,6 @@ class Runner:
             book = {os.path.basename(b): xl.load_book(b) for b in args.book}
         else:
             book = dict()
-        # if args.model == 'default':
-        #     model = {'terms': []}
-        # else:
         model = args.model and cls.load_model(args.model)
         return cls(
             book, model, args.purge_except, args.resolve_same, args.verbose)
@@ -111,7 +108,12 @@ class Runner:
         if filepath is default_model:
             return {'terms': []}
         with open(filepath, 'rb') as f:
-            return json.load(f)
+            model = json.load(f)
+        if isinstance(model, dict) and 'terms' in model:
+            return model
+        if isinstance(model, list) and all(isinstance(t, dict) for t in model):
+            return {'terms': model}
+        raise ValueError('invalid model: ' + filepath)
 
     def save_model(self, filepath):
         with open(filepath, 'w') as f:
