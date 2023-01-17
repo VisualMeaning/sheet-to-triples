@@ -117,28 +117,26 @@ def parse_args(argv):
 
 
 def run_runner(runner, args):
-    with debug.context(args.debug):
-        if args.add_graph:
-            for graph_to_add in args.add_graph:
-                runner.graph.parse(graph_to_add, format='ttl')
-            runner.set_terms(iter(runner.graph))
+    if args.add_graph:
+        for graph_to_add in args.add_graph:
+            runner.graph.parse(graph_to_add, format='ttl')
+        runner.set_terms(iter(runner.graph))
 
-        if args.non_unique_from:
-            runner.use_non_uniques(args.non_unique_from)
-        if args.add_graph or args.transform:
-            runner.run(args.transform)
-            if args.model_out:
-                runner.save_model(args.model_out)
-        elif runner.verbose:
-            run.show_graph(runner.graph)
+    if args.non_unique_from:
+        runner.use_non_uniques(args.non_unique_from)
+    if args.add_graph or args.transform:
+        runner.run(args.transform)
+        if args.model_out:
+            runner.save_model(args.model_out)
+    elif runner.verbose:
+        run.show_graph(runner.graph)
 
 
 def main(argv):
     args = parse_args(argv)
-    runner = run.Runner.from_args(args)
-    # do the rest inside a subfunction so that we have access to the runner for
-    # testing purposes
-    run_runner(runner, args)
+    with debug.context(args.debug):
+        runner = run.Runner.from_args(args)
+        run_runner(runner, args)
     return 0
 
 
