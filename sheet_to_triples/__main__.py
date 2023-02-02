@@ -6,6 +6,7 @@
 import argparse
 import itertools
 import os
+import stat
 import sys
 
 from . import (
@@ -27,12 +28,13 @@ def _is_book_path(path):
 
 
 def _parse_book_path(path):
-    if os.path.isdir(path):
+    st = os.stat(path)
+    if stat.S_ISDIR(st.st_mode):
         for root, dirs, files in os.walk(path):
             for filepath in filter(_is_book_path, files):
                 yield os.path.join(root, filepath)
             return
-    else:
+    elif stat.S_ISREG(st.st_mode):
         yield path
 
 
