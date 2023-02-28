@@ -13,6 +13,9 @@ rdflib = {version = "^6.0.2", extras = ["sparql"]}
 xlrd = "^1"
 
 [tool.poetry.dev-dependencies]
-flake8 = "^3.8"
+ruff = "^0.0.253"
 coverage = "^5.5"
 pyfakefs = "^4.5"
+
+[tool.ruff]
+select = ["C9", "E", "F", "W"]
