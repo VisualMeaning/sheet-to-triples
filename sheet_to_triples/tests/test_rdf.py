@@ -79,6 +79,18 @@ class TestRDF(unittest.TestCase):
             rdflib.Literal('* a\n  * a 1\n  * a 2\n')
         )
 
+    def test_from_identifier_lang_str(self):
+        self.assertEqual(
+            rdf.from_identifier('"\u043e"@bg', None),
+            rdflib.Literal('\u043e', lang='bg')
+        )
+
+    def test_from_identifier_lang_obj(self):
+        self.assertEqual(
+            rdf.from_identifier('{"k": "v"}@en', None),
+            rdflib.Literal('{"k": "v"}', lang='en')
+        )
+
     def test_relates_geo_name_true(self):
         for path in ('atGeoPoint', 'atGeoPoly', 'name'):
             term = {'pred': 'http://visual-meaning.com/rdf/' + path}
@@ -185,6 +197,26 @@ class TestRDF(unittest.TestCase):
         rdf.update_model_terms(model, bnodes)
         expected = {'terms': []}
         self.assertEqual(model, expected)
+
+    def test_update_model_terms_language_tags(self):
+        """Literals with language tags have special serialisation to terms."""
+        model = {'terms': []}
+        triples = [
+            ('_s', '_p', rdflib.URIRef('o:_1')),
+            # Not testing rdflib.Literal(1) as should maybe change behaviour?
+            ('_s', '_p', rdflib.Literal('o')),
+            ('_s', '_p', rdflib.Literal('o', lang='en')),
+            ('_s', '_p', rdflib.Literal('\u043e', lang='bg')),
+            ('_s', '_p', rdflib.Literal('', lang='en')),
+            ('_s', '_p', rdflib.Literal('["o1", "o2"]', lang='en')),
+            ('_s', '_p', rdflib.Literal('{"o": "v"}', lang='en')),
+        ]
+        rdf.update_model_terms(model, triples)
+        expected = [
+            'o:_1', 'o', '"o"@en', '"\u043e"@bg', '""@en', '["o1", "o2"]@en',
+            '{"o": "v"}@en',
+        ]
+        self.assertEqual([t['obj'] for t in model['terms']], expected)
 
     def _model_from_triples(self, triples):
         terms = [{'subj': s, 'pred': p, 'obj': o} for s, p, o in triples]

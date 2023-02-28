@@ -46,6 +46,10 @@ def from_qname(qname, resolver):
 
 
 def from_identifier(value, resolver):
+    """Create rdflib URIRef or Literal from an encoded string value.
+
+    If resolver is supplied, it will be used to derive namespace from prefixes.
+    """
     if isinstance(value, rdflib.term.Identifier):
         return value
     prefix, _, tail = value.partition(':')
@@ -67,17 +71,18 @@ def from_identifier(value, resolver):
     value = _norm(value)
     # if ends with language tag, create a Literal with the appropriate lang
     if re.search(r"@[a-z]{2}$", value):
-        return rdflib.Literal(value, lang=value[-2:])
+        inner = value[1:-4] if value[0] == '"' else value[:-3]
+        return rdflib.Literal(inner, lang=value[-2:])
     return rdflib.Literal(value)
 
 
 def relates_geo_name(term):
-    """True if triple is geo infomation or a name."""
+    """`True` if triple is geo infomation or a name."""
     return term['pred'] in _GEO
 
 
 def relates_issue(term):
-    """True if triple is not related to an issue instance."""
+    """`True` if triple is not related to an issue instance."""
     return not term['subj'].startswith(_ISSUES_PREFIX)
 
 
@@ -113,9 +118,23 @@ def _maybe_bnode(s, p, o):
     return isinstance(s, rdflib.term.BNode) or isinstance(o, rdflib.term.BNode)
 
 
+def _maybe_from_literal(maybe_literal):
+    """Serialise rdf object value to form used for model json encoding.
+
+    There is a special case for when language tags are involved, to preserve
+    them in the json serialisation for both strings and arrays or objects.
+    """
+    if getattr(maybe_literal, 'language', None):
+        if maybe_literal[:1] + maybe_literal[-1:] in ('[]', '{}'):
+            return str(maybe_literal) + '@' + maybe_literal.language
+        return maybe_literal.n3()
+    return str(maybe_literal)
+
+
 def update_model_terms(model, triples):
     model['terms'].extend(
-        dict(subj=str(s), pred=str(p), obj=str(o)) for s, p, o in triples
+        dict(subj=str(s), pred=str(p), obj=_maybe_from_literal(o))
+        for s, p, o in triples
         if not _maybe_bnode(s, p, o))
 
 
