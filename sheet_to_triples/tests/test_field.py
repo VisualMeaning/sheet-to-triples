@@ -79,6 +79,16 @@ class CellTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             field.Cell('   ').as_text
 
+    def test_as_escaped_text(self):
+        self.assertEqual(
+            field.Cell('- one\xa7\\r\\n- two\xa7\\r\\n').as_escaped_text,
+            '- one\xa7\n- two\xa7'
+        )
+
+    def test_as_escaped_text_empty(self):
+        with self.assertRaises(ValueError):
+            field.Cell('\\r\\n').as_escaped_text
+
     def test_as_capital(self):
         self.assertEqual(
             field.Cell('   shared   ').as_capital,
