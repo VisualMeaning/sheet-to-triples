@@ -107,6 +107,18 @@ class Cell:
         return _str(self._value)
 
     @property
+    def as_escaped_text(self):
+        value = (
+            _must(self._value)
+                .encode('ascii', 'backslashreplace').decode('unicode_escape')
+                # could junk all control chars but let's just handle CR
+                .replace('\r', '').strip()
+        )
+        if not value:
+            raise ValueError('empty string value')
+        return value
+
+    @property
     def as_capital(self):
         return _must(_CAPTYPES.get(_str(self._value)[:5].lower()), TypeError)
 
