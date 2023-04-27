@@ -96,7 +96,7 @@ class Cell:
 
     @property
     def as_uc(self):
-        return _must(self._pattern.sub('', _str(self._value).title()))
+        return _must(''.join([x.title() if x.islower() else x for x in re.findall(r'\w+', self._value)]))
 
     @property
     def as_lc(self):
