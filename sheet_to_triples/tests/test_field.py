@@ -43,6 +43,12 @@ class CellTestCase(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertEqual(field.Cell(value).as_slug, expected)
 
+    def test_as_hash(self):
+        self.assertEqual(
+            field.Cell('14562378').as_hash,
+            'be097e65'
+        )
+
     def test_as_uc(self):
         self.assertEqual(
             field.Cell('   Some?letters+<and>characters   ').as_uc,
