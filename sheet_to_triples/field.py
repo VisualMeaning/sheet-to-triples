@@ -7,6 +7,7 @@ import ast
 import functools
 import json
 import re
+import hashlib
 
 import pycountry
 
@@ -87,6 +88,11 @@ class Cell:
     def as_slug(self):
         content = _str(self._value).replace('&', ' and ')
         return _must(self._pattern.sub('-', content).strip('-').lower())
+
+    @property
+    def as_hash(self):
+        hash_content = b"vm-salt" + _str(self._value).encode("utf8")
+        return hashlib.sha256(hash_content).hexdigest()[:8]
 
     @property
     def as_uc(self):
