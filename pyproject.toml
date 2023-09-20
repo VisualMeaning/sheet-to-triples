@@ -6,10 +6,10 @@ authors = ["Martin Packman <martin.packman@visual-meaning.com>"]
 description = "Convert tabular data into triples."
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.11"
 pycountry = "^20"
 openpyxl = "^3"
-rdflib = {version = "^6.0.2", extras = ["sparql"]}
+rdflib = {version = "^7.0.0", extras = ["sparql"]}
 xlrd = "^1"
 
 [tool.poetry.dev-dependencies]
