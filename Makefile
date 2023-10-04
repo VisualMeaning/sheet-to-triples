@@ -5,9 +5,10 @@ DIR = sheet_to_triples/
 all: install check
 
 poetry.lock: pyproject.toml
-	poetry install && touch poetry.lock
+	poetry lock && touch poetry.lock -r pyproject.toml
 
 install: poetry.lock
+	poetry install
 
 check: lint test
 
