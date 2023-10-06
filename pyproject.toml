@@ -6,16 +6,17 @@ authors = ["Martin Packman <martin.packman@visual-meaning.com>"]
 description = "Convert tabular data into triples."
 
 [tool.poetry.dependencies]
-python = "^3.11"
-pycountry = "^20"
+python = "^3.8.10"
+pycountry = "^22"
 openpyxl = "^3"
-rdflib = {version = "^7.0.0", extras = ["sparql"]}
-xlrd = "^1"
+rdflib = {version = "^7", extras = ["sparql"]}
+xlrd = "^2"
 
 [tool.poetry.dev-dependencies]
-ruff = "^0.0.253"
-coverage = "^5.5"
-pyfakefs = "^4.5"
+ruff = "^0.0.292"
+coverage = "^7"
+# Change to "^5" with release of kipple fix pyfakefs#869
+pyfakefs = "5.1.0"
 
 [tool.ruff]
 select = ["C9", "E", "F", "W"]
