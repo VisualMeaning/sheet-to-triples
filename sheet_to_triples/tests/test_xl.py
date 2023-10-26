@@ -212,3 +212,14 @@ class TestXlsx(unittest.TestCase):
             list(test_book.iter_rows_in_sheet('sheet'))[0]
         ]
         self.assertEqual(output, ['a\r', 'b\r', None])
+
+    def test_removed_illegal_characters(self):
+        test_data = [
+            ('a_x0004_', 'b_x000C_'),
+        ]
+        test_book = xlsx.Book({'sheet': StubXlsxSheet(test_data)})
+        output = [
+            cell.value for cell in
+            list(test_book.iter_rows_in_sheet('sheet'))[0]
+        ]
+        self.assertEqual(output, ['a', 'b'])

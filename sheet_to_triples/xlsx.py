@@ -6,11 +6,17 @@
 import warnings
 
 import openpyxl
+from openpyxl.cell.cell import ILLEGAL_CHARACTERS_RE
+
+
+def _remove_illegal(value):
+    return ILLEGAL_CHARACTERS_RE.sub(r'', value)
 
 
 def _clean(cell):
     if isinstance(cell.value, str):
-        cell.value = openpyxl.utils.escape.unescape(cell.value)
+        unescaped = openpyxl.utils.escape.unescape(cell.value)
+        cell.value = _remove_illegal(unescaped)
     return cell
 
 
