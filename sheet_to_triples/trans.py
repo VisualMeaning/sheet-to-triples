@@ -170,10 +170,12 @@ class Transform:
             params[k] = converter.as_obj(self.lets[k], params) or ''
 
         for c in self.conds:
-            cond, true, false = (
-                converter.as_obj(n, params) for n in self.conds[c]
-            )
-            params[c] = str(true) if str(cond) == "True" else str(false)
+            cond, true, false = self.conds[c]
+            convert = lambda x: str(converter.as_obj(x, params))
+            if convert(cond) == "True":
+                params[c] = convert(true)
+            else:
+                params[c] = convert(false)
 
         for k, q in query_map.items():
             result = list(q(initBindings=params))
