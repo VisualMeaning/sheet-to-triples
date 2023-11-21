@@ -174,7 +174,7 @@ class Transform:
         
         for c in self.conds:
             cond, true, false = self.conds[c]
-            if str(_convert(cond)) == "True":
+            if all([_convert(c.strip()) == "True" for c in '&'.split(cond)]):
                 params[c] = _convert(true)
             else:
                 params[c] = _convert(false)
