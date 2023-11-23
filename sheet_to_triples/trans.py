@@ -167,14 +167,14 @@ class Transform:
 
         def _convert(template):
             return converter.as_obj(template, params)
-        
+
         for k in self.lets:
             # TODO: Defaulting to empty string is wrong if variable can't bind
             params[k] = _convert(self.lets[k]) or ''
-        
+
         for c in self.conds:
             cond, true, false = self.conds[c]
-            if all([_convert(c.strip()) == "True" for c in '&'.split(cond)]):
+            if all([str(_convert(c.strip())) == "True" for c in cond.split('&')]):
                 params[c] = _convert(true)
             else:
                 params[c] = _convert(false)
