@@ -96,12 +96,7 @@ class Cell:
 
     @property
     def as_uc(self):
-        return _must(
-            ''.join(
-                [x.title() if x.islower()
-                 else x for x in re.findall(r'\w+', self._value)]
-            )
-        )
+        return _must(self._pattern.sub('', _str(self._value).title()))
 
     @property
     def as_lc(self):
@@ -190,8 +185,8 @@ class Cell:
     def exists(self):
         if not self._value:
             return False
-        # A whitespace-only string does indeed exist, so check we
-        # aren't dealing with one of those.
+        # Whitespace-only strings will pass previous check but still do
+        # not "exist" for our purposes, so return False for those too.
         if isinstance(self._value, str) and self._value.isspace():
             return False
         return True
