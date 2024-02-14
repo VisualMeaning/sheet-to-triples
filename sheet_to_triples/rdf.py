@@ -18,11 +18,53 @@ _USES_MAP_TILES = VM.usesMapTiles
 _GEO = (VM.atGeoPoint.toPython(), VM.atGeoPoly.toPython(), VM.name.toPython())
 
 
-def _cast_from_term(t):
+class Resolver:
+    #TODO: Make from_qname a method on this class. Will require rewriting
+    # calling code in other modules.
+    def __init__(self, store, namespaces):
+        self.store = store
+        self.ns_match = '|'.join(
+            sorted(
+                [re.escape(str(ns)) for _, ns in namespaces],
+                key=len, reverse=True
+            )
+        )
+        self.lang_match = re.compile(r"@[a-z]{2}$")
+
+    @classmethod
+    def from_graph(cls, graph):
+        return cls(graph.store, graph.namespace_manager.namespaces())
+
+    def from_identifier(self, value):
+        if isinstance(value, rdflib.term.Identifier):
+            return value
+        prefix, _, tail = value.partition(':')
+        if tail:
+            namespace = self.store.namespace(prefix)
+            if namespace:
+                # Rough hack to see if this is a sequence path, and create
+                if ' / ' in tail:
+                    return functools.reduce(
+                        operator.truediv, map(
+                            lambda v: from_qname(v, self.store.namespace),
+                            value.split(' / ')))
+                return rdflib.URIRef(namespace + tail)
+        if re.match(self.ns_match, value):
+            return rdflib.URIRef(value)
+
+        value = _norm(value)
+        # if ends with language tag, create a Literal with the appropriate lang
+        if re.search(self.lang_match, value):
+            inner = value[1:-4] if value[0] == '"' else value[:-3]
+            return rdflib.Literal(inner, lang=value[-2:])
+        return rdflib.Literal(value)
+
+
+def _cast_from_term(t, from_identifier):
     return (
         rdflib.URIRef(t['subj']),
         rdflib.URIRef(t['pred']),
-        from_identifier(t['obj'], None),
+        from_identifier(t['obj']),
     )
 
 
@@ -43,37 +85,6 @@ def from_qname(qname, resolver):
     if prefix == 'http':
         return rdflib.URIRef(qname)
     raise ValueError(f'unknown prefix: {prefix}')
-
-
-def from_identifier(value, resolver):
-    """Create rdflib URIRef or Literal from an encoded string value.
-
-    If resolver is supplied, it will be used to derive namespace from prefixes.
-    """
-    if isinstance(value, rdflib.term.Identifier):
-        return value
-    prefix, _, tail = value.partition(':')
-    if tail and resolver:
-        # Might be a qname or a sparql property path
-        namespace = resolver(prefix)
-        if namespace:
-            # Rough hack to see if this is a sequence path, and create
-            if ' / ' in tail:
-                return functools.reduce(
-                    operator.truediv, map(
-                        lambda v: from_qname(v, resolver),
-                        value.split(' / ')))
-            # Common case, this is just a qname
-            return rdflib.URIRef(namespace + tail)
-        # Fall through for unresolved prefix
-    if prefix == 'http':
-        return rdflib.URIRef(value)
-    value = _norm(value)
-    # if ends with language tag, create a Literal with the appropriate lang
-    if re.search(r"@[a-z]{2}$", value):
-        inner = value[1:-4] if value[0] == '"' else value[:-3]
-        return rdflib.Literal(inner, lang=value[-2:])
-    return rdflib.Literal(value)
 
 
 def relates_geo_name(term):
@@ -104,13 +115,15 @@ def _new_graph():
     g.bind('foaf', rdflib.namespace.FOAF)
     g.bind('skos', rdflib.namespace.SKOS)
     g.bind('owl', rdflib.namespace.OWL)
+    g.bind('gist', rdflib.Namespace('https://ontologies.semanticarts.com/gist/'))
     return g
 
 
 def graph_from_model(model):
     g = _new_graph()
+    resolver = Resolver.from_graph(g)
     for term in model['terms']:
-        g.add(_cast_from_term(term))
+        g.add(_cast_from_term(term, resolver.from_identifier))
     return g
 
 
