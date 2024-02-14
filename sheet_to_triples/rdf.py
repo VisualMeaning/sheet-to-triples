@@ -21,46 +21,50 @@ _GEO = (VM.atGeoPoint.toPython(), VM.atGeoPoly.toPython(), VM.name.toPython())
 class Resolver:
     #TODO: Make from_qname a method on this class. Will require rewriting
     # calling code in other modules.
-    def __init__(self, graph):
-        self.graph = graph
-        namespaces = self.graph.namespace_manager.namespaces()
+    def __init__(self, store, namespaces):
+        self.store = store
         self.ns_match = '|'.join(
             sorted(
                 [re.escape(str(ns)) for _, ns in namespaces],
                 key=len, reverse=True
             )
         )
+        self.lang_match = re.compile(r"@[a-z]{2}$")
+
+    @classmethod
+    def from_graph(cls, graph):
+        return cls(graph.store, graph.namespace_manager.namespaces())
 
     def from_identifier(self, value):
         if isinstance(value, rdflib.term.Identifier):
             return value
         prefix, _, tail = value.partition(':')
         if tail:
-            namespace = self.graph.store.namespace(prefix)
+            namespace = self.store.namespace(prefix)
             if namespace:
                 # Rough hack to see if this is a sequence path, and create
                 if ' / ' in tail:
                     return functools.reduce(
                         operator.truediv, map(
-                            lambda v: from_qname(v, self.graph.store.namespace),
+                            lambda v: from_qname(v, self.store.namespace),
                             value.split(' / ')))
                 return rdflib.URIRef(namespace + tail)
-        if re.match('http', value) and re.match(self.ns_match, value):
+        if re.match(self.ns_match, value):
             return rdflib.URIRef(value)
 
         value = _norm(value)
         # if ends with language tag, create a Literal with the appropriate lang
-        if re.search(r"@[a-z]{2}$", value):
+        if re.search(self.lang_match, value):
             inner = value[1:-4] if value[0] == '"' else value[:-3]
             return rdflib.Literal(inner, lang=value[-2:])
         return rdflib.Literal(value)
 
 
-def _cast_from_term(t, resolver):
+def _cast_from_term(t, from_identifier):
     return (
         rdflib.URIRef(t['subj']),
         rdflib.URIRef(t['pred']),
-        resolver.from_identifier(t['obj']),
+        from_identifier(t['obj']),
     )
 
 
@@ -117,9 +121,9 @@ def _new_graph():
 
 def graph_from_model(model):
     g = _new_graph()
-    resolver = Resolver(g)
+    resolver = Resolver.from_graph(g)
     for term in model['terms']:
-        g.add(_cast_from_term(term, resolver))
+        g.add(_cast_from_term(term, resolver.from_identifier))
     return g
 
 

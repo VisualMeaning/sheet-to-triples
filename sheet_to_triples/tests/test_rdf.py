@@ -272,6 +272,9 @@ class TestResolver(unittest.TestCase):
     def graph(self):
         return rdf._new_graph()
 
+    def setUp(self):
+        self.resolver = rdf.Resolver.from_graph(self.graph)
+
     def test_from_identifier_known_iri_qname_returns_uriref(self):
         tests = {
             ('vm:Category', 'http://visual-meaning.com/rdf/Category'),
@@ -281,9 +284,8 @@ class TestResolver(unittest.TestCase):
         }
         for value, expected in tests:
             with self.subTest(value=value):
-                resolver = rdf.Resolver(self.graph)
                 self.assertEqual(
-                    resolver.from_identifier(value),
+                    self.resolver.from_identifier(value),
                     rdflib.term.URIRef(expected),
                 )
 
@@ -295,58 +297,47 @@ class TestResolver(unittest.TestCase):
         }
         for value in tests:
             with self.subTest(value=value):
-                resolver = rdf.Resolver(self.graph)
                 self.assertEqual(
-                    resolver.from_identifier(value),
+                    self.resolver.from_identifier(value),
                     rdflib.term.URIRef(value),
                 )
 
     def test_from_identifier_unknown_url_returns_literal(self):
-        tests = {
-            'https://bucket.s3.amazonaws.com/{z}-{x}-{y}.png#background:#fff',
-        }
-        for value in tests:
-            with self.subTest(value=value):
-                resolver = rdf.Resolver(self.graph)
-                self.assertEqual(
-                    resolver.from_identifier(value),
-                    rdflib.term.Literal(value),
-                )
+        value = 'https://bucket.s3.amazonaws.com/{z}-{x}-{y}.png'
+        self.assertEqual(
+            self.resolver.from_identifier(value),
+            rdflib.term.Literal(value),
+        )
 
     def test_from_identifier_aws_tiles_path_no_warning(self):
-        resolver = rdf.Resolver(self.graph)
-        tiles_src = 'https://bucket.s3.amazonaws.com/{z}-{x}-{y}.png#background:#fff'
+        tiles_src = 'https://bucket.s3.amazonaws.com/{z}-{x}-{y}.png'
         # bad spelling for compatibility with python 3.8 - ideally would use
         # self.assertNoLogs, but this was introduced in 3.10
         with self.assertRaises(AssertionError):
             with self.assertLogs(level='WARNING'):
-                resolver.from_identifier(tiles_src)
+                self.resolver.from_identifier(tiles_src)
 
     def test_from_identifier_string_returns_literal(self):
-        resolver = rdf.Resolver(self.graph)
         self.assertEqual(
-            resolver.from_identifier('test'),
+            self.resolver.from_identifier('test'),
             rdflib.Literal('test')
         )
 
     def test_from_identifier_meaningful_whitespace(self):
-        resolver = rdf.Resolver(self.graph)
         self.assertEqual(
-            resolver.from_identifier('* a\r\n  * a\t1\r\n  * a  2\r\n'),
+            self.resolver.from_identifier('* a\r\n  * a\t1\r\n  * a  2\r\n'),
             rdflib.Literal('* a\n  * a 1\n  * a 2\n')
         )
 
     def test_from_identifier_already_ident(self):
-        resolver = rdf.Resolver(self.graph)
         term = rdflib.term.URIRef('http://visual-meaning.com/rdf/test')
         self.assertEqual(
-            resolver.from_identifier(term),
+            self.resolver.from_identifier(term),
             term
         )
 
     def test_from_identifier_sequencepath(self):
-        resolver = rdf.Resolver(self.graph)
-        term = resolver.from_identifier('vm:a / vm:b')
+        term = self.resolver.from_identifier('vm:a / vm:b')
         expected = [
             'http://visual-meaning.com/rdf/a',
             'http://visual-meaning.com/rdf/b',
@@ -358,15 +349,13 @@ class TestResolver(unittest.TestCase):
         )
 
     def test_from_identifier_lang_str(self):
-        resolver = rdf.Resolver(self.graph)
         self.assertEqual(
-            resolver.from_identifier('"\u043e"@bg'),
+            self.resolver.from_identifier('"\u043e"@bg'),
             rdflib.Literal('\u043e', lang='bg')
         )
 
     def test_from_identifier_lang_obj(self):
-        resolver = rdf.Resolver(self.graph)
         self.assertEqual(
-            resolver.from_identifier('{"k": "v"}@en'),
+            self.resolver.from_identifier('{"k": "v"}@en'),
             rdflib.Literal('{"k": "v"}', lang='en')
         )

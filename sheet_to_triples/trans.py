@@ -36,12 +36,13 @@ class _Converter:
 
     def __init__(self, reference_graph):
         self.vformat = string.Formatter().vformat
-        self.resolver = reference_graph.store.namespace
-        self.from_identifier = rdf.Resolver(reference_graph).from_identifier
+        # TODO: Integrate from_qname into new Resolver class and remove this
+        self._old_resolver = reference_graph.store.namespace
+        self.resolver = rdf.Resolver.from_graph(reference_graph)
 
     def as_iri(self, template, params):
         result = self.vformat(template, (), params)
-        return rdf.from_qname(result, self.resolver)
+        return rdf.from_qname(result, self._old_resolver)
 
     def as_iri_or_none(self, template, params):
         try:
@@ -51,14 +52,14 @@ class _Converter:
         if not result:
             # TODO: Raise in this case, partial rows are problems here
             return None
-        return rdf.from_qname(result, self.resolver)
+        return rdf.from_qname(result, self._old_resolver)
 
     def as_obj(self, template, params):
         try:
             result = self.vformat(template, (), params)
         except (IndexError, KeyError, ValueError):
             return None
-        return self.from_identifier(result)
+        return self.resolver.from_identifier(result)
 
 
 class Transform:
