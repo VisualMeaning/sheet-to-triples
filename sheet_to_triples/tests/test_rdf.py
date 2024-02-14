@@ -43,54 +43,6 @@ class TestRDF(unittest.TestCase):
             rdf.from_qname('unk:test', self.resolver)
         self.assertEqual(str(ctx.exception), 'unknown prefix: unk')
 
-    def test_from_identifier_already_ident(self):
-        term = rdflib.term.URIRef('test')
-        self.assertEqual(
-            rdf.from_identifier(term, None),
-            term
-        )
-
-    def test_from_identifier_sequencepath(self):
-        term = rdf.from_identifier('vm:a / vm:b', self.resolver)
-        expected = [
-            'http://visual-meaning.com/rdf/a',
-            'http://visual-meaning.com/rdf/b',
-        ]
-        self.assertIsInstance(term, rdflib.paths.SequencePath)
-        self.assertEqual(
-            [str(p) for p in term.args],
-            expected
-        )
-
-    def test_from_identifier_prefix_http(self):
-        term = rdf.from_identifier('http://test.test', None)
-        self.assertIsInstance(term, rdflib.term.URIRef)
-        self.assertEqual(str(term), 'http://test.test')
-
-    def test_from_identifier_literal(self):
-        self.assertEqual(
-            rdf.from_identifier('test', None),
-            rdflib.Literal('test')
-        )
-
-    def test_from_identifier_meaningful_whitspace(self):
-        self.assertEqual(
-            rdf.from_identifier('* a\r\n  * a\t1\r\n  * a  2\r\n', None),
-            rdflib.Literal('* a\n  * a 1\n  * a 2\n')
-        )
-
-    def test_from_identifier_lang_str(self):
-        self.assertEqual(
-            rdf.from_identifier('"\u043e"@bg', None),
-            rdflib.Literal('\u043e', lang='bg')
-        )
-
-    def test_from_identifier_lang_obj(self):
-        self.assertEqual(
-            rdf.from_identifier('{"k": "v"}@en', None),
-            rdflib.Literal('{"k": "v"}', lang='en')
-        )
-
     def test_relates_geo_name_true(self):
         for path in ('atGeoPoint', 'atGeoPoly', 'name'):
             term = {'pred': 'http://visual-meaning.com/rdf/' + path}
@@ -312,3 +264,109 @@ class TestRDF(unittest.TestCase):
             with self.subTest(value=expected_value):
                 self.assertIsInstance(test_value, instance)
                 self.assertEqual(str(test_value), expected_value)
+
+
+class TestResolver(unittest.TestCase):
+
+    @property
+    def graph(self):
+        return rdf._new_graph()
+
+    def test_from_identifier_known_iri_qname_returns_uriref(self):
+        tests = {
+            ('vm:Category', 'http://visual-meaning.com/rdf/Category'),
+            ('gist:isCategorizedBy',
+                 'https://ontologies.semanticarts.com/gist/isCategorizedBy'),
+            ('rdf:type', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+        }
+        for value, expected in tests:
+            with self.subTest(value=value):
+                resolver = rdf.Resolver(self.graph)
+                self.assertEqual(
+                    resolver.from_identifier(value),
+                    rdflib.term.URIRef(expected),
+                )
+
+    def test_from_identifier_known_iri_url_returns_uriref(self):
+        tests = {
+            'http://visual-meaning.com/rdf/Category',
+            'https://ontologies.semanticarts.com/gist/isCategorizedBy',
+            'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+        }
+        for value in tests:
+            with self.subTest(value=value):
+                resolver = rdf.Resolver(self.graph)
+                self.assertEqual(
+                    resolver.from_identifier(value),
+                    rdflib.term.URIRef(value),
+                )
+
+    def test_from_identifier_unknown_url_returns_literal(self):
+        tests = {
+            'https://bucket.s3.amazonaws.com/{z}-{x}-{y}.png#background:#fff',
+        }
+        for value in tests:
+            with self.subTest(value=value):
+                resolver = rdf.Resolver(self.graph)
+                self.assertEqual(
+                    resolver.from_identifier(value),
+                    rdflib.term.Literal(value),
+                )
+
+    def test_from_identifier_aws_tiles_path_no_warning(self):
+        resolver = rdf.Resolver(self.graph)
+        tiles_src = 'https://bucket.s3.amazonaws.com/{z}-{x}-{y}.png#background:#fff'
+        # bad spelling for compatibility with python 3.8 - ideally would use
+        # self.assertNoLogs, but this was introduced in 3.10
+        with self.assertRaises(AssertionError):
+            with self.assertLogs(level='WARNING'):
+                resolver.from_identifier(tiles_src)
+
+    def test_from_identifier_string_returns_literal(self):
+        resolver = rdf.Resolver(self.graph)
+        self.assertEqual(
+            resolver.from_identifier('test'),
+            rdflib.Literal('test')
+        )
+
+    def test_from_identifier_meaningful_whitespace(self):
+        resolver = rdf.Resolver(self.graph)
+        self.assertEqual(
+            resolver.from_identifier('* a\r\n  * a\t1\r\n  * a  2\r\n'),
+            rdflib.Literal('* a\n  * a 1\n  * a 2\n')
+        )
+
+    def test_from_identifier_already_ident(self):
+        resolver = rdf.Resolver(self.graph)
+        term = rdflib.term.URIRef('http://visual-meaning.com/rdf/test')
+        self.assertEqual(
+            resolver.from_identifier(term),
+            term
+        )
+
+    def test_from_identifier_sequencepath(self):
+        resolver = rdf.Resolver(self.graph)
+        term = resolver.from_identifier('vm:a / vm:b')
+        expected = [
+            'http://visual-meaning.com/rdf/a',
+            'http://visual-meaning.com/rdf/b',
+        ]
+        self.assertIsInstance(term, rdflib.paths.SequencePath)
+        self.assertEqual(
+            [str(p) for p in term.args],
+            expected
+        )
+
+    def test_from_identifier_lang_str(self):
+        resolver = rdf.Resolver(self.graph)
+        self.assertEqual(
+            resolver.from_identifier('"\u043e"@bg'),
+            rdflib.Literal('\u043e', lang='bg')
+        )
+
+    def test_from_identifier_lang_obj(self):
+        resolver = rdf.Resolver(self.graph)
+        self.assertEqual(
+            resolver.from_identifier('{"k": "v"}@en'),
+            rdflib.Literal('{"k": "v"}', lang='en')
+        )

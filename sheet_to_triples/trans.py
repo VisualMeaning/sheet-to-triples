@@ -37,6 +37,7 @@ class _Converter:
     def __init__(self, reference_graph):
         self.vformat = string.Formatter().vformat
         self.resolver = reference_graph.store.namespace
+        self.from_identifier = rdf.Resolver(reference_graph).from_identifier
 
     def as_iri(self, template, params):
         result = self.vformat(template, (), params)
@@ -57,7 +58,7 @@ class _Converter:
             result = self.vformat(template, (), params)
         except (IndexError, KeyError, ValueError):
             return None
-        return rdf.from_identifier(result, self.resolver)
+        return self.from_identifier(result)
 
 
 class Transform:

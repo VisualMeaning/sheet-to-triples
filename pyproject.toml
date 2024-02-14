@@ -21,8 +21,7 @@ xlrd = "^2"
 [tool.poetry.dev-dependencies]
 ruff = "^0.0.292"
 coverage = "^7"
-# Change to "^5" with release of kipple fix pyfakefs#869
-pyfakefs = "5.1.0"
+pyfakefs = "^5"
 
 [tool.ruff]
 select = ["C9", "E", "F", "W"]
