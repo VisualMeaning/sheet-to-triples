@@ -1,6 +1,14 @@
+[project]
+name = "sheet-to-triples"
+license = {file="COPYING", name="GPL-3.0-or-later"}
+version = "0.1.0"
+authors = [{"name"="Martin Packman", "email"="martin.packman@visual-meaning.com"}]
+description = "Convert tabular data into triples."
+
+# Poetry have their own build metadata block and can't use the one in [project]
+# TODO: Replace poetry with a dependency management tool that can.
 [tool.poetry]
 name = "sheet-to-triples"
-license = "GPL-3.0-or-later"
 version = "0.1.0"
 authors = ["Martin Packman <martin.packman@visual-meaning.com>"]
 description = "Convert tabular data into triples."
@@ -25,3 +33,6 @@ pyfakefs = "^5"
 
 [tool.ruff]
 select = ["C9", "E", "F", "W"]
+
+[tool.setuptools]
+packages = ["sheet_to_triples"]
