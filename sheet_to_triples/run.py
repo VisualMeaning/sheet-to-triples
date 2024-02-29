@@ -31,6 +31,7 @@ class Runner:
         model,
         purge_except,
         resolve_same,
+        drop_duplicates,
         verbose,
         non_unique=None
     ):
@@ -45,6 +46,7 @@ class Runner:
         if self.non_unique is None:
             self.non_unique = _default_non_unique
         self.resolve_same = resolve_same
+        self.drop_duplicates = drop_duplicates
         self.verbose = verbose
 
     @classmethod
@@ -55,7 +57,7 @@ class Runner:
             book = dict()
         model = args.model and cls.load_model(args.model)
         return cls(
-            book, model, args.purge_except, args.resolve_same, args.verbose)
+            book, model, args.purge_except, args.resolve_same, args.drop_duplicates, args.verbose)
 
     def use_non_uniques(self, old_transforms):
         for tf in old_transforms:
@@ -81,7 +83,7 @@ class Runner:
 
         if self.model:
             rdf.normalise_model(
-                self.model, self.ns, self.non_unique, self.resolve_same,
+                self.model, self.ns, self.non_unique, self.resolve_same, self.drop_duplicates,
                 self.verbose)
 
     @property
