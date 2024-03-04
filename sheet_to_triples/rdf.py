@@ -165,6 +165,13 @@ def _to_key(t, non_uniques):
     return t['subj'], t['pred']
 
 
+def _obj_for_print(obj):
+    """Comment out all lines of newline separated string."""
+    if not isinstance(obj, rdflib.Literal):
+        return obj
+    return '\n#  '.join(str(obj).splitlines())
+
+
 def normalise_model(model, ns, non_uniques, resolve_same, verbose):
     terms = model['terms']
     # Record subjects that have been renamed so triples can be moved over
@@ -190,7 +197,10 @@ def normalise_model(model, ns, non_uniques, resolve_same, verbose):
         key = _to_key(t, non_uniques)
         if key in by_key and (verbose or by_key[key]['obj'] != t['obj']):
             print('# dropping {s} {p} {o}'.format(
-                s=_n3(key[0], ns), p=_n3(key[1], ns), o=by_key[key]['obj']))
+                s=_n3(key[0], ns),
+                p=_n3(key[1], ns),
+                o=_obj_for_print(by_key[key]['obj'])
+            ))
         by_key[key] = t
 
     order_pred = VM.asOrdinal.toPython()

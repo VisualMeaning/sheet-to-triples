@@ -226,6 +226,16 @@ class TestRDF(unittest.TestCase):
         self.assertEqual(model, self._model_from_triples(expected_triples))
         self.assertRegex(fake_out.getvalue(), r'^# dropping .*$')
 
+    def test_normalise_model_comments_multiple_lines(self):
+        triples = [
+            ('subj', 'pred', rdflib.Literal('obj1\nobj2')),
+            ('subj', 'pred', rdflib.Literal('obj3')),
+        ]
+        model = self._model_from_triples(triples)
+        with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+            rdf.normalise_model(model, self.namespace_manager, [], True, False)
+        self.assertRegex(fake_out.getvalue(), r'^# dropping .*obj1\n#\s+obj2\n$')
+
     def test_normalise_model_ordering(self):
         triples = [
             ('test_subj1', 'test_pred2', 'test_obj'),
