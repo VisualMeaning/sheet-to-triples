@@ -233,6 +233,9 @@ class CellTestCase(unittest.TestCase):
     def test_exists_false(self):
         self.assertFalse(field.Cell(None).exists)
 
+    def test_exists_whitespace_false(self):
+        self.assertFalse(field.Cell(' ').exists)
+
     def test_not_exists_true(self):
         self.assertTrue(field.Cell(None).not_exists)
 

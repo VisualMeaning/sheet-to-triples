@@ -299,3 +299,31 @@ class TransformTestCase(unittest.TestCase):
             ['http://b.test/iri', 'http://predicate.test', 'not exists'],
         ]
         self._process_and_assertEqual(details, expected)
+
+    def test_conds_conditional_template(self):
+        # Check that the condition is satisfied before templating conditional values.
+        # This is so that we can use .exists to check if a cell value is not None before
+        # attempting to template it -- previously we got a TypeError as the code would
+        # try to template the True conditional value regardless of the condition.
+        details = {
+            'data': [
+                {'col1': 'http://a.test', 'col2': '1'},
+                {'col1': 'http://b.test', 'col2': None},
+            ],
+            'lets': {
+                'iri': '{row[col1]}/iri'
+            },
+            'conds': {
+                'evaltest': (
+                    '{row[col2].exists}', '{row[col2].as_text}', 'not templated',
+                )
+            },
+            'triples': [
+                ('{iri}', 'http://predicate.test', '{evaltest}'),
+            ]
+        }
+        expected = [
+            ['http://a.test/iri', 'http://predicate.test', '1'],
+            ['http://b.test/iri', 'http://predicate.test', 'not templated'],
+        ]
+        self._process_and_assertEqual(details, expected)

@@ -167,15 +167,19 @@ class Transform:
     def _generate_params(self, converter, query_map, row, n):
         params = dict(query={}, row=row, n=n)
 
+        def _convert(template):
+            return converter.as_obj(template, params)
+
         for k in self.lets:
             # TODO: Defaulting to empty string is wrong if variable can't bind
-            params[k] = converter.as_obj(self.lets[k], params) or ''
+            params[k] = _convert(self.lets[k]) or ''
 
         for c in self.conds:
-            cond, true, false = (
-                converter.as_obj(n, params) for n in self.conds[c]
-            )
-            params[c] = str(true) if str(cond) == "True" else str(false)
+            cond, true, false = self.conds[c]
+            if all([str(_convert(c.strip())) == "True" for c in cond.split('&')]):
+                params[c] = _convert(true)
+            else:
+                params[c] = _convert(false)
 
         for k, q in query_map.items():
             result = list(q(initBindings=params))

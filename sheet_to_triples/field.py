@@ -183,8 +183,13 @@ class Cell:
 
     @property
     def exists(self):
-        # Note, a whitespace-only string does exist, may be confusing!
-        return bool(self._value)
+        if not self._value:
+            return False
+        # Whitespace-only strings will pass previous check but still do
+        # not "exist" for our purposes, so return False for those too.
+        if isinstance(self._value, str) and self._value.isspace():
+            return False
+        return True
 
     @property
     def not_exists(self):
