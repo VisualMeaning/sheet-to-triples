@@ -62,6 +62,7 @@ class StubRunner:
             'model': model,
             'purge_except': lambda x: True,
             'resolve_same': False,
+            'drop_duplicates': 'keep-newest',
             'verbose': False,
             'non_unique': set(),
         }
@@ -83,6 +84,7 @@ class RunnerTestCase(unittest.TestCase):
             'model': 'model.json',
             'purge_except': lambda x: True,
             'resolve_same': False,
+            'drop_duplicates': 'keep-newest',
             'verbose': False,
         }
         args = StubArgs(argvalues)
@@ -99,6 +101,7 @@ class RunnerTestCase(unittest.TestCase):
             ('books', expected_books),
             ('model', model),
             ('resolve_same', False),
+            ('drop_duplicates', 'keep-newest'),
             ('verbose', False),
             ('non_unique', run._default_non_unique),
         ]
@@ -116,6 +119,7 @@ class RunnerTestCase(unittest.TestCase):
             'model': 'model.json',
             'purge_except': lambda x: True,
             'resolve_same': False,
+            'drop_duplicates': 'keep-newest',
             'verbose': False,
         }
         args = StubArgs(argvalues)
@@ -131,6 +135,7 @@ class RunnerTestCase(unittest.TestCase):
             'model': run.default_model,
             'purge_except': lambda x: True,
             'resolve_same': False,
+            'drop_duplicates': 'keep-newest',
             'verbose': False,
         }
         args = StubArgs(argvalues)
@@ -144,6 +149,7 @@ class RunnerTestCase(unittest.TestCase):
             'model': None,
             'purge_except': lambda x: True,
             'resolve_same': False,
+            'drop_duplicates': 'keep-newest',
             'verbose': False,
         }
         args = StubArgs(argvalues)
