@@ -82,8 +82,12 @@ def parse_args(argv):
         '--no-resolve-same', action='store_false', dest='resolve_same',
         help='keep triples that mark same identity in output model')
     parser.add_argument(
-        '--drop-duplicates', choices=['keep-newest', 'keep-oldest'], default='keep-newest',
-        help='Which triples to keep when dropping duplicates during model normalisation')
+        '--drop-duplicates',
+        choices=['keep-newest', 'keep-oldest'],
+        default='keep-newest',
+        help=('Which triples to keep when dropping duplicates during '
+              'model normalisation'),
+        )
     parser.add_argument(
         '--debug', action='store_true', help='debug interactively any error')
     parser.add_argument(
