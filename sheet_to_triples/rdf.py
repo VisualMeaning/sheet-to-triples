@@ -172,7 +172,7 @@ def _obj_for_print(obj):
     return '\n#  '.join(str(obj).splitlines())
 
 
-def normalise_model(model, ns, non_uniques, resolve_same, verbose):
+def normalise_model(model, ns, non_uniques, resolve_same, drop_duplicates, verbose):
     terms = model['terms']
     # Record subjects that have been renamed so triples can be moved over
     same = {}
@@ -190,7 +190,8 @@ def normalise_model(model, ns, non_uniques, resolve_same, verbose):
     # While multiple objects for a subject, predicate are generally fine
     # Our model asserts uniqueness, so discard older values.
     by_key = {}
-    for t in terms:
+    iter_terms = reversed(terms) if drop_duplicates == 'keep-oldest' else terms
+    for t in iter_terms:
         for k in ('subj', 'pred', 'obj'):
             if t[k] in same:
                 t[k] = same[t[k]]
