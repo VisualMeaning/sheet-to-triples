@@ -172,6 +172,15 @@ def _obj_for_print(obj):
     return '\n#  '.join(str(obj).splitlines())
 
 
+def _add_non_uniques_from_model(non_uniques, model):
+    all_non_uniques = set(non_uniques)
+    # going through whole model again to do this is expensive
+    for t in model['terms']:
+        if t['pred'] == VM['nonUnique']:
+            all_non_uniques.add(t['subj'])
+    return all_non_uniques
+
+
 def normalise_model(model, ns, non_uniques, resolve_same, drop_duplicates, verbose):
     terms = model['terms']
     # Record subjects that have been renamed so triples can be moved over
@@ -187,6 +196,9 @@ def normalise_model(model, ns, non_uniques, resolve_same, drop_duplicates, verbo
                         s=_n3(t['subj'], ns), o=_n3(t['obj'], ns)))
                 del terms[i]
 
+    # Some predicates may be set as non-unique at the ontology level, so get those.
+    all_non_uniques = _add_non_uniques_from_model(non_uniques, model)
+
     # While multiple objects for a subject, predicate are generally fine
     # Our model asserts uniqueness, so discard older values.
     by_key = {}
@@ -195,7 +207,7 @@ def normalise_model(model, ns, non_uniques, resolve_same, drop_duplicates, verbo
         for k in ('subj', 'pred', 'obj'):
             if t[k] in same:
                 t[k] = same[t[k]]
-        key = _to_key(t, non_uniques)
+        key = _to_key(t, all_non_uniques)
         if key in by_key and (verbose or by_key[key]['obj'] != t['obj']):
             print('# dropping {s} {p} {o}'.format(
                 s=_n3(key[0], ns),

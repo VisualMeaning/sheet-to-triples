@@ -234,6 +234,24 @@ class TestRDF(unittest.TestCase):
         ]
         self.assertEqual(model, self._model_from_triples(expected_triples))
 
+    def test_normalise_model_non_unique_from_model(self):
+        triples = [
+            ('test_subj', 'test_pred', 'test_obj'),
+            ('test_subj', 'test_pred', 'test_obj'),
+            ('test_subj', 'test_pred', 'test_obj2'),
+            ('test_pred', rdf.VM['nonUnique'], 'true'),
+        ]
+        model = self._model_from_triples(triples)
+        rdf.normalise_model(
+            model, self.namespace_manager, [], False, False)
+        # should allow multiple obj values for one predicate
+        expected_triples = [
+            ('test_pred', rdf.VM['nonUnique'], 'true'),
+            ('test_subj', 'test_pred', 'test_obj'),
+            ('test_subj', 'test_pred', 'test_obj2'),
+        ]
+        self.assertEqual(model, self._model_from_triples(expected_triples))
+
     def test_normalise_model_resolve_same(self):
         triples = [
             ('test_subj', 'test_pred', 'test_obj'),
