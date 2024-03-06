@@ -259,7 +259,7 @@ class TestRDF(unittest.TestCase):
         ]
         model = self._model_from_triples(triples)
         with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            rdf.normalise_model(model, self.namespace_manager, [], True, False)
+            self._normalise_model(model, args={'resolve_same': True})
         self.assertRegex(fake_out.getvalue(), r'^# dropping .*obj1\n#\s+obj2\n$')
 
     def test_normalise_model_ordering(self):
