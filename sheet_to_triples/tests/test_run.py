@@ -177,7 +177,7 @@ class RunnerTestCase(unittest.TestCase):
         runner = StubRunner().get_runner()
         runner.use_non_uniques(transforms)
         self.assertEqual(
-            runner.non_unique,
+            runner.normalisation_params['non_uniques'],
             {'http://a.test', 'http://b.test'},
         )
 
@@ -248,7 +248,10 @@ class RunnerTestCase(unittest.TestCase):
         # initialise with non-empty default non_unique list
         runner = StubRunner().get_runner({'non_unique': {'http://a.test'}})
         runner.run([transform])
-        self.assertEqual(runner.non_unique, {'http://a.test', 'http://pred'})
+        self.assertEqual(
+            runner.normalisation_params['non_uniques'],
+            {'http://a.test', 'http://pred'},
+        )
 
     def _create_row_iter(self, rows):
         row_iter = []

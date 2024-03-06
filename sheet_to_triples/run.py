@@ -43,12 +43,9 @@ class Runner:
             self.graph = rdf.graph_from_model(model)
         else:
             self.graph = rdf.graph_from_triples(())
-        self.non_unique = non_unique
-        if self.non_unique is None:
-            self.non_unique = _default_non_unique
-
         self.normalisation_params = {
-            'non_uniques': _default_non_unique if non_unique is None else non_unique,
+            'non_uniques': _default_non_unique.copy() if non_unique is None \
+                           else non_unique,
             'from_ontology': use_ontology_normalisation,
             'drop_duplicates': drop_duplicates,
             'resolve_same': resolve_same
