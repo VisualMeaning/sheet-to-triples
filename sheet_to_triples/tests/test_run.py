@@ -62,6 +62,7 @@ class StubRunner:
             'model': model,
             'purge_except': lambda x: True,
             'resolve_same': False,
+            'use_ontology_normalisation': False,
             'drop_duplicates': 'keep-newest',
             'verbose': False,
             'non_unique': set(),
@@ -84,6 +85,7 @@ class RunnerTestCase(unittest.TestCase):
             'model': 'model.json',
             'purge_except': lambda x: True,
             'resolve_same': False,
+            'use_ontology_normalisation': False,
             'drop_duplicates': 'keep-newest',
             'verbose': False,
         }
@@ -92,7 +94,6 @@ class RunnerTestCase(unittest.TestCase):
 
         with _mock_basename(), _mock_xl_load_book(), _mock_open(model_data):
             runner = run.Runner.from_args(args)
-
         expected_books = {
             '/basename/test_book1.xlsx': '/load_book/test_book1.xlsx',
             '/basename/test_book2.xlsx': '/load_book/test_book2.xlsx',
@@ -100,10 +101,13 @@ class RunnerTestCase(unittest.TestCase):
         expected_attrs = [
             ('books', expected_books),
             ('model', model),
-            ('resolve_same', False),
-            ('drop_duplicates', 'keep-newest'),
+            ('normalisation_params', {
+                'from_ontology': False,
+                'resolve_same': False,
+                'drop_duplicates': 'keep-newest',
+                'non_uniques': run._default_non_unique
+            }),
             ('verbose', False),
-            ('non_unique', run._default_non_unique),
         ]
         for attr, expected in expected_attrs:
             with self.subTest(attr=attr):
@@ -119,6 +123,7 @@ class RunnerTestCase(unittest.TestCase):
             'model': 'model.json',
             'purge_except': lambda x: True,
             'resolve_same': False,
+            'use_ontology_normalisation': False,
             'drop_duplicates': 'keep-newest',
             'verbose': False,
         }
@@ -135,6 +140,7 @@ class RunnerTestCase(unittest.TestCase):
             'model': run.default_model,
             'purge_except': lambda x: True,
             'resolve_same': False,
+            'use_ontology_normalisation': False,
             'drop_duplicates': 'keep-newest',
             'verbose': False,
         }
@@ -149,6 +155,7 @@ class RunnerTestCase(unittest.TestCase):
             'model': None,
             'purge_except': lambda x: True,
             'resolve_same': False,
+            'use_ontology_normalisation': False,
             'drop_duplicates': 'keep-newest',
             'verbose': False,
         }

@@ -31,6 +31,7 @@ class Runner:
         model,
         purge_except,
         resolve_same,
+        use_ontology_normalisation,
         drop_duplicates,
         verbose,
         non_unique=None
@@ -45,8 +46,13 @@ class Runner:
         self.non_unique = non_unique
         if self.non_unique is None:
             self.non_unique = _default_non_unique
-        self.resolve_same = resolve_same
-        self.drop_duplicates = drop_duplicates
+        
+        self.normalisation_params = {
+            'non_uniques': _default_non_unique if non_unique is None else non_unique,
+            'from_ontology': use_ontology_normalisation, 
+            'drop_duplicates': drop_duplicates,
+            'resolve_same': resolve_same
+        }
         self.verbose = verbose
 
     @classmethod
@@ -61,13 +67,15 @@ class Runner:
             model,
             args.purge_except,
             args.resolve_same,
+            args.use_ontology_normalisation,
             args.drop_duplicates,
             args.verbose,
         )
 
     def use_non_uniques(self, old_transforms):
         for tf in old_transforms:
-            self.non_unique.update(tf.get_non_uniques(self.ns))
+            self.normalisation_params['non_uniques'].update(
+                tf.get_non_uniques(self.ns))
 
     def set_terms(self, triples):
         if self.model:
@@ -77,7 +85,8 @@ class Runner:
     def run(self, transforms):
         for tf in transforms:
             triples = tf.process(self.graph, self._iter_data(tf))
-            self.non_unique.update(tf.get_non_uniques(self.ns))
+            self.normalisation_params['non_uniques'].update(
+                tf.get_non_uniques(self.ns))
 
             if self.verbose:
                 triples = list(triples)
@@ -91,9 +100,7 @@ class Runner:
             rdf.normalise_model(
                 self.model,
                 self.ns,
-                self.non_unique,
-                self.resolve_same,
-                self.drop_duplicates,
+                self.normalisation_params,
                 self.verbose,
             )
 

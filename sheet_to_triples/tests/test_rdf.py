@@ -174,19 +174,24 @@ class TestRDF(unittest.TestCase):
         terms = [{'subj': s, 'pred': p, 'obj': o} for s, p, o in triples]
         return {'terms': terms}
 
-    def _normalise_model(self, model, args=dict()):
+    def _normalise_model(self, model, **kwargs):
         # helper to run rdf.normalise_model without having to set every arg
+        default_norm_params = {
+                'from_ontology': False,
+                'non_uniques': set(),
+                'drop_duplicates': 'keep-newest',
+                'resolve_same': False,
+        }
+        if 'norm_params' in kwargs:
+            default_norm_params.update(kwargs['norm_params'])
+            del kwargs['norm_params']
         default_args = {
             'model': model,
             'ns': self.namespace_manager,
-            'non_uniques': [],
-            'resolve_same': False,
-            'drop_duplicates': 'keep-newest',
+            'norm_params': default_norm_params,
             'verbose': False,
         }
-        for arg, value in args.items():
-            default_args[arg] = value
-        rdf.normalise_model(**default_args)
+        rdf.normalise_model(**dict(default_args, **kwargs))
 
     def test_normalise_model_unique_predicate(self):
         triples = [
@@ -211,7 +216,7 @@ class TestRDF(unittest.TestCase):
         model = self._model_from_triples(triples)
 
         with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            self._normalise_model(model, args={'drop_duplicates': 'keep-oldest'})
+            self._normalise_model(model, norm_params={'drop_duplicates': 'keep-oldest'})
         # it should take the first recorded triple in the list
         expected_triples = [
             ('test_subj', 'test_pred', 'test_obj'),
@@ -226,7 +231,7 @@ class TestRDF(unittest.TestCase):
             ('test_subj', 'test_pred', 'test_obj2'),
         ]
         model = self._model_from_triples(triples)
-        self._normalise_model(model, args={'non_uniques': ['test_pred']})
+        self._normalise_model(model, norm_params={'non_uniques': {'test_pred'}})
         # should allow multiple obj values for one predicate
         expected_triples = [
             ('test_subj', 'test_pred', 'test_obj'),
@@ -234,23 +239,26 @@ class TestRDF(unittest.TestCase):
         ]
         self.assertEqual(model, self._model_from_triples(expected_triples))
 
-    def test_normalise_model_non_unique_from_model(self):
+    def test_normalise_model_from_ontology(self):
         triples = [
             ('test_subj', 'test_pred', 'test_obj'),
-            ('test_subj', 'test_pred', 'test_obj'),
             ('test_subj', 'test_pred', 'test_obj2'),
-            ('test_pred', rdf.VM['nonUnique'], 'true'),
+            ('test_subj', 'test_pred2', 'test_obj3'),
+            ('test_subj', 'test_pred2', 'test_obj4'),
+            ('test_pred', rdflib.namespace.RDF['type'], rdflib.namespace.OWL['FunctionalProperty']),
         ]
         model = self._model_from_triples(triples)
-        rdf.normalise_model(
-            model, self.namespace_manager, [], False, False)
-        # should allow multiple obj values for one predicate
+        with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
+            self._normalise_model(model, norm_params={'from_ontology': True})
+        # should only allow one obj value for test_pred, but multiple for test_pred2
         expected_triples = [
-            ('test_pred', rdf.VM['nonUnique'], 'true'),
-            ('test_subj', 'test_pred', 'test_obj'),
+            ('test_pred', rdflib.namespace.RDF['type'], rdflib.namespace.OWL['FunctionalProperty']),
             ('test_subj', 'test_pred', 'test_obj2'),
+            ('test_subj', 'test_pred2', 'test_obj3'),
+            ('test_subj', 'test_pred2', 'test_obj4'),
         ]
         self.assertEqual(model, self._model_from_triples(expected_triples))
+        self.assertRegex(fake_out.getvalue(), r'^# dropping .*$')
 
     def test_normalise_model_resolve_same(self):
         triples = [
@@ -262,7 +270,7 @@ class TestRDF(unittest.TestCase):
         ]
         model = self._model_from_triples(triples)
         with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            self._normalise_model(model, args={'resolve_same': True})
+            self._normalise_model(model, norm_params={'resolve_same': True})
         expected_triples = [
             ('test_subj', 'test_pred', 'test_obj'),
             ('test_subj', 'test_pred2', 'test_obj2'),
@@ -277,7 +285,7 @@ class TestRDF(unittest.TestCase):
         ]
         model = self._model_from_triples(triples)
         with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            self._normalise_model(model, args={'resolve_same': True})
+            self._normalise_model(model, norm_params={'resolve_same': True})
         self.assertRegex(fake_out.getvalue(), r'^# dropping .*obj1\n#\s+obj2\n$')
 
     def test_normalise_model_ordering(self):
@@ -288,7 +296,7 @@ class TestRDF(unittest.TestCase):
             ('test_subj1', 'test_pred1', 'test_obj1'),
         ]
         model = self._model_from_triples(triples)
-        self._normalise_model(model, args={'non_uniques': ['test_pred1']})
+        self._normalise_model(model, norm_params={'non_uniques': {'test_pred1'}})
         expected_triples = [
             ('test_subj1', 'test_pred1', 'test_obj2'),
             ('test_subj1', 'test_pred1', 'test_obj1'),
