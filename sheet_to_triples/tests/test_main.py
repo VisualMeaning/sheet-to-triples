@@ -287,6 +287,6 @@ class TestMain(fake_filesystem_unittest.TestCase):
         runner = run.Runner.from_args(args)
         main.run_runner(runner, args)
         self.assertEqual(
-            runner.non_unique,
+            runner.normalisation_params['non_uniques'],
             non_uniques.union(run._default_non_unique),
         )

@@ -89,6 +89,13 @@ def parse_args(argv):
               'model normalisation'),
         )
     parser.add_argument(
+        '-n', '--use-ontology-normalisation', action='store_true',
+        help=('Unique predicates are defined by owl:functionalProperty in the '
+              'ontology and used for model normalisation. All non-unique '
+              'definitions are ignored, as all predicates are assumed non-unique '
+              ' by default unless specifically defined as unique.')
+    )
+    parser.add_argument(
         '--debug', action='store_true', help='debug interactively any error')
     parser.add_argument(
         '-v', '--verbose', action='store_true', help='show details as turtle')
