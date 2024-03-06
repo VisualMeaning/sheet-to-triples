@@ -46,10 +46,10 @@ class Runner:
         self.non_unique = non_unique
         if self.non_unique is None:
             self.non_unique = _default_non_unique
-        
+
         self.normalisation_params = {
             'non_uniques': _default_non_unique if non_unique is None else non_unique,
-            'from_ontology': use_ontology_normalisation, 
+            'from_ontology': use_ontology_normalisation,
             'drop_duplicates': drop_duplicates,
             'resolve_same': resolve_same
         }

@@ -200,12 +200,14 @@ def normalise_model(model, ns, norm_params, verbose):
                 del terms[i]
 
     from_onto = norm_params['from_ontology']
-    norm_preds = norm_params['non_uniques'] if not from_onto else _functional_properties(model)
+    norm_preds = norm_params['non_uniques'] if not from_onto \
+                 else _functional_properties(model)
 
     # While multiple objects for a subject, predicate are generally fine
     # Our model asserts uniqueness, so discard older values.
     by_key = {}
-    iter_terms = reversed(terms) if norm_params['drop_duplicates'] == 'keep-oldest' else terms
+    iter_terms = reversed(terms) if norm_params['drop_duplicates'] == 'keep-oldest' \
+                 else terms
     for t in iter_terms:
         for k in ('subj', 'pred', 'obj'):
             if t[k] in same:
