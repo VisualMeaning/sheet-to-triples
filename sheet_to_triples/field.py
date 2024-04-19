@@ -219,7 +219,7 @@ class Row:
 
     def col_exists(self, col):
         # check if a column exists with a value that isn't None
-        return self.fields.get(col) is not None
+        return bool(self.fields.get(col))
 
     def cols_disjoint(self, cols):
         exists_cols = {k for k, v in self.fields.items() if v is not None}
