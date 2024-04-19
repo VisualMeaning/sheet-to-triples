@@ -55,7 +55,8 @@ class Runner:
     @classmethod
     def from_args(cls, args):
         if args.book:
-            book = {os.path.basename(b): xl.load_book(b) for b in args.book}
+            book = {os.path.basename(b): xl.load_book(b) for b in args.book
+                    if xl.is_an_actual_file(b)}
         else:
             book = dict()
         model = args.model and cls.load_model(args.model)
