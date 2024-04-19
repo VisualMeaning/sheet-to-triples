@@ -149,6 +149,22 @@ class RunnerTestCase(unittest.TestCase):
 
         self.assertEqual(runner.model, {'terms': []})
 
+    def test_for_ms_owner_file(self):
+        argvalues = {
+            'book': ['test.xlsx', '~$test.xlsx'],
+            'model': run.default_model,
+            'purge_except': lambda x: True,
+            'resolve_same': False,
+            'use_ontology_normalisation': False,
+            'drop_duplicates': 'keep-newest',
+            'verbose': False,
+        }
+        args = StubArgs(argvalues)
+        with _mock_xl_load_book():
+            runner = run.Runner.from_args(args)
+
+        self.assertEqual(runner.books, {'test.xlsx': '/load_book/test.xlsx'})
+
     def test_from_args_no_model(self):
         argvalues = {
             'book': [],

@@ -3,10 +3,11 @@
 
 """Loading tabular data from local spreadsheet files."""
 
+import os
+
 from . import (
     field,
 )
-
 
 def load_book(filepath):
     ext = filepath.rsplit('.', 1)[-1].lower()
@@ -19,6 +20,11 @@ def load_book(filepath):
     else:
         raise ValueError(f'unsupported format: .{ext}')
     return Book.from_path(filepath)
+
+
+def is_an_actual_file(filepath):
+    """True if not temporary or back-up file."""
+    return not os.path.basename(filepath).startswith('~$')
 
 
 def iter_sheet(books, sheet_name, sheet_encoding='utf-8'):
