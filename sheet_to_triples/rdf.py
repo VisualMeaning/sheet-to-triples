@@ -179,7 +179,7 @@ def _functional_properties(model):
     uniques = set()
     # going through whole model again to do this is expensive
     for t in model['terms']:
-        if t['pred'] == rdf['type'] and t['obj'] == owl['FunctionalProperty']:
+        if t['pred'] == str(rdf['type']) and t['obj'] == str(owl['FunctionalProperty']):
             uniques.add(t['subj'])
     return uniques
 
