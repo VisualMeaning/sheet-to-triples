@@ -25,11 +25,19 @@ What if instead we collect and edit the information the same way, and write a cu
 
 What the code in this repo actually does!
 
+### prerequisites
+
+- Install poetry https://python-poetry.org/docs/#installation
+
+- Run the following command to set up the dependencies
+
+      $ make install
+
 ### Command
 
 The tool can be used as such:
 
-    $ python3 -m sheet_to_triples --model Model.json --book Markers.xlsx \
+    $ poetry run python -m sheet_to_triples --model Model.json --book Markers.xlsx \
       --model-out New.json --verbose t_one t_two
 
 Here the command takes inputs `Model.json` and `Markers.xlsx` then applies two named transforms `t_one` and `t_two` and produces an updated output `New.json` model.
@@ -38,11 +46,11 @@ For expediency, this is closely matched to immediate Visual Meaning needs. For i
 
 See help for more:
 
-    $ python3 -m sheet_to_triples --help
+    $ poetry run python -m sheet_to_triples --help
 
 Because seeing a model in Turtle format turned out to be useful, can get that by just not supplying a transform:
 
-    $ python3 -m sheet_to_triples --model eco_five.json --verbose
+    $ poetry run python -m sheet_to_triples --model eco_five.json --verbose
 
 Would be nice to just have an 'identity' transform, but the lack of clarity between appending to the model vs replacing it complicates what the command output should do.
 
