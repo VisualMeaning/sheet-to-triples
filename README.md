@@ -25,12 +25,6 @@ What if instead we collect and edit the information the same way, and write a cu
 
 What the code in this repo actually does!
 
-In order to install all required Python packages, run the following command :
-
-```
-pip install -r requirements.txt
-```
-
 ### Command
 
 The tool can be used as such:
@@ -42,7 +36,7 @@ Here the command takes inputs `Model.json` and `Markers.xlsx` then applies two n
 
 For expediency, this is closely matched to immediate Visual Meaning needs. For instance an existing model is given as a JSON file containing a 'triples' key with specific content, rather than a standard format. The transforms are simplistic custom format using Python data syntax.
 
-See help for more arguments usage:
+See help for more:
 
     $ python3 -m sheet_to_triples --help
 
