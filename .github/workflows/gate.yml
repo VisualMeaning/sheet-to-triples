@@ -23,7 +23,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: install
         run: |
-          pip3 install poetry
+          pip3 install 'poetry<2.0.0'
           poetry install --no-root
       - name: test
         run: |
