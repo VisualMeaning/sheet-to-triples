@@ -240,21 +240,22 @@ class TestRDF(unittest.TestCase):
         self.assertEqual(model, self._model_from_triples(expected_triples))
 
     def test_normalise_model_from_ontology(self):
+        # terms as read from JSON will have string versions of these IRIs
+        str_rdftype = str(rdflib.namespace.RDF['type'])
+        str_functionalproperty = str(rdflib.namespace.OWL['FunctionalProperty'])
         triples = [
             ('test_subj', 'test_pred', 'test_obj'),
             ('test_subj', 'test_pred', 'test_obj2'),
             ('test_subj', 'test_pred2', 'test_obj3'),
             ('test_subj', 'test_pred2', 'test_obj4'),
-            ('test_pred', rdflib.namespace.RDF['type'],
-               rdflib.namespace.OWL['FunctionalProperty']),
+            ('test_pred', str_rdftype, str_functionalproperty),
         ]
         model = self._model_from_triples(triples)
         with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
             self._normalise_model(model, norm_params={'from_ontology': True})
         # should only allow one obj value for test_pred, but multiple for test_pred2
         expected_triples = [
-            ('test_pred', rdflib.namespace.RDF['type'],
-               rdflib.namespace.OWL['FunctionalProperty']),
+            ('test_pred', str_rdftype, str_functionalproperty),
             ('test_subj', 'test_pred', 'test_obj2'),
             ('test_subj', 'test_pred2', 'test_obj3'),
             ('test_subj', 'test_pred2', 'test_obj4'),
