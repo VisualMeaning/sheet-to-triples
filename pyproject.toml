@@ -7,7 +7,7 @@ authors = [{"name"="Martin Packman", "email"="martin.packman@visual-meaning.com"
 description = "Convert tabular data into triples."
 
 [tool.poetry.dependencies]
-python = "^3.8.10"
+python = "^3.9.13"
 pycountry = "^22"
 # openpyxl broke parsing some workbooks with filters and the maintainer made
 # the classic mistake of blocking the regression fix on a rethink of how
