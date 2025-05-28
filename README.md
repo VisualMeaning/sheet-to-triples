@@ -27,6 +27,9 @@ What the code in this repo actually does!
 
 ### prerequisites
 
+> [!NOTE]
+> Poetry 2 [introduced breaking changes](https://github.com/python-poetry/poetry/issues/9136) that are not backwards compatible with Poetry 1. The pyproject.toml is compatible with Poetry 2 only - this is installed by default using the below instructions, but if you are using an already-installed copy of Poetry you should make sure to upgrade it to version 2.
+
 - Install poetry https://python-poetry.org/docs/#installation
 
 - Run the following command to set up the dependencies
