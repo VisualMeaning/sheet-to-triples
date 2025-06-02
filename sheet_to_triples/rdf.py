@@ -145,7 +145,6 @@ def _new_graph():
     g.bind('gist', rdflib.Namespace('https://ontologies.semanticarts.com/gist/'))
     g.bind('oa', rdflib.Namespace('http://www.w3.org/ns/oa/'))
     g.bind('webprotege', rdflib.Namespace('http://webprotege.stanford.edu/'))
-    g.bind('eu', VM)
     #custom defined rdflib namespaces for eu project
     g.bind('adms', rdflib.Namespace('http://www.w3.org/ns/adms/'))
     g.bind('adms1', rdflib.Namespace('http://purl.org/adms/'))
