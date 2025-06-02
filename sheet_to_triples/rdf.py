@@ -160,7 +160,7 @@ def _new_graph():
     'schema' : 'http://schema.org/',
     'turtle' : 'http://www.semanticweb.org/owl/owlapi/turtle/',
     'xml' : 'http://www.w3.org/XML/1998/namespace',
-}
+    }
     for prefix, namespace in prefix2namespace.items():
         g.bind(prefix, rdflib.Namespace(namespace))   
     return g
