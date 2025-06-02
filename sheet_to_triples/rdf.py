@@ -12,6 +12,38 @@ import rdflib.term
 
 VM = rdflib.Namespace('http://visual-meaning.com/rdf/')
 VMHE = VM['HE/']
+PREFIX2NAMESPACE = {
+        
+        #namespaces already included elsewhere in VM code, but that could be directly imported using rdfLib instead
+        'dc'            : 'http://purl.org/dc/elements/1.1/',
+        'dcat'          : 'http://www.w3.org/ns/dcat/',
+        'dcterms'       : 'http://purl.org/dc/terms/',
+        'org'           : 'http://www.w3.org/ns/org/',
+        'rdf'           : 'http://www.w3.org/1999/02/22-rdf-syntax-ns/',
+        'rdfs'          : 'http://www.w3.org/2000/01/rdf-schema/',
+        'skos'          : 'http://www.w3.org/2004/02/skos/core/', 
+        
+        #custom defined rdflib namespaces
+        'gist'          : 'https://ontologies.semanticarts.com/gist/',
+        'oa'            : 'http://www.w3.org/ns/oa/',
+        'webprotege'    : 'http://webprotege.stanford.edu/',
+        
+        #custom defined rdflib namespaces for eu project
+        'adms'          : 'http://www.w3.org/ns/adms/',
+        'adms1'         : 'http://purl.org/adms/',
+        'dg'            : 'https://w3id.org/dingo/',
+        'eccf'          : 'http://data.europa.eu/54i/',
+        'eubud'         : 'http://data.europa.eu/3rx/ontology/budget/',
+        'eurio'         : 'http://data.europa.eu/s66/',
+        'fabio'         : 'http://purl.org/spar/fabio/',
+        'frapo'         : 'http://purl.org/cerif/frapo/',
+        'locn'          : 'http://www.w3.org/ns/locn/',
+        'patent'        : 'http://data.epo.org/linked-data/def/patent/',
+        'schema'        : 'http://schema.org/',
+        'turtle'        : 'http://www.semanticweb.org/owl/owlapi/turtle/',
+        'xml'           : 'http://www.w3.org/XML/1998/namespace',
+    }
+
 _ISSUES_PREFIX = VM['issues/']
 _USES_MAP_TILES = VM.usesMapTiles
 
@@ -112,6 +144,7 @@ def _new_graph():
     g = rdflib.Graph()
     g.bind('vm', VM)
     g.bind('vmhe', VMHE)
+    
     # rdflib namespaces available for direct import
     g.bind('brick', rdflib.namespace.BRICK)
     g.bind('csvw', rdflib.namespace.CSVW)
@@ -133,35 +166,8 @@ def _new_graph():
     g.bind('void', rdflib.namespace.VOID)
     g.bind('wgs', rdflib.namespace.WGS)
     g.bind('xsd', rdflib.namespace.XSD)    
-    prefix2namespace = {
-    #namespaces already included elsewhere in VM code, but that could be directly imported using rdfLib instead
-    'dc' : 'http://purl.org/dc/elements/1.1/',
-    'dcat' : 'http://www.w3.org/ns/dcat/',
-    'dcterms' : 'http://purl.org/dc/terms/',
-    'org' : 'http://www.w3.org/ns/org/',
-    'rdf' : 'http://www.w3.org/1999/02/22-rdf-syntax-ns/',
-    'rdfs' : 'http://www.w3.org/2000/01/rdf-schema/',
-    'skos' : 'http://www.w3.org/2004/02/skos/core/', 
-    #custom defined rdflib namespaces
-    'gist' : 'https://ontologies.semanticarts.com/gist/',
-    'oa' : 'http://www.w3.org/ns/oa/',
-    'webprotege' : 'http://webprotege.stanford.edu/',
-    #custom defined rdflib namespaces for eu project
-    'adms' : 'http://www.w3.org/ns/adms/',
-    'adms1' : 'http://purl.org/adms/',
-    'dg' : 'https://w3id.org/dingo/',
-    'eccf' : 'http://data.europa.eu/54i/',
-    'eubud' : 'http://data.europa.eu/3rx/ontology/budget/',
-    'eurio' : 'http://data.europa.eu/s66/',
-    'fabio' : 'http://purl.org/spar/fabio/',
-    'frapo' : 'http://purl.org/cerif/frapo/',
-    'locn' : 'http://www.w3.org/ns/locn/',
-    'patent' : 'http://data.epo.org/linked-data/def/patent/',
-    'schema' : 'http://schema.org/',
-    'turtle' : 'http://www.semanticweb.org/owl/owlapi/turtle/',
-    'xml' : 'http://www.w3.org/XML/1998/namespace',
-    }
-    for prefix, namespace in prefix2namespace.items():
+    
+    for prefix, namespace in PREFIX2NAMESPACE.items():
         g.bind(prefix, rdflib.Namespace(namespace))   
     return g
 
