@@ -17,6 +17,7 @@ PREFIX2NAMESPACE = {
     # but that could be directly imported using rdfLib instead
     'dc'            : 'http://purl.org/dc/elements/1.1/',
     'dcat'          : 'http://www.w3.org/ns/dcat/',
+    'dct'           : 'http://purl.org/dc/terms/',
     'dcterms'       : 'http://purl.org/dc/terms/',
     'org'           : 'http://www.w3.org/ns/org/',
     'rdf'           : 'http://www.w3.org/1999/02/22-rdf-syntax-ns/',
