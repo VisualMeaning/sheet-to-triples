@@ -143,18 +143,18 @@ def _new_graph():
     #custom defined rdflib namespaces
     g.bind('gist', rdflib.Namespace('https://ontologies.semanticarts.com/gist/'))
     #custom defined rdflib namespaces for eu project
-    g.bind('adms', rdflib.namespace.('http://www.w3.org/ns/adms#'))
-    g.bind('adms1', rdflib.namespace.('http://purl.org/adms#'))
-    g.bind('dg', rdflib.namespace.('https://w3id.org/dingo#'))
-    g.bind('eccf', rdflib.namespace.('http://data.europa.eu/54i#'))
-    g.bind('eubud', rdflib.namespace.('http://data.europa.eu/3rx/ontology/budget#'))
-    g.bind('eurio', rdflib.namespace.('http://data.europa.eu/s66#'))
+    g.bind('adms', rdflib.namespace.('http://www.w3.org/ns/adms/'))
+    g.bind('adms1', rdflib.namespace.('http://purl.org/adms/'))
+    g.bind('dg', rdflib.namespace.('https://w3id.org/dingo/'))
+    g.bind('eccf', rdflib.namespace.('http://data.europa.eu/54i/'))
+    g.bind('eubud', rdflib.namespace.('http://data.europa.eu/3rx/ontology/budget/'))
+    g.bind('eurio', rdflib.namespace.('http://data.europa.eu/s66/'))
     g.bind('fabio', rdflib.namespace.('http://purl.org/spar/fabio/'))
     g.bind('frapo', rdflib.namespace.('http://purl.org/cerif/frapo/'))
     g.bind('locn', rdflib.namespace.('http://www.w3.org/ns/locn/'))
     g.bind('patent', rdflib.namespace.('http://data.epo.org/linked-data/def/patent/'))
     g.bind('schema', rdflib.namespace.('http://schema.org/'))
-    g.bind('turtle', rdflib.namespace.('http://www.semanticweb.org/owl/owlapi/turtle#'))
+    g.bind('turtle', rdflib.namespace.('http://www.semanticweb.org/owl/owlapi/turtle/'))
     g.bind('xml', rdflib.namespace.('http://www.w3.org/XML/1998/namespace'))
     return g
 
