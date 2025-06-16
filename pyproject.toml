@@ -9,13 +9,7 @@ description = "Convert tabular data into triples."
 [tool.poetry.dependencies]
 python = "^3.9.13"
 pycountry = "^22"
-# openpyxl broke parsing some workbooks with filters and the maintainer made
-# the classic mistake of blocking the regression fix on a rethink of how
-# filters get handled so the issue has persisted for nearly a year.
-# https://foss.heptapod.net/openpyxl/openpyxl/-/issues/1967
-# https://foss.heptapod.net/openpyxl/openpyxl/-/merge_requests/425
-# Pin the last working version for now.
-openpyxl = "=3.0.10"
+openpyxl = "^3.1.5"
 rdflib = {version = "^7", extras = ["sparql"]}
 xlrd = "^2"
 
