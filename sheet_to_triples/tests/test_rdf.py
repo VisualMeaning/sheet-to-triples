@@ -4,6 +4,7 @@
 """Unittests for the rdf.py module of sheet-to-triples."""
 
 import io
+import json
 import unittest
 from unittest import mock
 
@@ -153,21 +154,25 @@ class TestRDF(unittest.TestCase):
     def test_update_model_terms_language_tags(self):
         """Literals with language tags have special serialisation to terms."""
         model = {'terms': []}
-        triples = [
-            ('_s', '_p', rdflib.URIRef('o:_1')),
+        test_cases = [
+            (rdflib.URIRef('o:_1'), 'o:_1'),
             # Not testing rdflib.Literal(1) as should maybe change behaviour?
-            ('_s', '_p', rdflib.Literal('o')),
-            ('_s', '_p', rdflib.Literal('o', lang='en')),
-            ('_s', '_p', rdflib.Literal('\u043e', lang='bg')),
-            ('_s', '_p', rdflib.Literal('', lang='en')),
-            ('_s', '_p', rdflib.Literal('["o1", "o2"]', lang='en')),
-            ('_s', '_p', rdflib.Literal('{"o": "v"}', lang='en')),
+            (rdflib.Literal('o'), 'o'),
+            (rdflib.Literal('o', lang='en'), '"o"@en'),
+            (rdflib.Literal('path\\with\\backslashes', lang='en'),
+             '"path\\\\with\\\\backslashes"@en'),
+            (rdflib.Literal('mixed: "quotes"\nand newlines\tand tabs', lang='en'),
+             '"mixed: \\"quotes\\"\\nand newlines\\tand tabs"@en'),
+            (rdflib.Literal('\u043e', lang='bg'), '"\\u043e"@bg'),
+            (rdflib.Literal('л', lang='bg'), '"\\u043b"@bg'),
+            (rdflib.Literal('', lang='en'), '""@en'),
+            (rdflib.Literal('["o1", "o2"]', lang='en'), '["o1", "o2"]@en'),
+            (rdflib.Literal('{"o": "v"}', lang='en'), '{"o": "v"}@en'),
         ]
+        triples = [('_s', '_p', obj) for obj, _ in test_cases]
+        expected = [exp for _, exp in test_cases]
+
         rdf.update_model_terms(model, triples)
-        expected = [
-            'o:_1', 'o', '"o"@en', '"\u043e"@bg', '""@en', '["o1", "o2"]@en',
-            '{"o": "v"}@en',
-        ]
         self.assertEqual([t['obj'] for t in model['terms']], expected)
 
     def _model_from_triples(self, triples):
@@ -422,3 +427,32 @@ class TestResolver(unittest.TestCase):
             self.resolver.from_identifier('{"k": "v"}@en'),
             rdflib.Literal('{"k": "v"}', lang='en')
         )
+
+    def test_from_identifier_lang_roundtrip(self):
+        """
+            Test the roundtrip workflow:
+            string -> from_identifier -> Literal -> update_model_terms -> string.
+        """
+        test_texts = [
+            ('simple text', 'en'),
+            ('text\nwith\nnewlines', 'en'),
+            ('text with "quotes"', 'fr'),
+            ('text\twith\ttabs', 'de'),
+            ('path\\with\\backslashes', 'es'),
+            ('mixed: "quotes"\nand newlines\tand tabs', 'it'),
+            ('', 'en'),
+            ('о', 'bg'), # cyrillic o
+            ('л', 'bg'),
+        ]
+
+        for text, lang in test_texts:
+            with self.subTest(text=text, lang=lang):
+                initial_string = json.dumps(text) + '@' + lang
+                literal = self.resolver.from_identifier(initial_string)
+
+                model = {'terms': []}
+                triples = [('_s', '_p', literal)]
+                rdf.update_model_terms(model, triples)
+
+                resulting_string = model['terms'][0]['obj']
+                self.assertEqual(initial_string, resulting_string)
