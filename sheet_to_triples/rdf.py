@@ -59,12 +59,9 @@ class Resolver:
             lang = value[-2:]
             value_without_lang = value[:-3]
             if value_without_lang.startswith('"') and value_without_lang.endswith('"'):
-                try:
-                    inner = json.loads(value_without_lang)
-                except json.JSONDecodeError:
-                    # unnecesary fallback?
-                    inner = value_without_lang[1:-1]
+                inner = json.loads(value_without_lang)
             else:
+                # {"k": "v"}@en compatibility
                 inner = value_without_lang
             return rdflib.Literal(inner, lang=lang)
         return rdflib.Literal(value)
