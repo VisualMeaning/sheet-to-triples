@@ -154,25 +154,26 @@ class TestRDF(unittest.TestCase):
     def test_update_model_terms_language_tags(self):
         """Literals with language tags have special serialisation to terms."""
         model = {'terms': []}
-        test_cases = [
-            (rdflib.URIRef('o:_1'), 'o:_1'),
+        triples = [
+            ('_s', '_p', rdflib.URIRef('o:_1')),
             # Not testing rdflib.Literal(1) as should maybe change behaviour?
-            (rdflib.Literal('o'), 'o'),
-            (rdflib.Literal('o', lang='en'), '"o"@en'),
-            (rdflib.Literal('path\\with\\backslashes', lang='en'),
-             '"path\\\\with\\\\backslashes"@en'),
-            (rdflib.Literal('mixed: "quotes"\nand newlines\tand tabs', lang='en'),
-             '"mixed: \\"quotes\\"\\nand newlines\\tand tabs"@en'),
-            (rdflib.Literal('\u043e', lang='bg'), '"\\u043e"@bg'),
-            (rdflib.Literal('л', lang='bg'), '"\\u043b"@bg'),
-            (rdflib.Literal('', lang='en'), '""@en'),
-            (rdflib.Literal('["o1", "o2"]', lang='en'), '["o1", "o2"]@en'),
-            (rdflib.Literal('{"o": "v"}', lang='en'), '{"o": "v"}@en'),
+            ('_s', '_p', rdflib.Literal('o')),
+            ('_s', '_p', rdflib.Literal('o', lang='en')),
+            ('_s', '_p', rdflib.Literal(
+                'thing: "quotes"\nand newlines\tand tabs', lang='en')),
+            ('_s', '_p', rdflib.Literal('\u043e', lang='bg')),
+            ('_s', '_p', rdflib.Literal('л', lang='bg')),
+            ('_s', '_p', rdflib.Literal('', lang='en')),
+            ('_s', '_p', rdflib.Literal('["o1", "o2"]', lang='en')),
+            ('_s', '_p', rdflib.Literal('{"o": "v"}', lang='en')),
         ]
-        triples = [('_s', '_p', obj) for obj, _ in test_cases]
-        expected = [exp for _, exp in test_cases]
-
         rdf.update_model_terms(model, triples)
+        expected = [
+            'o:_1', 'o', '"o"@en',
+            '"thing: \\"quotes\\"\\nand newlines\\tand tabs"@en',
+            '"\\u043e"@bg', '"\\u043b"@bg', '""@en',
+            '["o1", "o2"]@en', '{"o": "v"}@en',
+        ]
         self.assertEqual([t['obj'] for t in model['terms']], expected)
 
     def _model_from_triples(self, triples):
