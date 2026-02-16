@@ -4,6 +4,7 @@
 """Context specific RDF behaviours for Visual Meaning graphs."""
 
 import functools
+import json
 import operator
 import re
 
@@ -55,8 +56,14 @@ class Resolver:
         value = _norm(value)
         # if ends with language tag, create a Literal with the appropriate lang
         if re.search(self.lang_match, value):
-            inner = value[1:-4] if value[0] == '"' else value[:-3]
-            return rdflib.Literal(inner, lang=value[-2:])
+            lang = value[-2:]
+            value_without_lang = value[:-3]
+            if value_without_lang.startswith('"') and value_without_lang.endswith('"'):
+                inner = json.loads(value_without_lang)
+            else:
+                # {"k": "v"}@en compatibility
+                inner = value_without_lang
+            return rdflib.Literal(inner, lang=lang)
         return rdflib.Literal(value)
 
 
@@ -138,9 +145,12 @@ def _maybe_from_literal(maybe_literal):
     them in the json serialisation for both strings and arrays or objects.
     """
     if getattr(maybe_literal, 'language', None):
+        # For JSON arrays/objects, str() gives the JSON representation
         if maybe_literal[:1] + maybe_literal[-1:] in ('[]', '{}'):
             return str(maybe_literal) + '@' + maybe_literal.language
-        return maybe_literal.n3()
+        # For regular strings, use json.dumps to properly escape
+        # This ensures roundtrip compatibility with from_identifier
+        return json.dumps(str(maybe_literal)) + '@' + maybe_literal.language
     return str(maybe_literal)
 
 

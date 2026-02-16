@@ -4,6 +4,7 @@
 """Unittests for the rdf.py module of sheet-to-triples."""
 
 import io
+import json
 import unittest
 from unittest import mock
 
@@ -158,15 +159,20 @@ class TestRDF(unittest.TestCase):
             # Not testing rdflib.Literal(1) as should maybe change behaviour?
             ('_s', '_p', rdflib.Literal('o')),
             ('_s', '_p', rdflib.Literal('o', lang='en')),
+            ('_s', '_p', rdflib.Literal(
+                'thing: "quotes"\nand newlines\tand tabs', lang='en')),
             ('_s', '_p', rdflib.Literal('\u043e', lang='bg')),
+            ('_s', '_p', rdflib.Literal('л', lang='bg')),
             ('_s', '_p', rdflib.Literal('', lang='en')),
             ('_s', '_p', rdflib.Literal('["o1", "o2"]', lang='en')),
             ('_s', '_p', rdflib.Literal('{"o": "v"}', lang='en')),
         ]
         rdf.update_model_terms(model, triples)
         expected = [
-            'o:_1', 'o', '"o"@en', '"\u043e"@bg', '""@en', '["o1", "o2"]@en',
-            '{"o": "v"}@en',
+            'o:_1', 'o', '"o"@en',
+            '"thing: \\"quotes\\"\\nand newlines\\tand tabs"@en',
+            '"\\u043e"@bg', '"\\u043b"@bg', '""@en',
+            '["o1", "o2"]@en', '{"o": "v"}@en',
         ]
         self.assertEqual([t['obj'] for t in model['terms']], expected)
 
@@ -422,3 +428,32 @@ class TestResolver(unittest.TestCase):
             self.resolver.from_identifier('{"k": "v"}@en'),
             rdflib.Literal('{"k": "v"}', lang='en')
         )
+
+    def test_from_identifier_lang_roundtrip(self):
+        """
+            Test the roundtrip workflow:
+            string -> from_identifier -> Literal -> update_model_terms -> string.
+        """
+        test_texts = [
+            ('simple text', 'en'),
+            ('text\nwith\nnewlines', 'en'),
+            ('text with "quotes"', 'fr'),
+            ('text\twith\ttabs', 'de'),
+            ('path\\with\\backslashes', 'es'),
+            ('mixed: "quotes"\nand newlines\tand tabs', 'it'),
+            ('', 'en'),
+            ('о', 'bg'), # cyrillic o
+            ('л', 'bg'),
+        ]
+
+        for text, lang in test_texts:
+            with self.subTest(text=text, lang=lang):
+                initial_string = json.dumps(text) + '@' + lang
+                literal = self.resolver.from_identifier(initial_string)
+
+                model = {'terms': []}
+                triples = [('_s', '_p', literal)]
+                rdf.update_model_terms(model, triples)
+
+                resulting_string = model['terms'][0]['obj']
+                self.assertEqual(initial_string, resulting_string)
