@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "sheet-to-triples"
 license = "GPL-3.0-or-later"
@@ -5,13 +9,13 @@ license-files = ["COPYING"]
 version = "0.1.0"
 authors = [{"name"="Martin Packman", "email"="martin.packman@visual-meaning.com"}]
 description = "Convert tabular data into triples."
-
-[tool.poetry.dependencies]
-python = "^3.9.13"
-pycountry = "^22"
-openpyxl = "^3.1.5"
-rdflib = {version = "^7", extras = ["sparql"]}
-xlrd = "^2"
+requires-python = ">=3.9.13,<4"
+dependencies = [
+    "pycountry>=22,<23",
+    "openpyxl>=3.1.5,<4",
+    "rdflib>=7,<8",
+    "xlrd>=2,<3",
+]
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.292"
