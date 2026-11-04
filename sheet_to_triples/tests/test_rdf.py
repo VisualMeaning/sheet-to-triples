@@ -17,11 +17,11 @@ class TestRDF(unittest.TestCase):
 
     @property
     def namespace_manager(self):
-        return rdf._new_graph().namespace_manager
+        return rdf._new_dataset().namespace_manager
 
     @property
     def resolver(self):
-        return rdf._new_graph().store.namespace
+        return rdf._new_dataset().store.namespace
 
     def test_from_qname(self):
         term = rdf.from_qname('owl:test', self.resolver)
@@ -337,12 +337,8 @@ class TestRDF(unittest.TestCase):
 
 class TestResolver(unittest.TestCase):
 
-    @property
-    def graph(self):
-        return rdf._new_graph()
-
     def setUp(self):
-        self.resolver = rdf.Resolver.from_graph(self.graph)
+        self.resolver = rdf.Resolver.from_graph(rdf.graph_from_triples(()))
 
     def test_from_identifier_known_iri_qname_returns_uriref(self):
         tests = {

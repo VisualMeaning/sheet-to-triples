@@ -38,11 +38,13 @@ class Runner:
     ):
         self.books = books
         self.model = model
+        self.dataset = rdf._new_dataset()
         if model:
             rdf.purge_terms(model, purge_except, verbose)
-            self.graph = rdf.graph_from_model(model)
+            self.graph = rdf.graph_from_model(
+                model, dataset=self.dataset, identifier=rdf.VM._graph_from_model)
         else:
-            self.graph = rdf.graph_from_triples(())
+            self.graph = self.dataset.graph(identifier=rdf.VM._graph_empty)
         self.normalisation_params = {
             'non_uniques': _default_non_unique.copy() if non_unique is None \
                            else non_unique,

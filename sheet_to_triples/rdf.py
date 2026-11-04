@@ -115,19 +115,21 @@ def purge_terms(model, retain, verbose):
         print(f'# not retained {n_dropped} terms')
 
 
-def _new_graph():
-    g = rdflib.Graph()
-    g.bind('vm', VM)
-    g.bind('vmhe', VMHE)
-    g.bind('foaf', rdflib.namespace.FOAF)
-    g.bind('skos', rdflib.namespace.SKOS)
-    g.bind('owl', rdflib.namespace.OWL)
-    g.bind('gist', rdflib.Namespace('https://ontologies.semanticarts.com/gist/'))
-    return g
+def _new_dataset():
+    d = rdflib.Dataset(default_union=True)
+    d.bind('vm', VM)
+    d.bind('vmhe', VMHE)
+    d.bind('foaf', rdflib.namespace.FOAF)
+    d.bind('skos', rdflib.namespace.SKOS)
+    d.bind('owl', rdflib.namespace.OWL)
+    d.bind('gist', rdflib.Namespace('https://ontologies.semanticarts.com/gist/'))
+    return d
 
 
-def graph_from_model(model):
-    g = _new_graph()
+def graph_from_model(model, dataset=None, identifier=VM._graph):
+    if dataset is None:
+        dataset = _new_dataset()
+    g = dataset.graph(identifier=identifier)
     resolver = Resolver.from_graph(g)
     for term in model['terms']:
         g.add(_cast_from_term(term, resolver.from_identifier))
@@ -246,8 +248,10 @@ def normalise_model(model, ns, norm_params, verbose):
     model['terms'] = sorted(by_key.values(), key=term_sort_key)
 
 
-def graph_from_triples(triples):
-    g = _new_graph()
+def graph_from_triples(triples, dataset=None, identifier=VM._graph):
+    if dataset is None:
+        dataset = _new_dataset()
+    g = dataset.graph(identifier=identifier)
     for triple in triples:
         g.add(triple)
     return g

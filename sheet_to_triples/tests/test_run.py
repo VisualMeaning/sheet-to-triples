@@ -9,6 +9,7 @@ import unittest
 
 import rdflib
 
+from pyfakefs import fake_filesystem_unittest
 from unittest import mock
 
 from .. import run, trans
@@ -458,3 +459,30 @@ class RunnerTestCase(unittest.TestCase):
         jsonstring = ''.join([c.args[0] for c in handle.write.mock_calls])
         expected = '{"terms": [{"subj": "a", "pred": "b", "obj": "c"}]}'
         self.assertEqual(jsonstring, expected)
+
+
+class RunnerAddGraphTestCase(fake_filesystem_unittest.TestCase):
+
+    def setUp(self):
+        self.setUpPyfakefs()
+
+    def test_add_graph_with_duplicates(self):
+        graph_paths = ['first.ttl', 'second.ttl', 'repeat.ttl']
+        graph_contents = (
+            '<http://a.test> <http://b.test> "1" .\n',
+            '<http://a.test> <http://b.test> "2" .\n',
+            '<http://a.test> <http://b.test> "1" .\n',
+        )
+        for path, contents in zip(graph_paths, graph_contents):
+            self.fs.create_file(path, contents=contents)
+
+        runner = StubRunner().get_runner({'model': {'terms': []}})
+        for i, path in enumerate(graph_paths):
+            runner.dataset.graph(identifier=f'http://g.test/_{i}').parse(path)
+
+        self.assertEqual(len(set(runner.dataset.triples((None, None, None)))), 2)
+        runner.set_terms(runner.dataset.triples((None, None, None)))
+        self.assertEqual(runner.model['terms'], [
+            {'subj': 'http://a.test', 'pred': 'http://b.test', 'obj': '1'},
+            {'subj': 'http://a.test', 'pred': 'http://b.test', 'obj': '2'},
+        ])
