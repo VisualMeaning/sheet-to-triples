@@ -135,8 +135,7 @@ def parse_args(argv):
 def run_runner(runner, args):
     if args.add_graph:
         for graph_to_add in args.add_graph:
-            runner.graph.parse(graph_to_add, format='ttl')
-        runner.set_terms(iter(runner.graph))
+            runner.add_graph(graph_to_add)
 
     if args.non_unique_from:
         runner.use_non_uniques(args.non_unique_from)

@@ -80,6 +80,21 @@ class Runner:
             self.model['terms'][:] = ()
             rdf.update_model_terms(self.model, sorted(triples))
 
+    def add_graph(self, filepath):
+        """Add graph and append triples to model terms."""
+        file_graph = rdf.graph_from_triples(())
+        file_graph.parse(filepath, format='ttl')
+
+        if self.model:
+            new_triples = sorted(
+                triple for triple in file_graph if triple not in self.graph
+            )
+            rdf.update_model_terms(self.model, new_triples)
+
+        for prefix, uri in file_graph.namespaces():
+            self.graph.bind(prefix, uri)
+        self.graph += file_graph
+
     def run(self, transforms):
         for tf in transforms:
             triples = tf.process(self.graph, self._iter_data(tf))
