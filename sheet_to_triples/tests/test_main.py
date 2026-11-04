@@ -253,7 +253,9 @@ class TestMain(fake_filesystem_unittest.TestCase):
     def test_main_add_graph_verbose(self):
         """Adding a graph should update the model and normalise after."""
         argv = [
-            'dummy', '--model', 'in.json', '--add-graph', 'bits.ttl',
+            'dummy', '--model', 'in.json',
+            '--add-graph', 'g1.ttl',
+            '--add-graph', 'g2.ttl',
             '--model-out', 'new.json', '-v'
         ]
         model = {
@@ -261,17 +263,25 @@ class TestMain(fake_filesystem_unittest.TestCase):
                 {'subj': 'http://a.test', 'pred': 'http://b.test', 'obj': 'c'}
             ]
         }
+        expected_model = {
+            'terms': [
+                {'subj': 'http://a.test', 'pred': 'http://b.test', 'obj': 'a'}
+            ]
+        }
         self.fs.create_file('in.json', contents=json.dumps(model))
-        self.fs.create_file('bits.ttl', contents=(
+        self.fs.create_file('g1.ttl', contents=(
             '<http://a.test> <http://b.test> "b" .\n'))
+        self.fs.create_file('g2.ttl', contents=(
+            '<http://a.test> <http://b.test> "a" .\n'))
 
         with mock.patch('sys.stdout', new_callable=io.StringIO) as stdout:
             main.main(argv)
 
         new_model = json.loads(self.fs.get_object('new.json').contents)
-        self.assertEqual(model, new_model)
+        self.assertEqual(expected_model, new_model)
         self.assertEqual(
             '# not retained 0 terms\n'
+            '# dropping <http://a.test> <http://b.test> c\n'
             '# dropping <http://a.test> <http://b.test> b\n',
             stdout.getvalue())
 
