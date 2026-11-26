@@ -3,12 +3,11 @@
 
 """Unittests for the rdf.py module of sheet-to-triples."""
 
-import io
 import json
 import unittest
-from unittest import mock
 
 import rdflib.term
+from rdflib.namespace import OWL, RDF
 
 from .. import rdf
 
@@ -176,143 +175,93 @@ class TestRDF(unittest.TestCase):
         ]
         self.assertEqual([t['obj'] for t in model['terms']], expected)
 
-    def _model_from_triples(self, triples):
-        terms = [{'subj': s, 'pred': p, 'obj': o} for s, p, o in triples]
-        return {'terms': terms}
+    def _graph(self, triples):
+        return rdf.graph_from_triples(
+            (rdflib.URIRef(s), rdflib.URIRef(p), o) for s, p, o in triples)
 
-    def _normalise_model(self, model, **kwargs):
-        # helper to run rdf.normalise_model without having to set every arg
-        default_norm_params = {
-                'from_ontology': False,
-                'non_uniques': set(),
-                'drop_duplicates': 'keep-newest',
-                'resolve_same': False,
-        }
-        if 'norm_params' in kwargs:
-            default_norm_params.update(kwargs['norm_params'])
-            del kwargs['norm_params']
-        default_args = {
-            'model': model,
-            'ns': self.namespace_manager,
-            'norm_params': default_norm_params,
-            'verbose': False,
-        }
-        rdf.normalise_model(**dict(default_args, **kwargs))
+    def _terms(self, triples):
+        return [{'subj': s, 'pred': p, 'obj': o} for s, p, o in triples]
 
-    def test_normalise_model_unique_predicate(self):
+    def test_terms_from_triples_ordering(self):
+        """Ordered by subject, predicate, then object, never by input."""
         triples = [
-            ('test_subj', 'test_pred', 'test_obj'),
-            ('test_subj', 'test_pred', 'test_obj2')
+            ('test_subj1', 'test_pred2', rdflib.Literal('test_obj')),
+            ('test_subj1', 'test_pred1', rdflib.Literal('test_obj2')),
+            ('test_subj2', 'test_pred1', rdflib.Literal('test_obj')),
+            ('test_subj1', 'test_pred1', rdflib.Literal('test_obj1')),
         ]
-        model = self._model_from_triples(triples)
-        with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            self._normalise_model(model)
-        # it should take the last recorded triple in the list
-        expected_triples = [
-            ('test_subj', 'test_pred', 'test_obj2'),
-        ]
-        self.assertEqual(model, self._model_from_triples(expected_triples))
-        self.assertRegex(fake_out.getvalue(), r'^# dropping .*$')
-
-    def test_normalise_model_unique_predicate_keep_oldest(self):
-        triples = [
-            ('test_subj', 'test_pred', 'test_obj'),
-            ('test_subj', 'test_pred', 'test_obj2')
-        ]
-        model = self._model_from_triples(triples)
-
-        with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            self._normalise_model(model, norm_params={'drop_duplicates': 'keep-oldest'})
-        # it should take the first recorded triple in the list
-        expected_triples = [
-            ('test_subj', 'test_pred', 'test_obj'),
-        ]
-        self.assertEqual(model, self._model_from_triples(expected_triples))
-        self.assertRegex(fake_out.getvalue(), r'^# dropping .*$')
-
-    def test_normalise_model_non_unique_predicate(self):
-        triples = [
-            ('test_subj', 'test_pred', 'test_obj'),
-            ('test_subj', 'test_pred', 'test_obj'),
-            ('test_subj', 'test_pred', 'test_obj2'),
-        ]
-        model = self._model_from_triples(triples)
-        self._normalise_model(model, norm_params={'non_uniques': {'test_pred'}})
-        # should allow multiple obj values for one predicate
-        expected_triples = [
-            ('test_subj', 'test_pred', 'test_obj'),
-            ('test_subj', 'test_pred', 'test_obj2'),
-        ]
-        self.assertEqual(model, self._model_from_triples(expected_triples))
-
-    def test_normalise_model_from_ontology(self):
-        # terms as read from JSON will have string versions of these IRIs
-        str_rdftype = str(rdflib.namespace.RDF['type'])
-        str_functionalproperty = str(rdflib.namespace.OWL['FunctionalProperty'])
-        triples = [
-            ('test_subj', 'test_pred', 'test_obj'),
-            ('test_subj', 'test_pred', 'test_obj2'),
-            ('test_subj', 'test_pred2', 'test_obj3'),
-            ('test_subj', 'test_pred2', 'test_obj4'),
-            ('test_pred', str_rdftype, str_functionalproperty),
-        ]
-        model = self._model_from_triples(triples)
-        with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            self._normalise_model(model, norm_params={'from_ontology': True})
-        # should only allow one obj value for test_pred, but multiple for test_pred2
-        expected_triples = [
-            ('test_pred', str_rdftype, str_functionalproperty),
-            ('test_subj', 'test_pred', 'test_obj2'),
-            ('test_subj', 'test_pred2', 'test_obj3'),
-            ('test_subj', 'test_pred2', 'test_obj4'),
-        ]
-        self.assertEqual(model, self._model_from_triples(expected_triples))
-        self.assertRegex(fake_out.getvalue(), r'^# dropping .*$')
-
-    def test_normalise_model_resolve_same(self):
-        triples = [
-            ('test_subj', 'test_pred', 'test_obj'),
-            ('test_subj', 'test_pred2', 'test_obj'),
-            ('test_subj', 'http://www.w3.org/2002/07/owl#sameAs',
-                'test_subj2'),
-            ('test_subj2', 'test_pred2', 'test_obj2'),
-        ]
-        model = self._model_from_triples(triples)
-        with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            self._normalise_model(model, norm_params={'resolve_same': True})
-        expected_triples = [
-            ('test_subj', 'test_pred', 'test_obj'),
-            ('test_subj', 'test_pred2', 'test_obj2'),
-        ]
-        self.assertEqual(model, self._model_from_triples(expected_triples))
-        self.assertRegex(fake_out.getvalue(), r'^# dropping .*$')
-
-    def test_normalise_model_comments_multiple_lines(self):
-        triples = [
-            ('subj', 'pred', rdflib.Literal('obj1\nobj2')),
-            ('subj', 'pred', rdflib.Literal('obj3')),
-        ]
-        model = self._model_from_triples(triples)
-        with mock.patch('sys.stdout', new=io.StringIO()) as fake_out:
-            self._normalise_model(model, norm_params={'resolve_same': True})
-        self.assertRegex(fake_out.getvalue(), r'^# dropping .*obj1\n#\s+obj2\n$')
-
-    def test_normalise_model_ordering(self):
-        triples = [
-            ('test_subj1', 'test_pred2', 'test_obj'),
-            ('test_subj1', 'test_pred1', 'test_obj2'),
-            ('test_subj2', 'test_pred1', 'test_obj'),
+        expected = self._terms([
             ('test_subj1', 'test_pred1', 'test_obj1'),
-        ]
-        model = self._model_from_triples(triples)
-        self._normalise_model(model, norm_params={'non_uniques': {'test_pred1'}})
-        expected_triples = [
             ('test_subj1', 'test_pred1', 'test_obj2'),
-            ('test_subj1', 'test_pred1', 'test_obj1'),
             ('test_subj1', 'test_pred2', 'test_obj'),
             ('test_subj2', 'test_pred1', 'test_obj'),
+        ])
+        for ordering in (triples, triples[::-1]):
+            with self.subTest(ordering=ordering):
+                terms = rdf.terms_from_triples(self._graph(ordering))
+                self.assertEqual(terms, expected)
+
+    def test_terms_from_triples_ordinal_first(self):
+        ordinal = str(rdf.VM.asOrdinal)
+        triples = [
+            ('http://a.test/1', 'p', rdflib.Literal('x')),
+            ('http://b.test/1', ordinal, rdflib.Literal('2')),
+            ('http://c.test/1', ordinal, rdflib.Literal('1.5')),
         ]
-        self.assertEqual(model, self._model_from_triples(expected_triples))
+        terms = rdf.terms_from_triples(self._graph(triples))
+        self.assertEqual(
+            [t['subj'] for t in terms],
+            ['http://c.test/1', 'http://b.test/1', 'http://a.test/1'])
+
+    def test_terms_from_triples_excludes_bnodes(self):
+        graph = rdf.graph_from_triples([
+            (rdflib.BNode(), rdflib.URIRef('p'), rdflib.Literal('o')),
+            (rdflib.URIRef('s'), rdflib.URIRef('p'), rdflib.BNode()),
+            (rdflib.URIRef('s'), rdflib.URIRef('p'), rdflib.Literal('o')),
+        ])
+        self.assertEqual(
+            rdf.terms_from_triples(graph), self._terms([('s', 'p', 'o')]))
+
+    def test_terms_from_triples_same_serialisation_once(self):
+        """Distinct rdflib terms that serialise the same give one term."""
+        graph = self._graph([
+            ('s', 'p', rdflib.Literal('http://o.test')),
+            ('s', 'p', rdflib.URIRef('http://o.test')),
+        ])
+        self.assertEqual(
+            rdf.terms_from_triples(graph),
+            self._terms([('s', 'p', 'http://o.test')]))
+
+    def test_terms_from_triples_language_tags(self):
+        graph = self._graph([('s', 'p', rdflib.Literal('o', lang='en'))])
+        self.assertEqual(
+            rdf.terms_from_triples(graph), self._terms([('s', 'p', '"o"@en')]))
+
+    def test_functional_properties(self):
+        graph = rdf.graph_from_triples([
+            (rdflib.URIRef('p1'), RDF.type, OWL.FunctionalProperty),
+            (rdflib.URIRef('p2'), RDF.type, OWL.ObjectProperty),
+        ])
+        self.assertEqual(
+            rdf.functional_properties(graph), {rdflib.URIRef('p1')})
+
+    def test_new_graph_namespace_bindings(self):
+        """Standalone graph has bindings, as used by other tools."""
+        graph = rdf._new_graph()
+        self.assertNotIsInstance(graph, rdflib.Dataset)
+        self.assertEqual(
+            dict(graph.namespaces())['vm'], rdflib.URIRef(str(rdf.VM)))
+
+    def test_graph_from_model_in_dataset(self):
+        dataset = rdf._new_dataset()
+        identifier = rdflib.URIRef('urn:test:g')
+        model = {'terms': [{'subj': 's', 'pred': 'p', 'obj': 'vm:o'}]}
+        graph = rdf.graph_from_model(
+            model, dataset=dataset, identifier=identifier)
+        self.assertEqual(graph.identifier, identifier)
+        self.assertEqual(
+            set(dataset.graph(identifier)),
+            {(rdflib.URIRef('s'), rdflib.URIRef('p'), rdf.VM.o)})
 
     def test_graph_from_triples(self):
         triples = [

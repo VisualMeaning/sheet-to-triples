@@ -133,11 +133,8 @@ def parse_args(argv):
 
 
 def run_runner(runner, args):
-    if args.add_graph:
-        for i, graph_to_add in enumerate(args.add_graph):
-            graph_id = rdf.VM[f'_graph_{i}_{graph_to_add}']
-            runner.dataset.graph(identifier=graph_id).parse(graph_to_add, format='ttl')
-        runner.set_terms(runner.dataset.triples((None, None, None)))
+    for g in args.add_graph or ():
+        runner.add_graph(g)
 
     if args.non_unique_from:
         runner.use_non_uniques(args.non_unique_from)

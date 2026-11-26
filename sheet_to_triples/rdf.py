@@ -12,6 +12,7 @@ import rdflib.term
 
 
 VM = rdflib.Namespace('http://visual-meaning.com/rdf/')
+GRAPH = rdflib.Namespace('http://visual-meaning.com/rdf/graph/')
 VMHE = VM['HE/']
 _ISSUES_PREFIX = VM['issues/']
 _USES_MAP_TILES = VM.usesMapTiles
@@ -79,10 +80,6 @@ def _norm(s, _w=re.compile(r'(?:(?<=\S)[^\S\n]+)')):
     return _w.sub(' ', s.replace('\r\n', '\n').replace('\u200b', ''))
 
 
-def _n3(uri, namespace_manager):
-    return rdflib.URIRef(uri).n3(namespace_manager)
-
-
 def from_qname(qname, resolver):
     prefix, tail = qname.split(':', 1)
     namespace = resolver(prefix)
@@ -115,24 +112,36 @@ def purge_terms(model, retain, verbose):
         print(f'# not retained {n_dropped} terms')
 
 
+def _bind_namespaces(graph):
+    graph.bind('vm', VM)
+    graph.bind('vmhe', VMHE)
+    graph.bind('foaf', rdflib.namespace.FOAF)
+    graph.bind('skos', rdflib.namespace.SKOS)
+    graph.bind('owl', rdflib.namespace.OWL)
+    graph.bind('gist', rdflib.Namespace('https://ontologies.semanticarts.com/gist/'))
+    return graph
+
+
+def _new_graph(identifier=None):
+    return _bind_namespaces(rdflib.Graph(identifier=identifier))
+
+
 def _new_dataset():
-    d = rdflib.Dataset(default_union=True)
-    d.bind('vm', VM)
-    d.bind('vmhe', VMHE)
-    d.bind('foaf', rdflib.namespace.FOAF)
-    d.bind('skos', rdflib.namespace.SKOS)
-    d.bind('owl', rdflib.namespace.OWL)
-    d.bind('gist', rdflib.Namespace('https://ontologies.semanticarts.com/gist/'))
-    return d
+    return _bind_namespaces(rdflib.Dataset(default_union=True))
 
 
-def graph_from_model(model, dataset=None, identifier=VM._graph):
+def _graph_in(dataset, identifier):
     if dataset is None:
-        dataset = _new_dataset()
-    g = dataset.graph(identifier=identifier)
+        return _new_graph(identifier)
+    return dataset.graph(identifier=identifier)
+
+
+def graph_from_model(model, dataset=None, identifier=None):
+    g = _graph_in(dataset, identifier)
     resolver = Resolver.from_graph(g)
-    for term in model['terms']:
-        g.add(_cast_from_term(term, resolver.from_identifier))
+    g.addN(
+        _cast_from_term(term, resolver.from_identifier) + (g,)
+        for term in model['terms'])
     return g
 
 
@@ -171,87 +180,46 @@ def _with_int_maybe(iri):
         return (iri,)
 
 
-def _to_key(t, predicates, from_ontology):
-    if (not from_ontology and t['pred'] in predicates) or \
-        (from_ontology and t['pred'] not in predicates):
-        return t['subj'], t['pred'], t['obj']
-    return t['subj'], t['pred']
+def functional_properties(graph):
+    return set(graph.subjects(
+        rdflib.namespace.RDF.type, rdflib.namespace.OWL.FunctionalProperty))
 
 
-def _obj_for_print(obj):
-    """Comment out all lines of newline separated string."""
-    if not isinstance(obj, rdflib.Literal):
-        return obj
-    return '\n#  '.join(str(obj).splitlines())
+def terms_from_triples(triples):
+    """Serialise graph or triples as model terms, in an order:
+    vm:asOrdinal of the subject, then subject, predicate and object.
 
-
-def _functional_properties(model):
-    owl = rdflib.namespace.OWL
-    rdf = rdflib.namespace.RDF
-    uniques = set()
-    # going through whole model again to do this is expensive
-    for t in model['terms']:
-        if t['pred'] == str(rdf['type']) and t['obj'] == str(owl['FunctionalProperty']):
-            uniques.add(t['subj'])
-    return uniques
-
-
-def normalise_model(model, ns, norm_params, verbose):
-    terms = model['terms']
-    # Record subjects that have been renamed so triples can be moved over
-    same = {}
-    if norm_params['resolve_same']:
-        sameAs = rdflib.namespace.OWL.sameAs.toPython()
-        for i in reversed(range(len(terms))):
-            t = terms[i]
-            if t['pred'] == sameAs:
-                same[t['obj']] = t['subj']
-                if verbose:
-                    print('# aliasing {o} => {s}'.format(
-                        s=_n3(t['subj'], ns), o=_n3(t['obj'], ns)))
-                del terms[i]
-
-    from_onto = norm_params['from_ontology']
-    norm_preds = norm_params['non_uniques'] if not from_onto \
-                 else _functional_properties(model)
-
-    # While multiple objects for a subject, predicate are generally fine
-    # Our model asserts uniqueness, so discard older values.
-    by_key = {}
-    iter_terms = reversed(terms) if norm_params['drop_duplicates'] == 'keep-oldest' \
-                 else terms
-    for t in iter_terms:
-        for k in ('subj', 'pred', 'obj'):
-            if t[k] in same:
-                t[k] = same[t[k]]
-        key = _to_key(t, norm_preds, from_onto)
-        if key in by_key and (verbose or by_key[key]['obj'] != t['obj']):
-            print('# dropping {s} {p} {o}'.format(
-                s=_n3(key[0], ns),
-                p=_n3(key[1], ns),
-                o=_obj_for_print(by_key[key]['obj'])
-            ))
-        by_key[key] = t
+    Triples with blank nodes are left out, as terms cannot express them.
+    """
+    terms = {
+        (str(s), str(p), _maybe_from_literal(o))
+        for s, p, o in triples
+        if not _maybe_bnode(s, p, o)
+    }
 
     order_pred = VM.asOrdinal.toPython()
-    no_order = {'obj': 'Inf'}
+    no_order = float('Inf')
+    ordinals = {}
+    for subj, pred, obj in terms:
+        if pred == order_pred:
+            ordinals[subj] = min(float(obj), ordinals.get(subj, no_order))
 
     def term_sort_key(term):
-        """Sort key for term, closed over by_key term index."""
         return (
-            float(by_key.get((term['subj'], order_pred), no_order)['obj']),
-            _with_int_maybe(term['subj']),
-            term['pred'],
+            ordinals.get(term[0], no_order),
+            _with_int_maybe(term[0]),
+            term[1],
+            term[2],
         )
 
-    # Produce stable output order for terms (with some extra hacks)
-    model['terms'] = sorted(by_key.values(), key=term_sort_key)
+    return [
+        dict(subj=s, pred=p, obj=o)
+        for s, p, o in sorted(terms, key=term_sort_key)
+    ]
 
 
-def graph_from_triples(triples, dataset=None, identifier=VM._graph):
-    if dataset is None:
-        dataset = _new_dataset()
-    g = dataset.graph(identifier=identifier)
+def graph_from_triples(triples, dataset=None, identifier=None):
+    g = _graph_in(dataset, identifier)
     for triple in triples:
         g.add(triple)
     return g
