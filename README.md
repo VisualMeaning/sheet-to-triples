@@ -59,6 +59,24 @@ Would be nice to just have an 'identity' transform, but the lack of clarity betw
 
 The tool looks for transform files inside the directory path specified by the `TRANSFORMS_DIR` environment variable. If unset, this will default to a folder called `transforms` inside the current working directory.
 
+### Merging and precedence
+
+Each input is kept as its own named graph, ranked from lowest to highest precedence:
+
+1. the existing `--model` content, after `--purge-except`
+2. each `--add-graph` file, in the order given on the command line
+3. each transform's output, in the order the transforms run
+
+Transforms read from the union of the model and added graphs, and do not see the output of other transforms.
+
+At the end, all graphs are merged into the output model in one step. For a unique predicate, the value from the highest ranked graph that has one wins, so a later `--add-graph` overrides an earlier one and a transform overrides both. `--drop-duplicates keep-oldest` reverses the ranking. Other predicates get the union of all graphs, and a triple appearing in several graphs appears once. Replaced values are reported as `# dropped` comments naming the graphs involved.
+
+A single graph giving several values for one unique subject and predicate contradicts itself, as triples within a graph have no order. That is reported as a `# warning` naming the graph, and the run carries on, picking one of the values deterministically. Don't rely on which one: fix the input instead, for instance by using `conds` in a transform to choose between columns.
+
+The order of terms in the output model is only for presentation (by `vm:asOrdinal`, then subject, predicate, and object) and plays no part in which values win.
+
+The merge itself is the `sheet_to_triples.merge.merge` function, which works on plain rdflib graphs and returns conflicts as data, so it can be used without the command line.
+
 ### Transform shape
 
 The initial idea for the transform format was to just have data as triples, and use a little custom string interpolation using Python format strings for all logic. In use, this expanded to include means to bind variables and queries.
@@ -90,7 +108,7 @@ The top level attributes of a transform are:
   Output triples to create and be added to model.
 * `non_unique: List[str_predicate, ...]`
 
-  Normally triples are assumed unique for the first two items in each triple (subject predicate). If multiple triples have the same subject-predicate pairing, the oldest triple will be dropped and replaced with the newest one. By adding a predicate to `non_unique` it is treated as non-unique, and only duplicates of the full `(subject, predicate, object)` triple will be dropped.
+  Normally triples are assumed unique for the first two items in each triple (subject predicate). If multiple graphs give the same subject-predicate pairing, the value from the highest ranked graph is kept (see [Merging and precedence](#merging-and-precedence)). Within one transform's output there is no order, so a transform giving several values for the pairing gets a warning. By adding a predicate to `non_unique` it is treated as non-unique, and only duplicates of the full `(subject, predicate, object)` triple will be dropped.
 * `allow_empty_subject: bool`
 
   By default, an exception is raised if any triple does not have a subject. If this flag is set to `True` instead that triple is just omitted from the output.

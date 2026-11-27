@@ -7,6 +7,7 @@ import io
 import json
 import os
 
+import rdflib
 from pyfakefs import fake_filesystem_unittest
 from unittest import mock
 
@@ -219,7 +220,7 @@ class TestMain(fake_filesystem_unittest.TestCase):
 
     def test_main_run_transform_save_model(self):
         argv = ['dummy', 'transform1', '--model-out', 'new.json']
-        triples = [('a', 'b', 'c')]
+        triples = [(rdflib.URIRef('a'), rdflib.URIRef('b'), rdflib.Literal('c'))]
         transform = StubSingleTransform('transform1', triples=triples)
 
         with mock.patch(_Transform, new=transform):
@@ -251,7 +252,7 @@ class TestMain(fake_filesystem_unittest.TestCase):
         )
 
     def test_main_add_graph_verbose(self):
-        """Adding a graph should update the model and normalise after."""
+        """Added graph overrides the model, reporting where values were from."""
         argv = [
             'dummy', '--model', 'in.json', '--add-graph', 'bits.ttl',
             '--model-out', 'new.json', '-v'
@@ -269,11 +270,34 @@ class TestMain(fake_filesystem_unittest.TestCase):
             main.main(argv)
 
         new_model = json.loads(self.fs.get_object('new.json').contents)
-        self.assertEqual(model, new_model)
+        self.assertEqual(new_model, {
+            'terms': [
+                {'subj': 'http://a.test', 'pred': 'http://b.test', 'obj': 'b'}
+            ]
+        })
         self.assertEqual(
             '# not retained 0 terms\n'
-            '# dropping <http://a.test> <http://b.test> b\n',
+            '# dropped <http://a.test> <http://b.test> c\n'
+            '#   from model/0/in.json, kept from add-graph/1/bits.ttl: b\n',
             stdout.getvalue())
+
+    def test_main_add_graph_order(self):
+        """Later --add-graph wins, whatever the lexical order of files."""
+        self.fs.create_file('z.ttl', contents=(
+            '<http://a.test> <http://b.test> "z" .\n'))
+        self.fs.create_file('a.ttl', contents=(
+            '<http://a.test> <http://b.test> "a" .\n'))
+        for first, second in (('z.ttl', 'a.ttl'), ('a.ttl', 'z.ttl')):
+            with self.subTest(first=first, second=second):
+                argv = [
+                    'dummy', '--add-graph', first, '--add-graph', second,
+                    '--model-out', 'new.json',
+                ]
+                with mock.patch('sys.stdout', new_callable=io.StringIO):
+                    main.main(argv)
+                new_model = json.loads(self.fs.get_object('new.json').contents)
+                self.assertEqual(
+                    [t['obj'] for t in new_model['terms']], [second[0]])
 
     def test_run_runner_non_unique_from(self):
         argv = ['dummy', '--non-unique-from', 'list.txt']
